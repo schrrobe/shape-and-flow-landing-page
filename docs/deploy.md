@@ -1,184 +1,201 @@
 # Deployment auf den Hostinger VPS
 
-## Wie die Seite ausgeliefert wird
+Drei Umgebungen, drei Container, ein nginx davor. Gebaut wird ausschließlich in GitHub Actions;
+auf dem Server ist nicht einmal Node installiert.
 
-Hybrid. Es läuft ein Node-Prozess, aber **jede Seite wird beim Build fertig gerendert**
-(`routeRules: { '/**': { prerender: true } }` in `nuxt.config.ts`). Suchmaschinen und KI-Agenten
-bekommen also vollständiges HTML ohne Rendering pro Aufruf, und `server/api/` bleibt für später
-verfügbar, etwa für ein Kontaktformular. Am Rendering muss sich dafür nichts ändern.
+| Umgebung | Adresse | Zugriff | Port (nur `127.0.0.1`) | Verzeichnis auf dem Server |
+| --- | --- | --- | --- | --- |
+| production | `shapeandflow.de` (`www.` → 301) | öffentlich | 8090 | `/opt/landing/production` |
+| stage | `stage.shapeandflow.de` | Basic Auth | 8091 | `/opt/landing/stage` |
+| dev | `dev.shapeandflow.de` | Basic Auth | 8092 | `/opt/landing/dev` |
 
-Der Build erzeugt zwei Dinge unter `.output/`:
+Die Booking-App liegt auf derselben Maschine unter `buchung.shapeandflow.de` und benutzt dieselbe
+Mechanik mit eigenen Ports. Die Serverdokumentation dazu steht in `/opt/README.md` auf dem VPS.
 
-| Verzeichnis | Inhalt | Wer liefert es aus |
+## Was wann deployt
+
+```
+Feature-Branch ──PR──► fusion ─────────────────► dev
+                          │
+                          └──PR──► main ────────► stage
+                                     │
+                                     └─ release-please schneidet ein Release ──► production
+```
+
+Ein Merge nach `main` deployt stage und lässt release-please eine stehende Release-PR
+aktualisieren, in der sich die Conventional Commits sammeln. Produktion bewegt sich erst, wenn
+diese PR gemergt wird: dann entstehen Tag, GitHub-Release und CHANGELOG, und derselbe Lauf
+deployt.
+
+Damit ist Produktion ein bewusster Schritt und kein Nebeneffekt eines Merges — und die
+Versionsnummer sagt, was live steht.
+
+## Wie die Seite gebaut und ausgeliefert wird
+
+Hybrid: es läuft ein Node-Prozess, aber **jede Seite wird beim Build fertig gerendert**
+(`routeRules: { '/**': { prerender: true } }`). Suchmaschinen und KI-Agenten bekommen
+vollständiges HTML ohne Rendering pro Aufruf, und `server/api/` bleibt für später verfügbar, etwa
+für ein Kontaktformular.
+
+Anders als früher liefert nginx keine Dateien mehr selbst aus, sondern reicht alles an den
+Container weiter. Nitro liefert die vorgerenderten Seiten und die vorkomprimierten `.br`-/`.gz`-
+Varianten aus, die `compressPublicAssets` beim Build erzeugt hat. Der Unterschied gegenüber
+`try_files` ist bei dieser Seitengröße nicht messbar, dafür gibt es nur noch einen Ort, an dem
+etwas ausgeliefert wird, und ein Rollback tauscht ein Image statt eines Verzeichnisses.
+
+### Ein Image pro Umgebung
+
+Das Prerendern schreibt die absolute Adresse fest ins HTML: Canonicals, Sitemap, OG-Bilder,
+Structured Data, `llms.txt`. Ein Image kann deshalb **nicht** durch die Stufen wandern. Jede
+Umgebung wird mit eigenen Build-Argumenten gebaut:
+
+| Umgebung | `NUXT_SITE_URL` | `NUXT_SITE_ENV` |
 | --- | --- | --- |
-| `.output/public/` | vorgerenderte HTML-Seiten, Bilder, Schriften, OG-Bilder, `sitemap.xml`, `robots.txt`, `llms.txt` | nginx direkt |
-| `.output/server/` | der Node-Server | nur für alles, was nicht als Datei existiert |
+| production | `https://shapeandflow.de` | `production` |
+| stage | `https://stage.shapeandflow.de` | `staging` |
+| dev | `https://dev.shapeandflow.de` | `staging` |
 
-## Bauen
+Was daraus folgt und was man wissen muss:
 
-```bash
-npm ci
-NUXT_SITE_ENV=production npm run build
-```
+- Identisch zwischen den Stufen ist der **Commit**, nicht das Artefakt. Was auf stage getestet
+  wurde, wird für Produktion neu gebaut.
+- `NUXT_SITE_ENV=staging` liefert `Disallow: /` in der `robots.txt`. Der Smoke-Test im Deploy
+  prüft das in beide Richtungen — auch, dass Produktion sich *nicht* aussperrt.
+- Auf stage und dev ist die **Sitemap leer**. Das ist kein Fehler: `nuxt-sitemap` lässt Routen
+  weg, die auf `noindex` stehen, und das sind bei `Disallow: /` alle.
+- `nuxt.config.ts` löst die Adresse einmal in `siteUrl` auf. `NUXT_SITE_URL` allein erreicht nur
+  `nuxt-site-config`; `schemaOrg` und `llms` lesen den Literal aus `shared/site.ts` und stünden
+  sonst auf stage und dev weiterhin auf der Produktionsdomain.
 
-Für die Dev-Instanz zusätzlich die Adresse überschreiben, damit Canonicals und Sitemap stimmen:
+Der Build geht ins Netz: `@nuxt/fonts` holt Playfair Display bei Google und legt sie lokal ab,
+`nuxt-link-checker` prüft die internen Links. Ohne Egress schlägt er fehl — ein toter interner
+Link fällt also beim Bauen auf.
 
-```bash
-NUXT_SITE_ENV=staging NUXT_SITE_URL=https://dev.shapeandflow.de npm run build
-```
+Gebaut wird ausdrücklich für `linux/amd64`. `sharp` und der OG-Renderer legen native Binärdateien
+ins Image, und der VPS ist x86_64; ein auf einem Apple-Silicon-Mac gebautes Image startet dort
+nicht.
 
-`NUXT_SITE_ENV=staging` sorgt dafür, dass `robots.txt` dort `Disallow: /` ausliefert. Ohne diese
-Variable konkurriert die Dev-Instanz im Google-Index mit der Produktion.
-
-Der Build lässt `nuxt-link-checker` mitlaufen: ein toter interner Link fällt beim Bauen auf und
-nicht erst im Livebetrieb.
-
-## Wichtig: auf dem Server bauen, nicht lokal
-
-`sharp` (Bildverarbeitung) und der OG-Image-Renderer bringen plattformspezifische Binärdateien mit.
-Auf einem Mac erzeugte `node_modules` funktionieren auf einem Linux-VPS nicht. Also entweder direkt
-auf dem Server bauen oder in einem CI-Job mit derselben Architektur wie der VPS.
-
-Ablauf auf dem Server:
+## Lokal nachvollziehen
 
 ```bash
-cd /var/www/shapeandflow.de
-git pull
-npm ci
-NUXT_SITE_ENV=production npm run build
-sudo systemctl restart shapeandflow
+docker build \
+  --build-arg NUXT_SITE_URL=https://stage.shapeandflow.de \
+  --build-arg NUXT_SITE_ENV=staging \
+  -t sf-landing:test .
+
+docker run --rm -p 8090:3000 sf-landing:test
+curl -s http://127.0.0.1:8090/robots.txt          # Disallow: /
+curl -s http://127.0.0.1:8090/ | grep canonical   # stage.shapeandflow.de
 ```
 
-## systemd-Service
+## Deployen von Hand
 
-`/etc/systemd/system/shapeandflow.service`:
-
-```ini
-[Unit]
-Description=Shape and Flow Website
-After=network.target
-
-[Service]
-Type=simple
-User=www-data
-WorkingDirectory=/var/www/shapeandflow.de
-ExecStart=/usr/bin/node .output/server/index.mjs
-Environment=NODE_ENV=production
-Environment=NITRO_PORT=3000
-Environment=NITRO_HOST=127.0.0.1
-Restart=always
-RestartSec=5
-
-[Install]
-WantedBy=multi-user.target
-```
-
-`NITRO_HOST=127.0.0.1` ist wichtig: der Node-Prozess soll ausschließlich lokal erreichbar sein, nach
-außen spricht nginx. Ohne diese Zeile hört Node auf allen Interfaces und ist unter Port 3000 direkt
-aus dem Internet erreichbar, ohne TLS und ohne die nginx-Regeln.
+Der Regelfall ist ein Merge. Für Redeploy, ersten Start oder Rollback:
 
 ```bash
-sudo systemctl daemon-reload
-sudo systemctl enable --now shapeandflow
-sudo systemctl status shapeandflow
+gh workflow run deploy.yml -f env_name=stage
+gh workflow run deploy.yml --ref mein-branch -f env_name=dev    # dev aus jedem Branch
+gh workflow run deploy.yml -f env_name=production -f image_tag=<tag>
 ```
 
-Die Dev-Instanz bekommt eine zweite Unit mit eigenem `WorkingDirectory` und `NITRO_PORT=3001`.
+Dev lässt sich aus jedem Branch deployen, stage und production nur aus `main` — der Workflow
+lehnt alles andere ab, bevor er baut.
 
-## nginx
+### Rollback
 
-```nginx
-server {
-    listen 443 ssl;
-    http2 on;
-    server_name shapeandflow.de;
-
-    ssl_certificate     /etc/letsencrypt/live/shapeandflow.de/fullchain.pem;
-    ssl_certificate_key /etc/letsencrypt/live/shapeandflow.de/privkey.pem;
-
-    root /var/www/shapeandflow.de/.output/public;
-
-    gzip on;
-    gzip_types text/css application/javascript image/svg+xml application/xml text/plain;
-
-    # Dateinamen sind gehasht, der Browser darf sie also dauerhaft behalten.
-    location ~* ^/(_nuxt|_fonts|_ipx|_og|_og-static-fonts)/ {
-        expires 1y;
-        add_header Cache-Control "public, immutable";
-        try_files $uri =404;
-    }
-
-    location /images/ {
-        expires 30d;
-        add_header Cache-Control "public";
-        try_files $uri =404;
-    }
-
-    # Erst die vorgerenderte Datei, sonst der Node-Server.
-    location / {
-        try_files $uri $uri.html $uri/index.html @node;
-    }
-
-    location @node {
-        proxy_pass http://127.0.0.1:3000;
-        proxy_http_version 1.1;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-    }
-}
-
-# www und HTTP auf die kanonische Adresse umleiten.
-server {
-    listen 443 ssl;
-    http2 on;
-    server_name www.shapeandflow.de;
-    ssl_certificate     /etc/letsencrypt/live/shapeandflow.de/fullchain.pem;
-    ssl_certificate_key /etc/letsencrypt/live/shapeandflow.de/privkey.pem;
-    return 301 https://shapeandflow.de$request_uri;
-}
-
-server {
-    listen 80;
-    server_name shapeandflow.de www.shapeandflow.de;
-    return 301 https://shapeandflow.de$request_uri;
-}
-```
-
-Die `try_files`-Zeile ist der Kern des hybriden Aufbaus: eine vorgerenderte Seite kommt als Datei und
-erreicht Node nie, alles Andere geht an Node.
-
-Die Weiterleitung von `www` ist nicht Kosmetik. Ohne sie ist dieselbe Seite unter zwei Adressen
-erreichbar, und Google muss raten, welche zählt. Das Zertifikat muss beide Namen abdecken:
+Die Tags sind `<commit-sha>-<umgebung>`. Welche es gibt, steht unter *Packages* am Repository;
+welcher gerade läuft, steht auf dem Server:
 
 ```bash
-sudo certbot --nginx -d shapeandflow.de -d www.shapeandflow.de
+ssh robert@186.240.146.22 'cat /opt/landing/production/.env.production'
+gh workflow run deploy.yml -f env_name=production -f image_tag=abc1234…-production
 ```
+
+Mit gesetztem `image_tag` entfällt der Build und das benannte Image wird gezogen und gestartet.
+
+## Server einrichten
+
+Einmalig, mit `sudo`. Der Deploy-Benutzer hat bewusst keins: er soll Container starten können und
+sonst nichts.
+
+```bash
+ssh-keygen -t ed25519 -C "gha-landing" -f ./landing_deploy -N ""
+cp landing_deploy.pub infrastructure/
+
+scp -r infrastructure robert@186.240.146.22:/tmp/landing-infra
+ssh -t robert@186.240.146.22 \
+  'sudo bash /tmp/landing-infra/provision.sh --deploy-key /tmp/landing-infra/landing_deploy.pub'
+```
+
+Das Skript legt `/opt/landing/{production,stage,dev}` an, ergänzt den Schlüssel in
+`/home/deploy/.ssh/authorized_keys`, holt die Zertifikate für stage und dev und spielt deren
+Vhosts aus `infrastructure/nginx/` ein. Es ist wiederholbar.
+
+Den Produktions-Vhost fasst es dabei **nicht** an — `shapeandflow.de` liefert weiter den
+statischen Platzhalter aus, sonst stünde die Domain bis zum ersten Prod-Deploy auf 502. Nach dem
+ersten Release:
+
+```bash
+ssh -t robert@186.240.146.22 'sudo bash /tmp/landing-infra/provision.sh --with-production'
+sudo rm -rf /var/www/shapeandflow          # der Platzhalter, jetzt unreferenziert
+```
+
+Danach den privaten Schlüssel lokal löschen; er liegt ab dann nur noch als Repository-Secret.
+
+### Was in GitHub hinterlegt sein muss
+
+| Ort | Name | Wert |
+| --- | --- | --- |
+| Variable | `DEPLOY_HOST` | `186.240.146.22` |
+| Variable | `DEPLOY_USER` | `deploy` |
+| Variable | `SSH_KNOWN_HOSTS` | Ausgabe von `ssh-keyscan -t ed25519 186.240.146.22` |
+| Secret | `SSH_PRIVATE_KEY` | der private Teil des Schlüssels von oben |
+| Environments | `dev`, `stage`, `production` | für stage und production Branch-Policy `main` |
+
+`SSH_KNOWN_HOSTS` ist absichtlich eine Variable und kein Secret: der Hostkey ist öffentliche
+Information, als Secret wäre er in genau den Logzeilen zu `***` maskiert, die man bei einem
+SSH-Fehler lesen muss.
+
+Zusätzlich muss unter *Settings → Actions → General* erlaubt sein, dass Actions Pull Requests
+anlegen — sonst kann release-please seine Release-PR nicht öffnen.
 
 ## Nach dem Ausrollen prüfen
 
+Der Deploy prüft sich selbst auf dem Server (`/`, `/sitemap.xml`, `/llms.txt`, `/robots.txt` und
+die Indexierbarkeit passend zur Umgebung) und schlägt fehl, wenn etwas davon nicht stimmt. Von
+außen zusätzlich:
+
 ```bash
 curl -sI https://shapeandflow.de/ | head -1                     # 200
-curl -s  https://shapeandflow.de/robots.txt                     # Sitemap-Zeile, kein Disallow: /
-curl -s  https://shapeandflow.de/sitemap.xml | grep -c "<loc>"  # 11
-curl -s  https://shapeandflow.de/llms.txt | head -3
-curl -sI https://shapeandflow.de/jeveauxeffect | head -1        # 200, kommt aus der Datei
 curl -sI https://www.shapeandflow.de/ | head -1                 # 301
-curl -s  https://dev.shapeandflow.de/robots.txt                 # muss Disallow: / enthalten
+curl -s  https://shapeandflow.de/robots.txt                     # Sitemap-Zeile, kein Disallow: /
+curl -s  https://shapeandflow.de/sitemap.xml | grep -o "<loc>" | wc -l   # 11
+curl -sI https://shapeandflow.de/jeveauxeffect | head -1        # 200
+
+curl -sI https://stage.shapeandflow.de/ | head -1               # 401 ohne Zugangsdaten
+curl -s -u robert:… https://stage.shapeandflow.de/robots.txt    # Disallow: /
 ```
 
-Impressum und Datenschutz stehen absichtlich nicht in der Sitemap: sie sind auf `noindex` gesetzt,
-bleiben aber verlinkt und erreichbar.
+Impressum und Datenschutz stehen absichtlich nicht in der Sitemap: sie sind auf `noindex`
+gesetzt, bleiben aber verlinkt und erreichbar.
 
 ## Wenn etwas nicht läuft
 
 ```bash
-sudo systemctl status shapeandflow
-sudo journalctl -u shapeandflow -n 50 --no-pager
+ssh robert@186.240.146.22
+cd /opt/landing/production
+docker compose --env-file .env.production -f docker-compose.prod.yml ps
+docker compose --env-file .env.production -f docker-compose.prod.yml logs --tail=200
+
 sudo nginx -t
+sudo tail -50 /var/log/nginx/landing_production.error.log
 ```
 
-Eine 502 bedeutet fast immer, dass der Node-Prozess nicht läuft oder auf einem anderen Port hört als
-im `proxy_pass` steht. Eine 404 auf einer Seite, die es geben müsste, bedeutet meist, dass der Build
-nicht durchgelaufen ist und `.output/public/` noch den alten Stand enthält.
+- **502** heißt, der Container läuft nicht oder hört auf einem anderen Port als im `upstream`
+  steht. `docker ps --filter name=sf-landing` zeigt, was tatsächlich läuft.
+- **401 auf Produktion** wäre ein versehentlich kopierter `auth_basic`-Block.
+- **Deploy hängt bei `up -d --wait`** heißt, der HEALTHCHECK wird nicht grün. Die Logs des
+  Containers stehen im fehlgeschlagenen Actions-Lauf, der sie bei Fehlschlag mit ausgibt.
+- **Zertifikat abgelaufen**: `sudo certbot certificates` zeigt die Restlaufzeiten,
+  `sudo certbot renew --dry-run` prüft, ob die Verlängerung funktioniert. Häufigste Ursache ist
+  eine `/.well-known/acme-challenge/`-Location, die hinter Basic Auth gerutscht ist.

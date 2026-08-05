@@ -1,0 +1,21 @@
+# Was nicht in den Build-Kontext gehört. Zwei Gründe: Geschwindigkeit (node_modules allein sind
+# einige hundert Megabyte, die sonst bei jedem Build zum Daemon wandern) und Korrektheit —
+# .output aus einem lokalen macOS-Build würde im Image die frisch gebaute Linux-Fassung
+# überschreiben, samt der falschen nativen Binärdateien.
+
+node_modules/
+.nuxt/
+.output/
+dist/
+
+.git/
+.gitignore
+
+docs/
+README.md
+
+.claude/
+.tokensave/
+
+.DS_Store
+*.log

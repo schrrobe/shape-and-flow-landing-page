@@ -17,7 +17,7 @@ grep -rn "TODO" shared/ app/ --include="*.ts" --include="*.vue"
 | `kontakt.telefonAnzeige` | Dieselbe Nummer lesbar formatiert, etwa `+49 231 1234567`. |
 | `kontakt.whatsapp` | Nummer nur als Ziffern mit Ländervorwahl, etwa `4915112345678`. Ohne Plus und ohne Leerzeichen, sonst funktioniert der `wa.me`-Link nicht. |
 | `kontakt.email` | Echte Adresse. Aktuell steht `hallo@shapeandflow.de` als Annahme drin. |
-| `kontakt.buchungUrl` | Adresse der Booking-App. Aktuell `https://booking.shapeandflow.de` als Annahme. |
+| `kontakt.buchungUrl` | Adresse der Booking-App. Aktuell `https://booking.shapeandflow.de` als Annahme — der Server bedient aber `buchung.shapeandflow.de`, der Link geht also derzeit ins Leere. |
 | `kontakt.instagram` | Profiladresse oder auf `null` lassen. |
 
 Diese sechs Werte sind der Grund, warum die Seite noch nicht live gehen sollte: die
@@ -54,8 +54,9 @@ Name der Inhaberin, dazu Anbieter und Standort des Hostings (Hostinger, Land des
 2. Google-Unternehmensprofil anlegen. Für ein lokales Studio bringt das mehr Sichtbarkeit als jede
    Änderung auf der Website. Name, Adresse und Telefonnummer müssen dort zeichengleich mit
    `shared/site.ts` übereinstimmen.
-3. Prüfen, dass `dev.shapeandflow.de` nicht im Index landet: `https://dev.shapeandflow.de/robots.txt`
-   muss `Disallow: /` enthalten. Das passiert automatisch, wenn der Dev-Build mit
-   `NUXT_SITE_ENV=staging` läuft (siehe `docs/deploy.md`).
+3. Prüfen, dass `stage.shapeandflow.de` und `dev.shapeandflow.de` nicht im Index landen. Beide
+   stehen hinter Basic Auth und werden mit `NUXT_SITE_ENV=staging` gebaut, liefern also
+   `Disallow: /`. Der Deploy prüft das bei jedem Lauf selbst (siehe `docs/deploy.md`); ein Blick
+   auf `https://dev.shapeandflow.de/robots.txt` bestätigt es.
 4. Structured Data stichprobenartig mit dem Rich-Results-Test von Google prüfen, insbesondere
    `/preise` (Angebote) und `/faq` (Fragen).
