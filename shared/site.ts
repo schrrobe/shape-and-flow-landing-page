@@ -1,0 +1,82 @@
+/*
+ * Every business fact the site states, in one place.
+ *
+ * The pages read from here and so does the structured data, which is the point: a phone number
+ * that appears in the footer, in the WhatsApp link and in the LocalBusiness JSON-LD is one
+ * string, not three that can drift apart.
+ *
+ * Values marked TODO are placeholders and must be replaced before launch — see
+ * docs/launch-checklist.md. Grep for "TODO" to find them all.
+ */
+
+export const site = {
+  name: 'Shape & Flow',
+  /** Used where the ampersand would need escaping or reads badly, e.g. in URLs and alt text. */
+  nameAscii: 'Shape and Flow',
+  tagline: 'Brasilianische Lymphdrainage in Dortmund',
+  url: 'https://shapeandflow.de',
+} as const
+
+export const adresse = {
+  strasse: 'Preinstraße 61',
+  plz: '44265',
+  ort: 'Dortmund',
+  land: 'DE',
+  /** Dortmund-Wellinghofen/Hacheney, im Süden der Stadt — für Ortsbezug in Texten. */
+  stadtteil: 'Dortmund-Süd',
+} as const
+
+export const kontakt = {
+  /** TODO: echte Telefonnummer eintragen (E.164 ohne Leerzeichen für tel:-Links). */
+  telefon: '+490000000000',
+  /** TODO: dieselbe Nummer lesbar formatiert für die Anzeige. */
+  telefonAnzeige: '+49 000 000000',
+  /** TODO: WhatsApp-Nummer, nur Ziffern mit Ländervorwahl, für wa.me. */
+  whatsapp: '490000000000',
+  /** TODO: echte E-Mail-Adresse eintragen. */
+  email: 'hallo@shapeandflow.de',
+  /** TODO: URL der Booking-App eintragen. */
+  buchungUrl: 'https://booking.shapeandflow.de',
+  /** TODO: Instagram-Profil eintragen oder auf null setzen, dann wird der Link ausgeblendet. */
+  instagram: null as string | null,
+} as const
+
+/**
+ * Keine erfundenen Öffnungszeiten: das Studio arbeitet auf Termin, und das ist auch die
+ * Aussage, die in der Website und im Structured Data steht.
+ */
+export const oeffnungszeiten = {
+  modus: 'termin' as const,
+  hinweis: 'Termine nach Vereinbarung',
+}
+
+export const whatsappText
+  = 'Hallo, ich interessiere mich für eine Behandlung bei Shape & Flow und hätte gern einen Termin.'
+
+/** Fertiger wa.me-Link inklusive vorformulierter Nachricht. */
+export const whatsappUrl
+  = `https://wa.me/${kontakt.whatsapp}?text=${encodeURIComponent(whatsappText)}`
+
+export const telUrl = `tel:${kontakt.telefon}`
+
+export const mailtoUrl = `mailto:${kontakt.email}`
+
+/** Google-Maps-Suchlink statt Karten-Embed: kein Drittanbieter-Skript, keine Einwilligung nötig. */
+export const kartenUrl = `https://www.google.com/maps/search/?api=1&query=${
+  encodeURIComponent(`${adresse.strasse}, ${adresse.plz} ${adresse.ort}`)
+}`
+
+/** Der Lizenzhinweis, der auf jeder Seite mit Markennennung stehen muss. */
+export const markenhinweis
+  = 'Jeveauxeffect® und Jeveauxeffect Face® sind eingetragene Marken der Jeveaux Company®. '
+    + 'Shape & Flow ist lizenzierter Partner der Jeveaux Company®.'
+
+/**
+ * Der Pflicht-Disclaimer aus den Unterlagen des Lizenzgebers. Steht auf jeder Seite, die eine
+ * Wirkung beschreibt — inhaltlich verlangt vom Heilmittelwerbegesetz, nicht nur vom Lizenzvertrag.
+ */
+export const disclaimer
+  = 'Der Jeveauxeffect® ist eine ästhetische Anwendung im Beauty-Bereich und keine medizinische '
+    + 'oder therapeutische Behandlung. Er ersetzt keine ärztliche Maßnahme. Es werden keine '
+    + 'Heilversprechen abgegeben. Die beschriebenen Effekte beruhen auf subjektiven Wahrnehmungen; '
+    + 'individuelle Ergebnisse können abweichen.'

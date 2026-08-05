@@ -1,0 +1,65 @@
+/*
+ * The only place a colour is written down.
+ *
+ * Copied from the booking app (booking-app/packages/ui/src/tokens.css) so the marketing site and
+ * the booking flow are visibly the same brand. Keep the two in sync: a customer who clicks
+ * "Termin buchen" should not notice a change of product.
+ *
+ * Everything names a *role* — `background`, `primary`, `danger` — never a hue, so changing the
+ * palette is one edit here.
+ *
+ * The palette is beige, black and orange. The orange is darker than a brand orange usually is
+ * (#C2540A rather than something around #E8710A) for one reason: white text on it has to reach
+ * 4.5:1, and a lighter orange does not. A button label nobody can read is not a design decision.
+ */
+:root {
+  /* Surfaces, warm rather than grey — the beige is the page, not an accent. */
+  --sf-background: #f5efe6;
+  --sf-surface: #ffffff;
+  --sf-surface-muted: #ede4d6;
+
+  /* Text. Near-black rather than pure black: less harsh on a warm background. */
+  --sf-text-primary: #16130f;
+  --sf-text-secondary: #4a423a;
+
+  --sf-border: #d9cdba;
+
+  /* Action. */
+  --sf-primary: #c2540a;
+  --sf-primary-hover: #a34608;
+  --sf-primary-contrast: #ffffff;
+
+  /* Status surfaces. Backgrounds for a message, not text colours — they carry
+   * `--sf-text-primary` on top, which is why they are pale. */
+  --sf-success: #c8e6c9;
+  --sf-warning: #ffe0b2;
+  --sf-danger: #f5c6c6;
+
+  /* The focus ring is near-black rather than the brand orange: it has to be visible on the
+   * orange button too, where an orange ring would disappear. */
+  --sf-focus-ring: #16130f;
+
+  --sf-radius: 0.5rem;
+  --sf-shadow-card: 0 1px 2px rgb(22 19 15 / 8%), 0 4px 12px rgb(22 19 15 / 6%);
+
+  /*
+   * Marketing-only additions. The booking app has no use for these: it is a form, and a form
+   * does not need a display face or a full-bleed brand panel.
+   */
+
+  /* The logo is cream on orange, so the inverted section is the logo enlarged. */
+  --sf-inverse-surface: #c2540a;
+  --sf-inverse-text: #f5efe6;
+  --sf-inverse-border: #d9723a;
+
+  /*
+   * Fließtext auf dem orangen Panel. Das Creme kommt auf dem Orange nur auf 4,0:1 und trägt
+   * deshalb ausschließlich die grossen Elemente — Wortmarke und Überschriften, für die 3:1
+   * genügt. Alles in Lesegrösse bekommt dieses Weiss, das 4,6:1 erreicht. Eine abgeschwächte
+   * Variante des Cremes gibt es hier bewusst nicht: 70 % Deckkraft landen bei 2,7:1.
+   */
+  --sf-inverse-text-body: #ffffff;
+
+  /* A hairline shadow for the sticky header, lighter than a card. */
+  --sf-shadow-header: 0 1px 2px rgb(22 19 15 / 6%);
+}

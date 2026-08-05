@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Shape and Flow">
+  <!--
+    Ein cremefarbener Strich auf dem Markenorange. Die Kurve ist beides zugleich: das S von Shape
+    und die durchgehende Konturlinie des Logos. Bewusst als Pfad und nicht als Textelement, damit
+    das Icon ohne Schriftart auskommt und auch bei 16 Pixeln noch erkennbar bleibt.
+  -->
+  <rect width="64" height="64" rx="13" fill="#c2540a"/>
+  <path
+    d="M42 17c-10-6-22-2-22 6s20 5 20 14-13 12-22 7"
+    fill="none"
+    stroke="#f5efe6"
+    stroke-width="6"
+    stroke-linecap="round"
+  />
+</svg>

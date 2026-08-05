@@ -1,0 +1,36 @@
+{
+  "name": "shape-and-flow-landing-page",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=24.18.0"
+  },
+  "scripts": {
+    "dev": "nuxt dev",
+    "build": "nuxt build",
+    "preview": "nuxt preview",
+    "start": "node .output/server/index.mjs",
+    "typecheck": "nuxt typecheck",
+    "postinstall": "nuxt prepare"
+  },
+  "dependencies": {
+    "@nuxt/fonts": "^0.14.0",
+    "@nuxt/image": "^2.1.0",
+    "@nuxtjs/seo": "^5.3.10",
+    "nuxt": "^4.5.1",
+    "nuxt-llms": "^0.2.0",
+    "vue": "^3.5.40",
+    "vue-router": "^5.2.0"
+  },
+  "overrides": {
+    "sharp": "^0.35.3"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.3.3",
+    "@takumi-rs/core": "^2.5.9",
+    "tailwindcss": "^4.3.3",
+    "typescript": "^6.0.3",
+    "vue-tsc": "^3.3.9"
+  }
+}

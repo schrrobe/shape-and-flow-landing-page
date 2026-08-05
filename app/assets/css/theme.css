@@ -1,0 +1,48 @@
+/*
+ * Tokens, exposed as Tailwind utilities.
+ *
+ * Tailwind 4 has no JavaScript preset: the theme *is* CSS custom properties, and a `--color-*`
+ * entry under `@theme` generates `bg-*`, `text-*`, `border-*` and `ring-*` automatically.
+ *
+ * `@theme inline` rather than plain `@theme`: it makes the generated utility resolve to
+ * `var(--sf-…)` instead of copying the value, so a token overridden further down the tree is
+ * followed rather than baked in.
+ */
+@theme inline {
+  --color-background: var(--sf-background);
+  --color-surface: var(--sf-surface);
+  --color-surface-muted: var(--sf-surface-muted);
+
+  --color-text-primary: var(--sf-text-primary);
+  --color-text-secondary: var(--sf-text-secondary);
+
+  --color-border: var(--sf-border);
+
+  --color-primary: var(--sf-primary);
+  --color-primary-hover: var(--sf-primary-hover);
+  --color-primary-contrast: var(--sf-primary-contrast);
+
+  --color-success: var(--sf-success);
+  --color-warning: var(--sf-warning);
+  --color-danger: var(--sf-danger);
+
+  --color-focus-ring: var(--sf-focus-ring);
+
+  --color-inverse-surface: var(--sf-inverse-surface);
+  --color-inverse-text: var(--sf-inverse-text);
+  --color-inverse-body: var(--sf-inverse-text-body);
+  --color-inverse-border: var(--sf-inverse-border);
+
+  --radius-sf: var(--sf-radius);
+  --shadow-card: var(--sf-shadow-card);
+  --shadow-header: var(--sf-shadow-header);
+
+  /* Body copy: a system stack makes no network request at all. */
+  --font-sans:
+    ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+
+  /* Headlines. The logo wordmark is a high-contrast serif, and Playfair Display is the closest
+   * match that @nuxt/fonts can self-host. Georgia is the fallback because its metrics are close
+   * enough that a late swap does not reflow the page. */
+  --font-display: 'Playfair Display', Georgia, 'Times New Roman', serif;
+}
