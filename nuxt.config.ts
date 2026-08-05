@@ -97,8 +97,10 @@ export default defineNuxtConfig({
   },
 
   ogImage: {
+    // Die Komponente wird nicht hier gesetzt, sondern pro Seite über defineOgImageComponent in
+    // useSeite(). Als Default lässt die Modulversion sie nicht zu, und ein Wert hier wäre
+    // wirkungslos.
     defaults: {
-      component: 'SfOg',
       width: 1200,
       height: 630,
     },

@@ -91,7 +91,7 @@ const line = 'rgba(245, 239, 230, 0.45)'
         fontSize: '28px',
         letterSpacing: '0.14em',
         textTransform: 'uppercase',
-        fontFamily: 'sans-serif',
+        fontFamily: 'Inter',
         color: 'rgba(245, 239, 230, 0.9)',
       }"
     >

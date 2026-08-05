@@ -1,0 +1,13 @@
+{
+  // Nuxt 4 erzeugt vier getrennte Konfigurationen unter .nuxt/, je eine für App-, Server-,
+  // Shared- und Node-Code. Diese Datei verweist nur darauf, damit `nuxt typecheck` und die
+  // Editor-Integration alle vier prüfen. Eigene Compiler-Optionen gehören nicht hierher, sondern
+  // in `typescript.tsConfig` in nuxt.config.ts, sonst überschreibt der nächste `nuxt prepare` sie.
+  "files": [],
+  "references": [
+    { "path": "./.nuxt/tsconfig.app.json" },
+    { "path": "./.nuxt/tsconfig.server.json" },
+    { "path": "./.nuxt/tsconfig.shared.json" },
+    { "path": "./.nuxt/tsconfig.node.json" }
+  ]
+}
