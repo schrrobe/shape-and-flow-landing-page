@@ -8,6 +8,18 @@ import { adresse, kontakt, oeffnungszeiten, site } from './shared/site'
 const koerper = behandlungBySlug('jeveauxeffect')!
 const gesicht = behandlungBySlug('lymphdrainage-gesicht')!
 
+/*
+ * Die Site-URL ist eine Build-Eingabe, kein Laufzeitwert: jede Seite wird beim Build
+ * vorgerendert, damit sind Canonicals, Sitemap, OG-Images und Structured Data zum Zeitpunkt
+ * des Builds im HTML festgeschrieben. Deshalb baut die Pipeline pro Umgebung ein eigenes
+ * Image, siehe docs/deploy.md.
+ *
+ * NUXT_SITE_URL erreicht von allein nur nuxt-site-config, also Canonicals, Sitemap und
+ * robots.txt. schemaOrg und llms unten lesen den Literal aus shared/site.ts, und ohne diese
+ * Zeile stünde in JSON-LD und llms.txt auf stage und dev weiterhin die Produktionsdomain.
+ */
+const siteUrl = process.env.NUXT_SITE_URL || site.url
+
 export default defineNuxtConfig({
   compatibilityDate: '2026-08-05',
 
@@ -60,7 +72,7 @@ export default defineNuxtConfig({
 
   // Speist Canonicals, Sitemap, robots.txt, OG-Images und Structured Data.
   site: {
-    url: site.url,
+    url: siteUrl,
     name: site.name,
     description: `Brasilianische Lymphdrainage in ${adresse.ort}: Jeveauxeffect® für Körper und `
       + `Gesicht bei ${site.name}, lizenzierter Partner der Jeveaux Company®.`,
@@ -73,9 +85,9 @@ export default defineNuxtConfig({
       '@type': ['Organization', 'LocalBusiness', 'HealthAndBeautyBusiness'],
       'name': site.name,
       'description': `Studio für brasilianische Lymphdrainage in ${adresse.ort}.`,
-      'url': site.url,
-      'logo': `${site.url}/images/logo.jpg`,
-      'image': `${site.url}/images/studio-1.jpg`,
+      'url': siteUrl,
+      'logo': `${siteUrl}/images/logo.jpg`,
+      'image': `${siteUrl}/images/studio-1.jpg`,
       'telephone': kontakt.telefon,
       'email': kontakt.email,
       'priceRange': preisSpanne,
@@ -119,7 +131,7 @@ export default defineNuxtConfig({
   },
 
   llms: {
-    domain: site.url,
+    domain: siteUrl,
     title: `${site.name} – ${site.tagline}`,
     description:
       `${site.name} ist ein Studio für brasilianische Lymphdrainage in ${adresse.strasse}, `

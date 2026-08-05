@@ -1,0 +1,146 @@
+name: CI
+
+# Die eine Pipeline. Prüft jeden Pull Request, und auf den beiden Integrationsbranches hängt
+# das Deployment daran:
+#
+#   fusion → dev      https://dev.shapeandflow.de
+#   main   → stage    https://stage.shapeandflow.de
+#   Release → production  https://shapeandflow.de
+#
+# Produktion wird nicht von einem Merge ausgelöst, sondern von release-please: Merges nach main
+# sammeln sich in einer stehenden Release-PR, und erst deren Merge schneidet Tag und Release —
+# und deployt.
+
+on:
+  push:
+    branches: [main, fusion]
+  pull_request:
+
+# Ein neuer Push auf denselben Ref löst den vorherigen Lauf ab — aber nur bei Pull Requests.
+# Auf den Branches endet die Pipeline in einem Deployment, und ein mittendrin abgebrochener
+# Lauf lässt eine halb ausgetauschte Umgebung zurück. Dort stellt sich der zweite Push
+# stattdessen hinten an; das kostet Runner-Minuten und kann dafür nichts kaputtmachen.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    name: Typecheck
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          # Dieselbe Version, die auch das Dockerfile und die lokale Entwicklung verwenden.
+          node-version-file: .tool-versions
+          cache: npm
+
+      # Kein --omit=dev: postinstall ruft `nuxt prepare`, und ohne die erzeugten Typen in
+      # .nuxt/ hat `nuxt typecheck` nichts zu prüfen.
+      - run: npm ci
+      - run: npm run typecheck
+
+  # Das einzige, was den vollständigen Build prüft. Er kann aus Gründen scheitern, die kein
+  # Typecheck sieht: nuxt-link-checker läuft dabei über die internen Links, der OG-Renderer
+  # zeichnet jede Seite, und @nuxt/fonts holt die Schrift aus dem Netz.
+  #
+  # Nur bei Pull Requests. Bei einem Push auf main oder fusion baut der Deploy-Workflow
+  # ohnehin dasselbe Image; es zweimal zu bauen würde nur das Deployment verzögern.
+  build-check:
+    name: Image bauen
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: docker/setup-buildx-action@bb05f3f5519dd87d3ba754cc423b652a5edd6d2c # v4.2.0
+
+      - uses: docker/build-push-action@53b7df96c91f9c12dcc8a07bcb9ccacbed38856a # v7.3.0
+        with:
+          context: .
+          push: false
+          platforms: linux/amd64
+          # Mit den stage-Argumenten, weil die PR im Regelfall dorthin unterwegs ist. Der Wert
+          # ändert am Erfolg des Builds nichts, nur an den URLs im erzeugten HTML.
+          build-args: |
+            NUXT_SITE_URL=https://stage.shapeandflow.de
+            NUXT_SITE_ENV=staging
+          cache-from: type=gha,scope=stage
+          provenance: false
+
+  # ── Deployment ──────────────────────────────────────────────────────────────
+
+  deploy-dev:
+    name: Dev
+    needs: [check]
+    if: ${{ github.event_name == 'push' && github.ref_name == 'fusion' }}
+    permissions:
+      contents: read
+      # Auf Job-Ebene, nicht auf Workflow-Ebene: das Token eines aufgerufenen Workflows kann
+      # gegenüber dem des Aufrufers nur eingeschränkt, nie erweitert werden.
+      packages: write
+    uses: ./.github/workflows/deploy.yml
+    with:
+      env_name: dev
+    secrets: inherit
+
+  deploy-stage:
+    name: Stage
+    needs: [check]
+    if: ${{ github.event_name == 'push' && github.ref_name == 'main' }}
+    permissions:
+      contents: read
+      packages: write
+    uses: ./.github/workflows/deploy.yml
+    with:
+      env_name: stage
+    secrets: inherit
+
+  # ── Release ─────────────────────────────────────────────────────────────────
+  #
+  # Läuft bei jedem grünen Push auf main. Die meisten Läufe aktualisieren bloß die stehende
+  # Release-PR, in der sich die Conventional Commits sammeln — release_created ist dann false
+  # und deploy-production tut nichts. Der Merge dieser PR ist selbst ein Push auf main, also
+  # läuft der Job erneut, und *dieser* Lauf schneidet Tag und Release und setzt release_created.
+  #
+  # Bewusst ohne `on: release: published` als Auslöser für den nächsten Schritt: dieses Event
+  # käme von einem Aufruf mit dem GITHUB_TOKEN dieses Jobs, und GitHub lässt ein so ausgelöstes
+  # Event keinen neuen Workflow starten (Schutz gegen Endlosschleifen). Es würde still nie
+  # feuern. Den Output im selben Lauf zu lesen umgeht das.
+  release:
+    name: Release please
+    needs: [check]
+    if: ${{ github.event_name == 'push' && github.ref_name == 'main' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    outputs:
+      release_created: ${{ steps.release.outputs.release_created }}
+    steps:
+      - uses: googleapis/release-please-action@45996ed1f6d02564a971a2fa1b5860e934307cf7 # v5.0.0
+        id: release
+        with:
+          config-file: release-please-config.json
+          manifest-file: .release-please-manifest.json
+
+  deploy-production:
+    name: Produktion
+    needs: [release]
+    if: needs.release.outputs.release_created == 'true'
+    permissions:
+      contents: read
+      packages: write
+    uses: ./.github/workflows/deploy.yml
+    with:
+      env_name: production
+    secrets: inherit

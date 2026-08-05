@@ -1,0 +1,30 @@
+# Der Stack auf dem Server. Wird von .github/workflows/deploy.yml nach
+# /opt/landing/<env>/ kopiert und dort mit `--env-file .env.<env>` gestartet.
+#
+# Alles Umgebungsabhängige kommt aus dieser env-Datei, nichts steht hier fest. Dieselben
+# Variablennamen wie im Booking-Stack (STACK_SUFFIX, IMAGE_TAG, GHCR_OWNER, WEB_PUBLISH_PORT),
+# damit beide Stacks auf derselben Maschine gleich zu bedienen sind.
+#
+# STACK_SUFFIX muss *in* der env-Datei stehen, nicht bloß exportiert sein: compose löst ${…}
+# im Projektnamen aus --env-file auf, nicht aus der Shell.
+#
+#     docker compose --env-file .env.stage -f docker-compose.prod.yml up -d --wait
+
+name: shape-and-flow-landing-${STACK_SUFFIX:-production}
+
+services:
+  web:
+    image: ghcr.io/${GHCR_OWNER}/sf-landing:${IMAGE_TAG}
+    container_name: sf-landing-${STACK_SUFFIX:-production}
+    restart: unless-stopped
+    ports:
+      # Das 127.0.0.1: davor ist nicht optional. Docker schreibt für veröffentlichte Ports
+      # eigene iptables-Regeln, die an ufw vorbeigehen — ohne die Bindung an das Loopback-
+      # Interface stünde der Port offen im Internet. Der Host-nginx ist der einzige Weg herein.
+      - '127.0.0.1:${WEB_PUBLISH_PORT:-8090}:3000'
+    logging:
+      # Ohne Grenze wächst die JSON-Logdatei bis die Platte voll ist.
+      driver: json-file
+      options:
+        max-size: '10m'
+        max-file: '3'
