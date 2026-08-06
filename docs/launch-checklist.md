@@ -26,17 +26,21 @@ Das Formular auf `/kontakt` schickt an `server/api/kontakt.post.ts`, und die Rou
 Anfrage per SMTP zu. Ohne Zugangsdaten antwortet sie mit 503, das Formular nennt dann die
 E-Mail-Adresse — es geht also keine Anfrage verloren, aber der Weg über das Formular ist zu.
 
-Die Werte gehören ins GitHub-Environment der jeweiligen Umgebung, nicht ins Repository. Der
-Deploy schreibt sie von dort in die env-Datei auf dem Server, siehe `docs/deploy.md`:
+Die Werte liegen in GitHub und nicht im Repository. Der Deploy schreibt sie von dort in die
+env-Datei auf dem Server, siehe `docs/deploy.md`. Gesetzt ist:
 
-| Wo                  | Name              | Was hin muss                                                                          |
-| ------------------- | ----------------- | ------------------------------------------------------------------------------------- |
-| Variable            | `SMTP_HOST`       | `w021e434.kasserver.com` — die Postfächer liegen bei ALL-INKL, nicht beim VPS-Hoster. |
-| Variable            | `SMTP_PORT`       | `465` für implizites TLS, `587` für STARTTLS. Ohne Angabe wird `587` genommen.        |
-| Variable            | `SMTP_USER`       | `nicht-antworten@shapeandflow.de`, siehe Absatz darunter.                             |
-| Secret              | `SMTP_PASSWORD`   | Kennwort dieses Postfachs. Als Secret, nicht als Variable.                            |
-| Variable (optional) | `SMTP_ABSENDER`   | Nur zum Abweichen. Standard ist `kontakt.absenderEmail` aus `shared/site.ts`.         |
-| Variable (optional) | `SMTP_EMPFAENGER` | Nur zum Abweichen, etwa ein Testpostfach für dev und stage. Standard `kontakt.email`. |
+| Wo                      | Name              | Wert                                                                                   |
+| ----------------------- | ----------------- | -------------------------------------------------------------------------------------- |
+| Repo-Variable           | `SMTP_HOST`       | `w021e434.kasserver.com` — die Postfächer liegen bei ALL-INKL, nicht beim VPS-Hoster.  |
+| Repo-Variable           | `SMTP_PORT`       | `465`, implizites TLS. Für STARTTLS wäre es `587`; ohne Angabe nimmt der Deploy `587`. |
+| Repo-Variable           | `SMTP_USER`       | `nicht-antworten@shapeandflow.de`, siehe Absatz darunter.                              |
+| Secret                  | `SMTP_PASSWORD`   | **Fehlt noch.** Kennwort dieses Postfachs, als Secret und nicht als Variable.          |
+| Env-Variable dev, stage | `SMTP_EMPFAENGER` | `test@shapeandflow.de` — Testanfragen sollen nicht im Studiopostfach landen.           |
+| —                       | `SMTP_ABSENDER`   | Nicht gesetzt, gilt der Wert aus `shared/site.ts`.                                     |
+
+Environment-Variablen gehen Repo-Variablen vor. Host, Port und Postfach gelten deshalb für alle
+drei Umgebungen, und nur der Empfänger weicht ab: dev und stage schreiben an
+`test@shapeandflow.de`, production hat keinen Eintrag und nimmt `kontakt.email`.
 
 Absender und Empfänger stehen im Code, nicht in der Umgebung: Formularmails gehen von
 `nicht-antworten@shapeandflow.de` an `hallo@shapeandflow.de`, mit der anfragenden Person im

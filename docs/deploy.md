@@ -169,20 +169,26 @@ Nach der Änderung `sudo nginx -t` vor dem Reload.
 | Secret       | `SSH_PRIVATE_KEY`            | der private Teil des Schlüssels von oben            |
 | Environments | `dev`, `stage`, `production` | für stage und production Branch-Policy `main`       |
 
-Dazu die Zugangsdaten des Postausgangsservers für das Kontaktformular. Sie gehören ins jeweilige
-Environment, weil dev und stage sinnvollerweise in ein anderes Postfach schreiben als production:
+Dazu der Postausgangsserver für das Kontaktformular. Die Postfächer liegen bei ALL-INKL, nicht
+beim Hoster des VPS:
 
-| Ort                 | Name              | Wert                                                         |
-| ------------------- | ----------------- | ------------------------------------------------------------ |
-| Variable            | `SMTP_HOST`       | Postausgangsserver des Mail-Providers                        |
-| Variable            | `SMTP_PORT`       | `587` (STARTTLS) oder `465` (implizites TLS), Standard `587` |
-| Variable            | `SMTP_USER`       | Postfach, über das versandt wird                             |
-| Secret              | `SMTP_PASSWORD`   | Kennwort dieses Postfachs                                    |
-| Variable (optional) | `SMTP_ABSENDER`   | überschreibt `kontakt.absenderEmail` aus `shared/site.ts`    |
-| Variable (optional) | `SMTP_EMPFAENGER` | überschreibt `kontakt.email`, etwa ein Testpostfach für dev  |
+| Ort                     | Name              | Wert                                                        |
+| ----------------------- | ----------------- | ----------------------------------------------------------- |
+| Repo-Variable           | `SMTP_HOST`       | `w021e434.kasserver.com`                                    |
+| Repo-Variable           | `SMTP_PORT`       | `465` (implizites TLS); `587` wäre STARTTLS, Standard `587` |
+| Repo-Variable           | `SMTP_USER`       | `nicht-antworten@shapeandflow.de`                           |
+| Secret                  | `SMTP_PASSWORD`   | Kennwort dieses Postfachs                                   |
+| Env-Variable dev, stage | `SMTP_EMPFAENGER` | `test@shapeandflow.de`                                      |
+| optional                | `SMTP_ABSENDER`   | überschreibt `kontakt.absenderEmail` aus `shared/site.ts`   |
 
-Die beiden optionalen schreibt der Deploy nur, wenn sie gesetzt sind: eine leere Zuweisung wäre
-für Nitro ein Wert und würde die Adressen aus `shared/site.ts` überschreiben statt offenlassen.
+Host, Postfach und Kennwort gelten für alle drei Umgebungen, nur der Empfänger weicht ab:
+Environment-Variablen gehen Repo-Variablen vor, also schreiben dev und stage an
+`test@shapeandflow.de`, während production keinen Eintrag hat und `kontakt.email` nimmt. Testläufe
+landen so nicht im Studiopostfach.
+
+`SMTP_ABSENDER` und `SMTP_EMPFAENGER` schreibt der Deploy nur, wenn sie gesetzt sind: eine leere
+Zuweisung wäre für Nitro ein Wert und würde die Adressen aus `shared/site.ts` überschreiben statt
+offenlassen.
 
 Der Schritt „Umgebungsdatei schreiben" setzt sie als `NUXT_SMTP_*` in `/opt/landing/<env>/.env.<env>`,
 und `docker-compose.prod.yml` gibt genau diese Namen an den Container weiter. Fehlen sie, läuft der
