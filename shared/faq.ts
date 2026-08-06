@@ -10,6 +10,8 @@
  * gewählt und rechtlich relevant.
  */
 
+import { behandlungBySlug, preispositionBySlug } from './behandlungen'
+
 export type FaqThema = 'allgemein' | 'ablauf' | 'gesundheit' | 'preise' | 'koerper' | 'gesicht'
 
 export interface FaqEintrag {
@@ -37,6 +39,19 @@ export const kontraindikationen: string[] = [
   'Herz-Kreislauf-Erkrankungen',
   'unbehandelte oder akute Erkrankungen des Lymphsystems',
 ]
+
+/*
+ * Die Preise für die Preis-FAQ, aus behandlungen.ts abgeleitet und nicht getippt: sonst nennt die
+ * FAQ — und mit ihr das FAQPage-Structured-Data — nach der nächsten Preisänderung Beträge, die die
+ * Preistabelle nicht mehr führt.
+ */
+const koerper = behandlungBySlug('jeveauxeffect')!
+const gesicht = behandlungBySlug('lymphdrainage-gesicht')!
+const kombi = preispositionBySlug('kombi-koerper-gesicht')!
+const koerper5er = preispositionBySlug('jeveauxeffect-5er')!
+const koerper10er = preispositionBySlug('jeveauxeffect-10er')!
+const gesicht5er = preispositionBySlug('jeveauxeffect-face-5er')!
+const gesicht10er = preispositionBySlug('jeveauxeffect-face-10er')!
 
 export const faq: FaqEintrag[] = [
   {
@@ -140,11 +155,13 @@ export const faq: FaqEintrag[] = [
   {
     frage: 'Was kostet die Behandlung?',
     antwort: [
-      'Die Gesichtsbehandlung Jeveauxeffect Face® kostet 65 Euro, die Körperbehandlung ' +
-        'Jeveauxeffect® kostet 150 Euro. Beide zusammen in einem Termin kosten 215 Euro.',
-      'Für mehrere Termine gibt es Pakete: die Körperbehandlung kostet im 5er Paket 130 Euro und ' +
-        'im 10er Paket 120 Euro pro Behandlung, die Gesichtsbehandlung 59 Euro im 5er Paket und ' +
-        '45 Euro im 10er Paket pro Behandlung.',
+      `Die Gesichtsbehandlung ${gesicht.name} kostet ${gesicht.preisEuro} Euro, die ` +
+        `Körperbehandlung ${koerper.name} kostet ${koerper.preisEuro} Euro. Beide zusammen in ` +
+        `einem Termin kosten ${kombi.preisEuro} Euro.`,
+      `Für mehrere Termine gibt es Pakete: die Körperbehandlung kostet im 5er Paket ` +
+        `${koerper5er.preisEuro} Euro und im 10er Paket ${koerper10er.preisEuro} Euro pro ` +
+        `Behandlung, die Gesichtsbehandlung ${gesicht5er.preisEuro} Euro im 5er Paket und ` +
+        `${gesicht10er.preisEuro} Euro im 10er Paket pro Behandlung.`,
     ],
     themen: ['preise'],
   },

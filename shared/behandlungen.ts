@@ -98,6 +98,10 @@ export const preispositionen: Preisposition[] = [
   },
 ]
 
+export function preispositionBySlug(slug: string): Preisposition | undefined {
+  return preispositionen.find(p => p.slug === slug)
+}
+
 /**
  * Der Kombitermin, der auch außerhalb der Preistabelle auftaucht.
  *
