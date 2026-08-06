@@ -11,14 +11,14 @@ grep -rn "TODO" shared/ app/ --include="*.ts" --include="*.vue"
 
 ### Kontaktdaten (`shared/site.ts`)
 
-| Feld | Was hin muss |
-| --- | --- |
-| `kontakt.telefon` | Echte Nummer im Format `+49...`, ohne Leerzeichen. Landet in `tel:`-Links und im Structured Data. |
-| `kontakt.telefonAnzeige` | Dieselbe Nummer lesbar formatiert, etwa `+49 231 1234567`. |
-| `kontakt.whatsapp` | Nummer nur als Ziffern mit Ländervorwahl, etwa `4915112345678`. Ohne Plus und ohne Leerzeichen, sonst funktioniert der `wa.me`-Link nicht. |
-| `kontakt.email` | Echte Adresse. Aktuell steht `hallo@shapeandflow.de` als Annahme drin. |
-| `kontakt.buchungUrl` | Steht fest auf `https://booking.shapeandflow.de`. Der Server bedient bislang `buchung.shapeandflow.de` — dort muss also ein Vhost oder eine Weiterleitung für `booking.` her, sonst laufen alle Termin-Schaltflächen ins Leere. |
-| `kontakt.instagram` | Profiladresse oder auf `null` lassen. |
+| Feld                     | Was hin muss                                                                                                                                                                                                                    |
+| ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `kontakt.telefon`        | Echte Nummer im Format `+49...`, ohne Leerzeichen. Landet in `tel:`-Links und im Structured Data.                                                                                                                               |
+| `kontakt.telefonAnzeige` | Dieselbe Nummer lesbar formatiert, etwa `+49 231 1234567`.                                                                                                                                                                      |
+| `kontakt.whatsapp`       | Nummer nur als Ziffern mit Ländervorwahl, etwa `4915112345678`. Ohne Plus und ohne Leerzeichen, sonst funktioniert der `wa.me`-Link nicht.                                                                                      |
+| `kontakt.email`          | Echte Adresse. Aktuell steht `hallo@shapeandflow.de` als Annahme drin.                                                                                                                                                          |
+| `kontakt.buchungUrl`     | Steht fest auf `https://booking.shapeandflow.de`. Der Server bedient bislang `buchung.shapeandflow.de` — dort muss also ein Vhost oder eine Weiterleitung für `booking.` her, sonst laufen alle Termin-Schaltflächen ins Leere. |
+| `kontakt.instagram`      | Profiladresse oder auf `null` lassen.                                                                                                                                                                                           |
 
 Diese Werte sind der Grund, warum die Seite noch nicht live gehen sollte: die
 Terminschaltflächen stehen auf jeder Seite und führen derzeit ins Leere.
@@ -63,5 +63,6 @@ Name der Inhaberin, dazu Anbieter und Standort des Hostings (Hostinger, Land des
    curl -fsS -u "$BASIC_AUTH_USER:$BASIC_AUTH_PASSWORD" \
      https://dev.shapeandflow.de/robots.txt | grep -Fx 'Disallow: /'
    ```
+
 4. Structured Data stichprobenartig mit dem Rich-Results-Test von Google prüfen, insbesondere
    `/preise` (Angebote) und `/faq` (Fragen).

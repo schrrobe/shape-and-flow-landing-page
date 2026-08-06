@@ -16,8 +16,8 @@ useSeite({
   kurzTitel: artikel.titel,
   ogTitel: 'Wassereinlagerungen im Körper',
   beschreibung:
-    'Warum sich Wasser im Gewebe sammelt, was im Alltag hilft, wann Schwellungen ärztlich '
-    + 'abgeklärt werden sollten und was eine Lymphdrainage dabei leisten kann.',
+    'Warum sich Wasser im Gewebe sammelt, was im Alltag hilft, wann Schwellungen ärztlich ' +
+    'abgeklärt werden sollten und was eine Lymphdrainage dabei leisten kann.',
   ogLabel: 'Ratgeber',
   pfad: [{ name: 'Ratgeber', url: '/ratgeber' }],
 })
@@ -26,8 +26,8 @@ useSchemaOrg([
   defineArticle({
     headline: artikel.titel,
     description:
-      'Ursachen von Wassereinlagerungen, Maßnahmen im Alltag und die Grenze zur ärztlichen '
-      + 'Abklärung.',
+      'Ursachen von Wassereinlagerungen, Maßnahmen im Alltag und die Grenze zur ärztlichen ' +
+      'Abklärung.',
   }),
 ])
 </script>
@@ -44,9 +44,7 @@ useSchemaOrg([
 
     <div class="sf-container">
       <div class="sf-prose">
-        <h2 class="mt-0!">
-          Was im Körper passiert
-        </h2>
+        <h2 class="mt-0!">Was im Körper passiert</h2>
         <p>
           Zwischen den Zellen liegt immer Flüssigkeit. Sie versorgt das Gewebe und wird über das
           Lymphsystem abtransportiert. Kommt weniger ab als nachkommt, sammelt sich Flüssigkeit im
@@ -75,10 +73,11 @@ useSchemaOrg([
         <h2>Was im Alltag hilft</h2>
         <p>
           Nichts davon ist spektakulär, aber es wirkt in dieselbe Richtung: Bewegung bringt die
-          Lymphe in Gang. Ein Spaziergang nach dem Essen, die Treppe statt des Aufzugs, zwischendurch
-          aufstehen. Beine hochlegen nutzt die Schwerkraft. Wer weniger salzig isst und ausreichend
-          trinkt, nimmt dem Gewebe Arbeit ab. Dass zu wenig Trinken gegen Wassereinlagerungen hilft,
-          ist ein verbreiteter Irrtum: der Körper hält Flüssigkeit dann eher zurück.
+          Lymphe in Gang. Ein Spaziergang nach dem Essen, die Treppe statt des Aufzugs,
+          zwischendurch aufstehen. Beine hochlegen nutzt die Schwerkraft. Wer weniger salzig isst
+          und ausreichend trinkt, nimmt dem Gewebe Arbeit ab. Dass zu wenig Trinken gegen
+          Wassereinlagerungen hilft, ist ein verbreiteter Irrtum: der Körper hält Flüssigkeit dann
+          eher zurück.
         </p>
 
         <h2>Wann Sie zur Ärztin oder zum Arzt gehen sollten</h2>
@@ -104,13 +103,13 @@ useSchemaOrg([
           Wenn medizinisch nichts dahintersteht, kann eine
           <NuxtLink to="/brasilianische-lymphdrainage">brasilianische Lymphdrainage</NuxtLink>
           den Körper dabei unterstützen, sich leichter und weniger gespannt anzufühlen, weil sie den
-          Lymphfluss anregt. Sie behandelt die Ursache nicht: ein Sitztag bleibt ein Sitztag, und ein
-          salziges Abendessen bleibt eines.
+          Lymphfluss anregt. Sie behandelt die Ursache nicht: ein Sitztag bleibt ein Sitztag, und
+          ein salziges Abendessen bleibt eines.
         </p>
         <p>
           Bei Shape &amp; Flow ist das der
-          <NuxtLink to="/jeveauxeffect">Jeveauxeffect® für den Körper</NuxtLink>. Wie eine Behandlung
-          abläuft und wann nicht behandelt wird, steht auf der Methodenseite.
+          <NuxtLink to="/jeveauxeffect">Jeveauxeffect® für den Körper</NuxtLink>. Wie eine
+          Behandlung abläuft und wann nicht behandelt wird, steht auf der Methodenseite.
         </p>
       </div>
 

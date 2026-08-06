@@ -5,8 +5,8 @@ useSeite({
   titel: `Studio in ${adresse.ort}`,
   kurzTitel: 'Das Studio',
   beschreibung:
-    `Shape & Flow ist ein kleines Studio für brasilianische Lymphdrainage in ${adresse.strasse}, `
-    + `${adresse.plz} ${adresse.ort}. Ein Behandlungsraum, Termine nach Vereinbarung.`,
+    `Shape & Flow ist ein kleines Studio für brasilianische Lymphdrainage in ${adresse.strasse}, ` +
+    `${adresse.plz} ${adresse.ort}. Ein Behandlungsraum, Termine nach Vereinbarung.`,
   ogLabel: 'Das Studio',
 })
 </script>
@@ -64,8 +64,8 @@ useSeite({
           <h2>Lizenzierter Partner</h2>
           <p>
             {{ site.name }} arbeitet als lizenzierter Partner der Jeveaux Company® mit dem
-            Jeveauxeffect® und dem Jeveauxeffect Face®. Die Methode wird nicht nachempfunden, sondern
-            so ausgeführt, wie die Jeveaux Company® sie entwickelt und geschult hat.
+            Jeveauxeffect® und dem Jeveauxeffect Face®. Die Methode wird nicht nachempfunden,
+            sondern so ausgeführt, wie die Jeveaux Company® sie entwickelt und geschult hat.
           </p>
 
           <h2>Anfahrt</h2>
@@ -78,13 +78,12 @@ useSeite({
 
         <aside class="lg:sticky lg:top-28 lg:self-start">
           <SfCard>
-            <h2 class="sf-eyebrow">
-              Studio
-            </h2>
+            <h2 class="sf-eyebrow">Studio</h2>
             <address class="mt-4 space-y-3 text-sm not-italic">
               <p>
-                <span class="font-medium">{{ site.name }}</span><br>
-                {{ adresse.strasse }}<br>
+                <span class="font-medium">{{ site.name }}</span
+                ><br />
+                {{ adresse.strasse }}<br />
                 {{ adresse.plz }} {{ adresse.ort }}
               </p>
               <p class="text-text-secondary">
@@ -92,9 +91,7 @@ useSeite({
               </p>
             </address>
             <div class="mt-5 flex flex-col gap-3">
-              <SfButton to="/kontakt">
-                Kontakt und Anfahrt
-              </SfButton>
+              <SfButton to="/kontakt"> Kontakt und Anfahrt </SfButton>
               <SfButton :href="kartenUrl" variant="secondary" external>
                 In Google Maps ansehen
               </SfButton>

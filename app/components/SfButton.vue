@@ -6,31 +6,33 @@
  * externe Adressen, <button> wenn kein Ziel angegeben ist. Ein Link, der wie ein Button aussieht,
  * soll trotzdem ein Link sein, damit Öffnen im neuen Tab und Kopieren der Adresse funktionieren.
  */
-const props = withDefaults(defineProps<{
-  to?: string
-  href?: string
-  variant?: 'primary' | 'secondary' | 'ghost' | 'inverse'
-  size?: 'md' | 'lg'
-  /** Externe Links bekommen rel="noopener" und öffnen in einem neuen Tab. */
-  external?: boolean
-}>(), {
-  variant: 'primary',
-  size: 'md',
-  external: false,
-})
+const props = withDefaults(
+  defineProps<{
+    to?: string
+    href?: string
+    variant?: 'primary' | 'secondary' | 'ghost' | 'inverse'
+    size?: 'md' | 'lg'
+    /** Externe Links bekommen rel="noopener" und öffnen in einem neuen Tab. */
+    external?: boolean
+  }>(),
+  {
+    variant: 'primary',
+    size: 'md',
+    external: false,
+  },
+)
 
-const base
-  = 'inline-flex items-center justify-center gap-2 rounded-sf font-medium transition-colors '
-    + 'focus-visible:outline-2 focus-visible:outline-offset-2'
+const base =
+  'inline-flex items-center justify-center gap-2 rounded-sf font-medium transition-colors ' +
+  'focus-visible:outline-2 focus-visible:outline-offset-2'
 
 const variants = {
   primary:
     'bg-primary text-primary-contrast hover:bg-primary-hover focus-visible:outline-focus-ring',
   secondary:
-    'bg-surface text-text-primary border border-border hover:bg-surface-muted '
-    + 'focus-visible:outline-focus-ring',
-  ghost:
-    'bg-transparent text-text-primary hover:bg-surface-muted focus-visible:outline-focus-ring',
+    'bg-surface text-text-primary border border-border hover:bg-surface-muted ' +
+    'focus-visible:outline-focus-ring',
+  ghost: 'bg-transparent text-text-primary hover:bg-surface-muted focus-visible:outline-focus-ring',
   // Auf Orange: cremefarbene Fläche, dunkler Text. Ein oranger Button wäre dort unsichtbar.
   inverse:
     'bg-inverse-text text-text-primary hover:bg-surface-muted focus-visible:outline-inverse-text',

@@ -41,7 +41,10 @@ useHead({
           </NuxtLink>
         </li>
         <li>
-          <NuxtLink to="/preise" class="text-primary underline underline-offset-4 hover:no-underline">
+          <NuxtLink
+            to="/preise"
+            class="text-primary underline underline-offset-4 hover:no-underline"
+          >
             Preise
           </NuxtLink>
         </li>
@@ -51,7 +54,10 @@ useHead({
           </NuxtLink>
         </li>
         <li>
-          <NuxtLink to="/kontakt" class="text-primary underline underline-offset-4 hover:no-underline">
+          <NuxtLink
+            to="/kontakt"
+            class="text-primary underline underline-offset-4 hover:no-underline"
+          >
             Kontakt
           </NuxtLink>
         </li>

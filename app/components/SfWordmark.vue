@@ -9,15 +9,18 @@
  * Das kursive "and" zwischen zwei Linien ist aus dem Logo übernommen, ebenso die gesperrte
  * Unterzeile.
  */
-withDefaults(defineProps<{
-  /** "inline" für die Kopfzeile, "stacked" für Hero und Fußzeile. */
-  variant?: 'inline' | 'stacked'
-  /** Die gesperrte Unterzeile zeigen. Nur in der gestapelten Variante sinnvoll. */
-  subline?: boolean
-}>(), {
-  variant: 'inline',
-  subline: false,
-})
+withDefaults(
+  defineProps<{
+    /** "inline" für die Kopfzeile, "stacked" für Hero und Fußzeile. */
+    variant?: 'inline' | 'stacked'
+    /** Die gesperrte Unterzeile zeigen. Nur in der gestapelten Variante sinnvoll. */
+    subline?: boolean
+  }>(),
+  {
+    variant: 'inline',
+    subline: false,
+  },
+)
 </script>
 
 <template>
@@ -39,7 +42,7 @@ withDefaults(defineProps<{
     <template v-if="subline">
       <SfRule class="mt-3 w-full" />
       <span
-        class="mt-2 text-center text-[0.6875rem] font-sans font-medium tracking-[0.2em] uppercase opacity-80 sm:text-xs"
+        class="mt-2 text-center font-sans text-[0.6875rem] font-medium tracking-[0.2em] uppercase opacity-80 sm:text-xs"
       >
         Brasilianische Lymphdrainage
       </span>

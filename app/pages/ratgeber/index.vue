@@ -5,8 +5,8 @@ useSeite({
   titel: 'Ratgeber zu Lymphdrainage und Körpergefühl',
   ogTitel: 'Ratgeber',
   beschreibung:
-    'Verständliche Texte zu Wassereinlagerungen und zum Unterschied zwischen ästhetischer und '
-    + 'medizinischer Lymphdrainage. Ohne Heilversprechen.',
+    'Verständliche Texte zu Wassereinlagerungen und zum Unterschied zwischen ästhetischer und ' +
+    'medizinischer Lymphdrainage. Ohne Heilversprechen.',
   ogLabel: 'Ratgeber',
 })
 </script>

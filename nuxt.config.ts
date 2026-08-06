@@ -98,8 +98,9 @@ export default defineNuxtConfig({
   site: {
     url: siteUrl,
     name: site.name,
-    description: `Brasilianische Lymphdrainage in ${adresse.ort}: Jeveauxeffect® für Körper und `
-      + `Gesicht bei ${site.name}, lizenzierter Partner der Jeveaux Company®.`,
+    description:
+      `Brasilianische Lymphdrainage in ${adresse.ort}: Jeveauxeffect® für Körper und ` +
+      `Gesicht bei ${site.name}, lizenzierter Partner der Jeveaux Company®.`,
     defaultLocale: 'de',
     trailingSlash: false,
   },
@@ -107,28 +108,28 @@ export default defineNuxtConfig({
   schemaOrg: {
     identity: {
       '@type': ['Organization', 'LocalBusiness', 'HealthAndBeautyBusiness'],
-      'name': site.name,
-      'description': `Studio für brasilianische Lymphdrainage in ${adresse.ort}.`,
-      'url': siteUrl,
-      'logo': `${siteUrl}/images/logo.jpg`,
-      'image': `${siteUrl}/images/studio-1.jpg`,
-      'telephone': kontakt.telefon,
-      'email': kontakt.email,
-      'priceRange': preisSpanne,
-      'currenciesAccepted': 'EUR',
-      'address': {
+      name: site.name,
+      description: `Studio für brasilianische Lymphdrainage in ${adresse.ort}.`,
+      url: siteUrl,
+      logo: `${siteUrl}/images/logo.jpg`,
+      image: `${siteUrl}/images/studio-1.jpg`,
+      telephone: kontakt.telefon,
+      email: kontakt.email,
+      priceRange: preisSpanne,
+      currenciesAccepted: 'EUR',
+      address: {
         streetAddress: adresse.strasse,
         postalCode: adresse.plz,
         addressLocality: adresse.ort,
         addressCountry: adresse.land,
       },
-      'areaServed': [adresse.ort, 'Ruhrgebiet'],
+      areaServed: [adresse.ort, 'Ruhrgebiet'],
       // Solange kein Profil hinterlegt ist, steht hier nichts: ein leeres sameAs wäre ein
       // Fehler im Structured Data.
       ...(kontakt.instagram ? { sameAs: [kontakt.instagram] } : {}),
       // Keine openingHoursSpecification: das Studio arbeitet auf Termin, und erfundene
       // Öffnungszeiten im Structured Data wären eine Falschangabe gegenüber Google.
-      'slogan': oeffnungszeiten.hinweis,
+      slogan: oeffnungszeiten.hinweis,
     },
   },
 
@@ -150,7 +151,12 @@ export default defineNuxtConfig({
   fonts: {
     families: [
       // Wird beim Build heruntergeladen und selbst gehostet, es geht also kein Request an Google.
-      { name: 'Playfair Display', provider: 'google', weights: [400, 500, 600], styles: ['normal'] },
+      {
+        name: 'Playfair Display',
+        provider: 'google',
+        weights: [400, 500, 600],
+        styles: ['normal'],
+      },
     ],
   },
 
@@ -158,16 +164,16 @@ export default defineNuxtConfig({
     domain: siteUrl,
     title: `${site.name} – ${site.tagline}`,
     description:
-      `${site.name} ist ein Studio für brasilianische Lymphdrainage in ${adresse.strasse}, `
-      + `${adresse.plz} ${adresse.ort}. Angeboten werden der ${koerper.name} als ästhetische `
-      + `Ganzkörperbehandlung (${koerper.preisEuro} Euro) und der ${gesicht.name} als `
-      + `Gesichtsbehandlung (${gesicht.preisEuro} Euro). ${site.name} ist lizenzierter Partner `
-      + `der Jeveaux Company®.`,
+      `${site.name} ist ein Studio für brasilianische Lymphdrainage in ${adresse.strasse}, ` +
+      `${adresse.plz} ${adresse.ort}. Angeboten werden der ${koerper.name} als ästhetische ` +
+      `Ganzkörperbehandlung (${koerper.preisEuro} Euro) und der ${gesicht.name} als ` +
+      `Gesichtsbehandlung (${gesicht.preisEuro} Euro). ${site.name} ist lizenzierter Partner ` +
+      `der Jeveaux Company®.`,
     notes: [
-      'Der Jeveauxeffect® ist eine ästhetische Anwendung im Beauty-Bereich, keine medizinische '
-      + 'oder therapeutische Behandlung, und ersetzt keine ärztliche Maßnahme.',
-      'Es werden keine Heilversprechen abgegeben. Beschriebene Effekte beruhen auf subjektiven '
-      + 'Wahrnehmungen und können individuell abweichen.',
+      'Der Jeveauxeffect® ist eine ästhetische Anwendung im Beauty-Bereich, keine medizinische ' +
+        'oder therapeutische Behandlung, und ersetzt keine ärztliche Maßnahme.',
+      'Es werden keine Heilversprechen abgegeben. Beschriebene Effekte beruhen auf subjektiven ' +
+        'Wahrnehmungen und können individuell abweichen.',
       'Behandelt wird nach Terminvereinbarung.',
       'Jeveauxeffect® und Jeveauxeffect Face® sind eingetragene Marken der Jeveaux Company®.',
     ],

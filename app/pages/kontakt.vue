@@ -15,8 +15,8 @@ useSeite({
   ogTitel: 'Kontakt und Termin',
   kurzTitel: 'Kontakt',
   beschreibung:
-    `Termin für brasilianische Lymphdrainage bei Shape & Flow, ${adresse.strasse}, ${adresse.plz} `
-    + `${adresse.ort}. Per WhatsApp, telefonisch oder online buchen.`,
+    `Termin für brasilianische Lymphdrainage bei Shape & Flow, ${adresse.strasse}, ${adresse.plz} ` +
+    `${adresse.ort}. Per WhatsApp, telefonisch oder online buchen.`,
   ogLabel: 'Kontakt',
 })
 
@@ -82,9 +82,7 @@ const wege = [
 
       <div class="mt-14 grid gap-14 lg:grid-cols-2 lg:gap-20">
         <div>
-          <h2 class="text-2xl sm:text-3xl">
-            Adresse und Anfahrt
-          </h2>
+          <h2 class="text-2xl sm:text-3xl">Adresse und Anfahrt</h2>
           <address class="mt-5 space-y-1 text-lg not-italic">
             <p>{{ site.name }}</p>
             <p>{{ adresse.strasse }}</p>
@@ -105,12 +103,8 @@ const wege = [
         </div>
 
         <div class="sf-prose">
-          <h2 class="mt-0!">
-            Was in die Anfrage gehört
-          </h2>
-          <p>
-            Damit die Antwort schneller passt, schreiben Sie am besten gleich mit:
-          </p>
+          <h2 class="mt-0!">Was in die Anfrage gehört</h2>
+          <p>Damit die Antwort schneller passt, schreiben Sie am besten gleich mit:</p>
           <ul>
             <li>welche Behandlung Sie interessiert, Körper oder Gesicht</li>
             <li>an welchen Tagen und Uhrzeiten es Ihnen passt</li>
@@ -119,8 +113,9 @@ const wege = [
           <p>
             Der letzte Punkt ist kein Formalismus. Es gibt Situationen, in denen nicht behandelt
             wird, und die klären wir lieber vor als nach der Terminvergabe.
-            <NuxtLink to="/brasilianische-lymphdrainage#gegenanzeigen">Die Gegenanzeigen stehen
-              hier</NuxtLink>.
+            <NuxtLink to="/brasilianische-lymphdrainage#gegenanzeigen"
+              >Die Gegenanzeigen stehen hier</NuxtLink
+            >.
           </p>
         </div>
       </div>

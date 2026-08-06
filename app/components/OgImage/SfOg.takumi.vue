@@ -12,15 +12,18 @@ import { adresse, site } from '#shared/site'
  * Renderer als Datei laden kann: "Playfair Display" wird beim Build heruntergeladen, "sans-serif"
  * ist die eingebaute Reserve. Ein Systemfont wie Georgia würde hier nur eine Warnung erzeugen.
  */
-withDefaults(defineProps<{
-  title?: string
-  description?: string
-  eyebrow?: string
-}>(), {
-  title: 'Brasilianische Lymphdrainage',
-  description: '',
-  eyebrow: site.nameAscii,
-})
+withDefaults(
+  defineProps<{
+    title?: string
+    description?: string
+    eyebrow?: string
+  }>(),
+  {
+    title: 'Brasilianische Lymphdrainage',
+    description: '',
+    eyebrow: site.nameAscii,
+  },
+)
 
 const anschrift = `${adresse.strasse} · ${adresse.plz} ${adresse.ort}`
 

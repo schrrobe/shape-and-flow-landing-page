@@ -10,17 +10,13 @@
  * dekorative Element der Seite und kommt genau an dieser Stelle vor.
  */
 defineProps<{
-  phasen: { titel: string, text: string }[]
+  phasen: { titel: string; text: string }[]
 }>()
 </script>
 
 <template>
   <ol class="sf-ablauf relative">
-    <li
-      v-for="(phase, i) in phasen"
-      :key="phase.titel"
-      class="relative pb-10 pl-16 last:pb-0"
-    >
+    <li v-for="(phase, i) in phasen" :key="phase.titel" class="relative pb-10 pl-16 last:pb-0">
       <!--
         Die Linie sitzt am li und endet beim letzten Element, damit sie nicht ins Leere läuft.
         Als Pseudoelement per CSS, weil ein SVG pro Schritt nur mehr Markup für dasselbe Bild wäre.

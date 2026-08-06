@@ -10,7 +10,7 @@ defineProps<{
   lead?: string
   label?: string
   /** Zwischenstufen ohne Start und ohne die aktuelle Seite, gleiche Angabe wie bei useSeite. */
-  pfad?: { name: string, url: string }[]
+  pfad?: { name: string; url: string }[]
 }>()
 </script>
 
@@ -24,9 +24,7 @@ defineProps<{
           daneben.
         -->
         <li>
-          <NuxtLink to="/" class="hover:text-primary hover:underline">
-            Startseite
-          </NuxtLink>
+          <NuxtLink to="/" class="hover:text-primary hover:underline"> Startseite </NuxtLink>
         </li>
         <li v-for="stufe in pfad" :key="stufe.url" class="flex items-center gap-x-2">
           <span aria-hidden="true" class="opacity-50">/</span>

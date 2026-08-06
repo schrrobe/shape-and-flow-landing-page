@@ -9,8 +9,8 @@ useSeite({
   titel: mitOrt('Brasilianische Lymphdrainage'),
   ogTitel: `Brasilianische Lymphdrainage in ${adresse.ort}`,
   beschreibung:
-    `Jeveauxeffect® bei ${site.name} in ${adresse.ort}: brasilianische Lymphdrainage für Körper `
-    + `und Gesicht. Ästhetische Behandlung mit festem Ablauf, Termine nach Vereinbarung.`,
+    `Jeveauxeffect® bei ${site.name} in ${adresse.ort}: brasilianische Lymphdrainage für Körper ` +
+    `und Gesicht. Ästhetische Behandlung mit festem Ablauf, Termine nach Vereinbarung.`,
   ogLabel: site.tagline,
 })
 
@@ -18,15 +18,15 @@ const phasen = [
   {
     titel: 'Aktivieren',
     text:
-      'Zum Auftakt wird die Lymphe mit sanften, rhythmischen Griffen angeregt. Das ist der leise '
-      + 'Teil der Behandlung und bereitet das Gewebe auf das vor, was danach kommt.',
+      'Zum Auftakt wird die Lymphe mit sanften, rhythmischen Griffen angeregt. Das ist der leise ' +
+      'Teil der Behandlung und bereitet das Gewebe auf das vor, was danach kommt.',
   },
   {
     titel: 'Modellieren',
     text:
-      'Dann wird mit deutlich mehr Druck gearbeitet und modelliert. Dieser Teil ist spürbar und '
-      + 'folgt einer festen Abfolge von Griffen. Wie kräftig gearbeitet wird, stimmen wir '
-      + 'unterwegs miteinander ab.',
+      'Dann wird mit deutlich mehr Druck gearbeitet und modelliert. Dieser Teil ist spürbar und ' +
+      'folgt einer festen Abfolge von Griffen. Wie kräftig gearbeitet wird, stimmen wir ' +
+      'unterwegs miteinander ab.',
   },
 ]
 
@@ -52,7 +52,7 @@ const startFaq = faqZuThema('allgemein').slice(0, 4)
       <div
         class="sf-on-inverse flex flex-col justify-center bg-inverse-surface px-5 py-14 text-inverse-text sm:px-8 sm:py-20 lg:py-24 lg:pr-14 lg:pl-[max(2rem,calc((100vw-72rem)/2+2rem))]"
       >
-        <SfWordmark variant="stacked" subline class="items-start! text-left! self-start" />
+        <SfWordmark variant="stacked" subline class="items-start! self-start text-left!" />
 
         <h1 class="mt-10 text-3xl sm:text-4xl lg:text-[2.75rem]">
           Brasilianische Lymphdrainage in {{ adresse.ort }}
@@ -96,9 +96,7 @@ const startFaq = faqZuThema('allgemein').slice(0, 4)
     <!-- Behandlungen -->
     <section class="sf-container py-16 sm:py-20">
       <span class="sf-eyebrow">Zwei Behandlungen</span>
-      <h2 class="mt-3 text-3xl sm:text-4xl">
-        Körper und Gesicht
-      </h2>
+      <h2 class="mt-3 text-3xl sm:text-4xl">Körper und Gesicht</h2>
       <p class="sf-lead mt-4 text-text-secondary">
         Beide folgen derselben Methode. Sie lassen sich einzeln buchen oder nacheinander.
       </p>
@@ -131,9 +129,7 @@ const startFaq = faqZuThema('allgemein').slice(0, 4)
       <div class="sf-container grid gap-12 py-16 sm:py-20 lg:grid-cols-[0.9fr_1.1fr] lg:gap-20">
         <div>
           <span class="sf-eyebrow">Der Ablauf</span>
-          <h2 class="mt-3 text-3xl sm:text-4xl">
-            Erst aktivieren, dann modellieren
-          </h2>
+          <h2 class="mt-3 text-3xl sm:text-4xl">Erst aktivieren, dann modellieren</h2>
           <p class="mt-4 text-text-secondary">
             Die Behandlung läuft in zwei Teilen, immer in dieser Reihenfolge. Das unterscheidet den
             Jeveauxeffect® von einer Massage, bei der nach Gefühl gearbeitet wird.
@@ -148,9 +144,7 @@ const startFaq = faqZuThema('allgemein').slice(0, 4)
       <div class="grid gap-12 lg:grid-cols-2 lg:gap-20">
         <div>
           <span class="sf-eyebrow">Danach</span>
-          <h2 class="mt-3 text-3xl sm:text-4xl">
-            Was Kundinnen beschreiben
-          </h2>
+          <h2 class="mt-3 text-3xl sm:text-4xl">Was Kundinnen beschreiben</h2>
           <ul class="sf-liste mt-6">
             <li v-for="eindruck in eindruecke" :key="eindruck">
               {{ eindruck }}
@@ -170,7 +164,8 @@ const startFaq = faqZuThema('allgemein').slice(0, 4)
             <NuxtLink
               to="/brasilianische-lymphdrainage#gegenanzeigen"
               class="text-primary underline underline-offset-2 hover:no-underline"
-            >Die Gegenanzeigen stehen hier</NuxtLink>.
+              >Die Gegenanzeigen stehen hier</NuxtLink
+            >.
           </p>
         </SfHinweis>
       </div>
@@ -181,17 +176,13 @@ const startFaq = faqZuThema('allgemein').slice(0, 4)
       <div class="sf-container grid items-center gap-10 py-16 sm:py-20 lg:grid-cols-2 lg:gap-16">
         <div>
           <span class="sf-eyebrow">Das Studio</span>
-          <h2 class="mt-3 text-3xl sm:text-4xl">
-            Ein Raum, eine Kundin
-          </h2>
+          <h2 class="mt-3 text-3xl sm:text-4xl">Ein Raum, eine Kundin</h2>
           <p class="mt-4 max-w-prose text-text-secondary">
             Shape &amp; Flow ist ein kleines Studio in {{ adresse.stadtteil }}, in der
             {{ adresse.strasse }}. Es gibt einen Behandlungsraum und keine Parallelbetreuung, Sie
             haben den Termin also für sich.
           </p>
-          <SfButton to="/studio" variant="secondary" class="mt-6">
-            Studio ansehen
-          </SfButton>
+          <SfButton to="/studio" variant="secondary" class="mt-6"> Studio ansehen </SfButton>
         </div>
         <!-- Hochformat auf 4:5 beschnitten, sonst überragt das Bild die Textspalte deutlich. -->
         <NuxtImg
@@ -209,9 +200,7 @@ const startFaq = faqZuThema('allgemein').slice(0, 4)
     <!-- Fragen -->
     <section class="sf-container py-16 sm:py-20">
       <span class="sf-eyebrow">Häufige Fragen</span>
-      <h2 class="mt-3 text-3xl sm:text-4xl">
-        Bevor Sie kommen
-      </h2>
+      <h2 class="mt-3 text-3xl sm:text-4xl">Bevor Sie kommen</h2>
       <div class="mt-8 max-w-3xl">
         <SfFaqListe :eintraege="startFaq" />
         <NuxtLink

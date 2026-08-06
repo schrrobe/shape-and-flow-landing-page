@@ -16,15 +16,15 @@ export const ratgeber: Artikel[] = [
   {
     titel: 'Wassereinlagerungen: Ursachen und was hilft',
     anriss:
-      'Warum sich Flüssigkeit im Gewebe sammelt, was im Alltag dagegen hilft und wann eine '
-      + 'Schwellung ärztlich abgeklärt werden sollte.',
+      'Warum sich Flüssigkeit im Gewebe sammelt, was im Alltag dagegen hilft und wann eine ' +
+      'Schwellung ärztlich abgeklärt werden sollte.',
     route: '/ratgeber/wassereinlagerungen',
   },
   {
     titel: 'Brasilianische oder medizinische Lymphdrainage?',
     anriss:
-      'Ziel, Druck, Verordnung und Kosten im Vergleich. Der Unterschied entscheidet, wo Sie einen '
-      + 'Termin brauchen.',
+      'Ziel, Druck, Verordnung und Kosten im Vergleich. Der Unterschied entscheidet, wo Sie einen ' +
+      'Termin brauchen.',
     route: '/ratgeber/brasilianische-vs-medizinische-lymphdrainage',
   },
 ]

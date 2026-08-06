@@ -29,15 +29,13 @@ useHead({ meta: [{ name: 'robots', content: 'noindex, follow' }] })
 
     <div class="sf-container">
       <div class="sf-prose">
-        <h2 class="mt-0!">
-          Verantwortliche Stelle
-        </h2>
+        <h2 class="mt-0!">Verantwortliche Stelle</h2>
         <p>
-          {{ site.name }}<br>
+          {{ site.name }}<br />
           <!-- TODO: identisch zum Impressum -->
-          [Vor- und Nachname der Inhaberin eintragen]<br>
-          {{ adresse.strasse }}, {{ adresse.plz }} {{ adresse.ort }}<br>
-          E-Mail: {{ kontakt.email }}<br>
+          [Vor- und Nachname der Inhaberin eintragen]<br />
+          {{ adresse.strasse }}, {{ adresse.plz }} {{ adresse.ort }}<br />
+          E-Mail: {{ kontakt.email }}<br />
           Telefon: {{ kontakt.telefonAnzeige }}
         </p>
 
@@ -66,16 +64,16 @@ useHead({ meta: [{ name: 'robots', content: 'noindex, follow' }] })
         <p>
           Diese Website speichert keine Cookies und verwendet keine Analyse-, Tracking- oder
           Werbedienste. Deshalb gibt es hier auch kein Einwilligungsbanner. Die verwendete Schrift
-          wird von unserem eigenen Server geladen, es entsteht also keine Verbindung zu Google
-          Fonts oder einem anderen Anbieter.
+          wird von unserem eigenen Server geladen, es entsteht also keine Verbindung zu Google Fonts
+          oder einem anderen Anbieter.
         </p>
 
         <h2>Kontaktaufnahme</h2>
         <p>
           Wenn Sie uns per E-Mail, Telefon oder WhatsApp erreichen, verarbeiten wir Ihre Angaben zur
           Bearbeitung Ihrer Anfrage. Rechtsgrundlage ist Art. 6 Abs. 1 lit. b DSGVO bei einer
-          Terminanfrage, sonst Art. 6 Abs. 1 lit. f DSGVO. Wir bewahren die Angaben so lange auf, wie
-          es für die Anfrage nötig ist, und darüber hinaus nur, soweit gesetzliche
+          Terminanfrage, sonst Art. 6 Abs. 1 lit. f DSGVO. Wir bewahren die Angaben so lange auf,
+          wie es für die Anfrage nötig ist, und darüber hinaus nur, soweit gesetzliche
           Aufbewahrungsfristen bestehen.
         </p>
         <p>
@@ -84,15 +82,14 @@ useHead({ meta: [{ name: 'robots', content: 'noindex, follow' }] })
           keinen Einfluss haben. Wenn Sie das nicht möchten, nutzen Sie bitte Telefon oder E-Mail.
         </p>
         <p>
-          Bitte senden Sie uns keine Angaben zu Ihrer Gesundheit per Nachricht. Was gesundheitlich zu
-          beachten ist, besprechen wir im Studio.
+          Bitte senden Sie uns keine Angaben zu Ihrer Gesundheit per Nachricht. Was gesundheitlich
+          zu beachten ist, besprechen wir im Studio.
         </p>
 
         <h2>Online-Terminbuchung</h2>
         <p>
           Für die Terminbuchung verlinken wir auf ein eigenes Buchungssystem unter einer anderen
-          Adresse. Sobald Sie diesem Link folgen, gilt die Datenschutzerklärung des
-          Buchungssystems.
+          Adresse. Sobald Sie diesem Link folgen, gilt die Datenschutzerklärung des Buchungssystems.
         </p>
 
         <h2>Externe Links</h2>
@@ -104,8 +101,8 @@ useHead({ meta: [{ name: 'robots', content: 'noindex, follow' }] })
 
         <h2>Ihre Rechte</h2>
         <p>
-          Sie haben das Recht auf Auskunft (Art. 15 DSGVO), Berichtigung (Art. 16), Löschung
-          (Art. 17), Einschränkung der Verarbeitung (Art. 18), Datenübertragbarkeit (Art. 20) und
+          Sie haben das Recht auf Auskunft (Art. 15 DSGVO), Berichtigung (Art. 16), Löschung (Art.
+          17), Einschränkung der Verarbeitung (Art. 18), Datenübertragbarkeit (Art. 20) und
           Widerspruch gegen eine Verarbeitung auf Grundlage berechtigter Interessen (Art. 21). Eine
           erteilte Einwilligung können Sie jederzeit widerrufen.
         </p>
@@ -119,9 +116,9 @@ useHead({ meta: [{ name: 'robots', content: 'noindex, follow' }] })
         <p>
           <!-- TODO: Namen und Sitz des Hosting-Anbieters ergänzen und, falls nötig, auf den
                Auftragsverarbeitungsvertrag hinweisen -->
-          Die Website wird auf einem Server in [Land eintragen] betrieben, den wir bei
-          [Anbieter eintragen] gemietet haben. Mit dem Anbieter besteht ein Vertrag zur
-          Auftragsverarbeitung nach Art. 28 DSGVO.
+          Die Website wird auf einem Server in [Land eintragen] betrieben, den wir bei [Anbieter
+          eintragen] gemietet haben. Mit dem Anbieter besteht ein Vertrag zur Auftragsverarbeitung
+          nach Art. 28 DSGVO.
         </p>
       </div>
     </div>

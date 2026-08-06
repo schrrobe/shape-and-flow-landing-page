@@ -1,9 +1,12 @@
 <script setup lang="ts">
 /* Die Kartenfläche der Booking-App: weiß auf Beige, ein Rahmen, ein flacher Schatten. */
-withDefaults(defineProps<{
-  /** Weglassen, wenn die Karte selbst schon Innenabstand mitbringt (etwa bei Bildern). */
-  padded?: boolean
-}>(), { padded: true })
+withDefaults(
+  defineProps<{
+    /** Weglassen, wenn die Karte selbst schon Innenabstand mitbringt (etwa bei Bildern). */
+    padded?: boolean
+  }>(),
+  { padded: true },
+)
 </script>
 
 <template>

@@ -25,8 +25,8 @@ export const behandlungen: Behandlung[] = [
     name: 'Jeveauxeffect®',
     titel: 'Brasilianische Lymphdrainage für den Körper',
     kurz:
-      'Ästhetische Ganzkörperbehandlung, die Lymphdrainage, Faszienarbeit und Körpermodellierung '
-      + 'in einem festen Ablauf verbindet.',
+      'Ästhetische Ganzkörperbehandlung, die Lymphdrainage, Faszienarbeit und Körpermodellierung ' +
+      'in einem festen Ablauf verbindet.',
     preisEuro: 150,
     dauerMinuten: null,
     route: '/jeveauxeffect',
@@ -36,8 +36,8 @@ export const behandlungen: Behandlung[] = [
     name: 'Jeveauxeffect Face®',
     titel: 'Brasilianische Lymphdrainage für das Gesicht',
     kurz:
-      'Gesichtsbehandlung mit Fokus auf Entstauung, klarere Konturen und ein frisches, '
-      + 'waches Aussehen.',
+      'Gesichtsbehandlung mit Fokus auf Entstauung, klarere Konturen und ein frisches, ' +
+      'waches Aussehen.',
     preisEuro: 50,
     dauerMinuten: null,
     route: '/lymphdrainage-gesicht',
@@ -54,9 +54,9 @@ export function behandlungBySlug(slug: string): Behandlung | undefined {
  * Abgeleitet und nicht getippt: sonst steht in der Konfiguration eine Spanne, die nach der
  * nächsten Preisänderung hier nicht mehr stimmt.
  */
-export const preisSpanne
-  = `${Math.min(...behandlungen.map(b => b.preisEuro))} - `
-    + `${Math.max(...behandlungen.map(b => b.preisEuro))} EUR`
+export const preisSpanne =
+  `${Math.min(...behandlungen.map(b => b.preisEuro))} - ` +
+  `${Math.max(...behandlungen.map(b => b.preisEuro))} EUR`
 
 /** Formatiert einen Preis deutsch: 150 → "150 €". Ganze Beträge ohne Nachkommastellen. */
 export function preis(euro: number): string {

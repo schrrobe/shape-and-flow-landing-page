@@ -24,21 +24,19 @@ useHead({ meta: [{ name: 'robots', content: 'noindex, follow' }] })
 
     <div class="sf-container">
       <div class="sf-prose">
-        <h2 class="mt-0!">
-          Angaben gemäß § 5 DDG
-        </h2>
+        <h2 class="mt-0!">Angaben gemäß § 5 DDG</h2>
         <p>
-          {{ site.name }}<br>
+          {{ site.name }}<br />
           <!-- TODO: vollständigen Namen der Inhaberin eintragen -->
-          Inhaberin: [Vor- und Nachname eintragen]<br>
-          {{ adresse.strasse }}<br>
-          {{ adresse.plz }} {{ adresse.ort }}<br>
+          Inhaberin: [Vor- und Nachname eintragen]<br />
+          {{ adresse.strasse }}<br />
+          {{ adresse.plz }} {{ adresse.ort }}<br />
           Deutschland
         </p>
 
         <h2>Kontakt</h2>
         <p>
-          Telefon: {{ kontakt.telefonAnzeige }}<br>
+          Telefon: {{ kontakt.telefonAnzeige }}<br />
           E-Mail: {{ kontakt.email }}
         </p>
 
@@ -53,7 +51,7 @@ useHead({ meta: [{ name: 'robots', content: 'noindex, follow' }] })
         <h2>Verantwortlich für den Inhalt</h2>
         <p>
           <!-- TODO: identisch zur Inhaberin oben -->
-          [Vor- und Nachname eintragen]<br>
+          [Vor- und Nachname eintragen]<br />
           {{ adresse.strasse }}, {{ adresse.plz }} {{ adresse.ort }}
         </p>
 
@@ -71,9 +69,7 @@ useHead({ meta: [{ name: 'robots', content: 'noindex, follow' }] })
         </p>
 
         <h2>Bildnachweis</h2>
-        <p>
-          Die Studioaufnahmen und das Logo stammen von {{ site.name }}.
-        </p>
+        <p>Die Studioaufnahmen und das Logo stammen von {{ site.name }}.</p>
 
         <h2>Haftung für Inhalte und Links</h2>
         <p>
@@ -83,9 +79,9 @@ useHead({ meta: [{ name: 'robots', content: 'noindex, follow' }] })
         </p>
         <p>
           Für die Inhalte verlinkter externer Seiten sind deren Betreiber verantwortlich. Zum
-          Zeitpunkt der Verlinkung waren dort keine rechtswidrigen Inhalte erkennbar. Eine dauerhafte
-          inhaltliche Kontrolle fremder Seiten ist ohne konkreten Anlass nicht zumutbar. Bei
-          Kenntnis von Rechtsverstößen entfernen wir solche Links.
+          Zeitpunkt der Verlinkung waren dort keine rechtswidrigen Inhalte erkennbar. Eine
+          dauerhafte inhaltliche Kontrolle fremder Seiten ist ohne konkreten Anlass nicht zumutbar.
+          Bei Kenntnis von Rechtsverstößen entfernen wir solche Links.
         </p>
 
         <h2>Urheberrecht</h2>
