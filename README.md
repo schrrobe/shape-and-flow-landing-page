@@ -13,8 +13,17 @@ npm install
 npm run dev        # Entwicklungsserver auf http://localhost:3000
 npm run build      # Produktionsbuild, rendert alle Seiten vor
 npm start          # den gebauten Server starten
+
+npm run lint         # ESLint, keine Warnungen erlaubt
+npm run lint:fix     # dasselbe mit --fix
+npm run format       # Prettier schreibt
+npm run format:check # Prettier prüft nur
 npm run typecheck
 ```
+
+Die drei Prüfungen laufen bei jeder PR im Job _Prüfungen_. ESLint lädt seine Basis aus
+`.nuxt/eslint.config.mjs`, das `nuxt prepare` erzeugt — nach einem frisch geklonten Repository
+also erst `npm install` laufen lassen, sonst bricht `npm run lint` mit einem Import-Fehler ab.
 
 ## Stack
 
@@ -29,7 +38,9 @@ Gerendert wird hybrid: es läuft ein Node-Server, aber jede Seite wird beim Buil
 
 `fusion` deployt nach dev, `main` nach stage. Produktion bewegt sich erst, wenn die Release-PR von
 release-please gemergt wird — Commits also im Conventional-Commits-Format schreiben, sonst taucht
-die Änderung im CHANGELOG nicht auf. Einzelheiten in [docs/deploy.md](docs/deploy.md).
+die Änderung im CHANGELOG nicht auf. commitlint prüft in der PR sowohl die Commits als auch den
+Titel, weil beim Squash-Merge der Titel zur Commit-Message wird. Einzelheiten in
+[docs/deploy.md](docs/deploy.md).
 
 ## Wo was liegt
 
