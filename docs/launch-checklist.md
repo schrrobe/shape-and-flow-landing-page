@@ -13,7 +13,7 @@ grep -rn "TODO" shared/ app/ --include="*.ts" --include="*.vue"
 
 | Feld                 | Was hin muss                                                                                                                                                                                                                    |
 | -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `kontakt.email`      | Echte Adresse. Aktuell steht `hallo@shapeandflow.de` als Annahme drin. Sie steht im Impressum, in der Datenschutzerklärung, im Structured Data und ist das Ziel des Kontaktformulars.                                           |
+| `kontakt.email`      | Erledigt: `hallo@shapeandflow.de`. Steht im Impressum, in der Datenschutzerklärung, im Footer und im Structured Data und empfängt die Anfragen aus dem Kontaktformular.                                                         |
 | `kontakt.buchungUrl` | Steht fest auf `https://booking.shapeandflow.de`. Der Server bedient bislang `buchung.shapeandflow.de` — dort muss also ein Vhost oder eine Weiterleitung für `booking.` her, sonst laufen alle Termin-Schaltflächen ins Leere. |
 | `kontakt.instagram`  | Profiladresse oder auf `null` lassen.                                                                                                                                                                                           |
 

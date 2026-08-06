@@ -39,7 +39,10 @@ export const adresse = {
  * bevor jemand eine Nachricht abschickt.
  */
 export const kontakt = {
-  /** TODO: echte E-Mail-Adresse eintragen. Steht auf der Seite und empfängt die Formularanfragen. */
+  /**
+   * Die Adresse, die auf der Website steht — Impressum, Datenschutzerklärung, Footer, mailto-Link
+   * und Structured Data — und in der die Anfragen aus dem Kontaktformular landen.
+   */
   email: 'hallo@shapeandflow.de',
   /**
    * Absender der Formularmails, nicht für Antworten gedacht: die Antwort geht über Reply-To an
