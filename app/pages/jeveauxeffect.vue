@@ -128,8 +128,8 @@ const nichtGeeignet = [
             src="/images/studio-1.jpg"
             alt="Massageliege mit orangefarbenem Plaid im Behandlungsraum von Shape and Flow in Dortmund"
             class="aspect-4/5 w-full rounded-sf border border-border object-cover shadow-card"
-            width="1301"
-            height="1626"
+            width="360"
+            height="480"
             sizes="100vw lg:22rem"
             loading="lazy"
           />

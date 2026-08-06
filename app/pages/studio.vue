@@ -26,8 +26,8 @@ useSeite({
           src="/images/studio-1.jpg"
           alt="Behandlungsraum bei Shape and Flow: Massageliege mit orangefarbenem Plaid vor der orangefarbenen Wand mit Jeveaux-Postern"
           class="aspect-4/5 w-full rounded-sf border border-border object-cover shadow-card"
-          width="1301"
-          height="1626"
+          width="360"
+          height="480"
           sizes="100vw sm:46vw"
         />
         <NuxtImg
