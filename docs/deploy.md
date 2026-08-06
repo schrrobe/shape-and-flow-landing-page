@@ -172,14 +172,17 @@ Nach der Änderung `sudo nginx -t` vor dem Reload.
 Dazu die Zugangsdaten des Postausgangsservers für das Kontaktformular. Sie gehören ins jeweilige
 Environment, weil dev und stage sinnvollerweise in ein anderes Postfach schreiben als production:
 
-| Ort                 | Name              | Wert                                                           |
-| ------------------- | ----------------- | -------------------------------------------------------------- |
-| Variable            | `SMTP_HOST`       | Postausgangsserver des Mail-Providers                          |
-| Variable            | `SMTP_PORT`       | `587` (STARTTLS) oder `465` (implizites TLS), Standard `587`   |
-| Variable            | `SMTP_USER`       | Postfach, über das versandt wird                               |
-| Secret              | `SMTP_PASSWORD`   | Kennwort dieses Postfachs                                      |
-| Variable (optional) | `SMTP_ABSENDER`   | Absenderadresse der Formularmails, sonst `SMTP_USER`           |
-| Variable (optional) | `SMTP_EMPFAENGER` | Zielpostfach der Anfragen, sonst `kontakt.email` aus `shared/` |
+| Ort                 | Name              | Wert                                                         |
+| ------------------- | ----------------- | ------------------------------------------------------------ |
+| Variable            | `SMTP_HOST`       | Postausgangsserver des Mail-Providers                        |
+| Variable            | `SMTP_PORT`       | `587` (STARTTLS) oder `465` (implizites TLS), Standard `587` |
+| Variable            | `SMTP_USER`       | Postfach, über das versandt wird                             |
+| Secret              | `SMTP_PASSWORD`   | Kennwort dieses Postfachs                                    |
+| Variable (optional) | `SMTP_ABSENDER`   | überschreibt `kontakt.absenderEmail` aus `shared/site.ts`    |
+| Variable (optional) | `SMTP_EMPFAENGER` | überschreibt `kontakt.email`, etwa ein Testpostfach für dev  |
+
+Die beiden optionalen schreibt der Deploy nur, wenn sie gesetzt sind: eine leere Zuweisung wäre
+für Nitro ein Wert und würde die Adressen aus `shared/site.ts` überschreiben statt offenlassen.
 
 Der Schritt „Umgebungsdatei schreiben" setzt sie als `NUXT_SMTP_*` in `/opt/landing/<env>/.env.<env>`,
 und `docker-compose.prod.yml` gibt genau diese Namen an den Container weiter. Fehlen sie, läuft der

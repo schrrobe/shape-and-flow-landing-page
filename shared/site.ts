@@ -39,8 +39,17 @@ export const adresse = {
  * bevor jemand eine Nachricht abschickt.
  */
 export const kontakt = {
-  /** TODO: echte E-Mail-Adresse eintragen. */
+  /** TODO: echte E-Mail-Adresse eintragen. Steht auf der Seite und empfängt die Formularanfragen. */
   email: 'hallo@shapeandflow.de',
+  /**
+   * Absender der Formularmails, nicht für Antworten gedacht: die Antwort geht über Reply-To an
+   * die anfragende Person, nicht an dieses Postfach.
+   *
+   * Eine eigene Adresse und nicht `email`, damit im Postfach auf einen Blick zu sehen ist, was
+   * vom eigenen Server kommt und was jemand von Hand geschrieben hat. Sie steht nirgends auf der
+   * Website — wer sie anschreibt, hat sie aus einem Mail-Header.
+   */
+  absenderEmail: 'nicht-antworten@shapeandflow.de',
   /** Adresse der Booking-App. Alle Termin-Schaltflächen zeigen hierher. */
   buchungUrl: 'https://booking.shapeandflow.de',
   /** TODO: Instagram-Profil eintragen oder auf null setzen, dann wird der Link ausgeblendet. */

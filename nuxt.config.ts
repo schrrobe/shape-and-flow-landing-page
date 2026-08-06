@@ -119,10 +119,14 @@ export default defineNuxtConfig({
       port: 587,
       user: '',
       password: '',
-      /** Absenderadresse der Formularmails. Leer: dann wird `user` genommen. */
-      absender: '',
-      /** Zielpostfach. Leer: dann geht die Anfrage an kontakt.email aus shared/site.ts. */
-      empfaenger: '',
+      /*
+       * Absender und Empfänger stehen in shared/site.ts und damit an derselben Stelle wie die
+       * übrigen Kontaktdaten. Hier sind sie nur der Default: NUXT_SMTP_ABSENDER und
+       * NUXT_SMTP_EMPFAENGER überschreiben sie, etwa um Anfragen von dev und stage in ein
+       * Testpostfach zu leiten.
+       */
+      absender: kontakt.absenderEmail,
+      empfaenger: kontakt.email,
     },
   },
 

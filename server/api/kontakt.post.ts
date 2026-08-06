@@ -147,9 +147,12 @@ export default defineEventHandler(async event => {
 
   try {
     await transport.sendMail({
-      // Der Absender ist das eigene Postfach, nicht die Adresse der Anfragenden: eine fremde
-      // Absenderadresse fällt bei SPF und DMARC durch und landet im Spam. Die Antwort geht
-      // trotzdem an die richtige Stelle, dafür ist replyTo da.
+      // Der Absender ist eine eigene Adresse der eigenen Domain und nicht die der Anfragenden:
+      // eine fremde Absenderadresse fällt bei SPF und DMARC durch und landet im Spam. Die
+      // Antwort geht trotzdem an die richtige Stelle, dafür ist replyTo da.
+      //
+      // Das `|| smtp.user` ist der Rückfall, wenn NUXT_SMTP_ABSENDER als leerer Wert in der
+      // env-Datei steht: ohne From-Adresse nimmt kein Mailserver die Nachricht an.
       from: { name: `${site.name} Kontaktformular`, address: smtp.absender || smtp.user },
       to: smtp.empfaenger || kontakt.email,
       replyTo: { name: anfrage.name, address: anfrage.email },
