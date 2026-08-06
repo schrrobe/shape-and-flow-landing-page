@@ -17,10 +17,10 @@ grep -rn "TODO" shared/ app/ --include="*.ts" --include="*.vue"
 | `kontakt.telefonAnzeige` | Dieselbe Nummer lesbar formatiert, etwa `+49 231 1234567`. |
 | `kontakt.whatsapp` | Nummer nur als Ziffern mit Ländervorwahl, etwa `4915112345678`. Ohne Plus und ohne Leerzeichen, sonst funktioniert der `wa.me`-Link nicht. |
 | `kontakt.email` | Echte Adresse. Aktuell steht `hallo@shapeandflow.de` als Annahme drin. |
-| `kontakt.buchungUrl` | Adresse der Booking-App. Aktuell `https://booking.shapeandflow.de` als Annahme — der Server bedient aber `buchung.shapeandflow.de`, der Link geht also derzeit ins Leere. |
+| `kontakt.buchungUrl` | Steht fest auf `https://booking.shapeandflow.de`. Der Server bedient bislang `buchung.shapeandflow.de` — dort muss also ein Vhost oder eine Weiterleitung für `booking.` her, sonst laufen alle Termin-Schaltflächen ins Leere. |
 | `kontakt.instagram` | Profiladresse oder auf `null` lassen. |
 
-Diese sechs Werte sind der Grund, warum die Seite noch nicht live gehen sollte: die
+Diese Werte sind der Grund, warum die Seite noch nicht live gehen sollte: die
 Terminschaltflächen stehen auf jeder Seite und führen derzeit ins Leere.
 
 ### Impressum (`app/pages/impressum.vue`)
