@@ -30,6 +30,21 @@ export default defineNuxtConfig({
     // Erzeugt .nuxt/eslint.config.mjs mit den Auto-Imports dieses Projekts. Ohne das Modul hielte
     // ESLint useSeoMeta, defineOgImageComponent und den Rest für undefinierte Globals.
     '@nuxt/eslint',
+    /*
+     * axe-core als Panel in den Nuxt DevTools. `enabled` steht per Default auf `nuxt.options.dev`,
+     * im Produktionsbuild macht das Modul also nichts.
+     *
+     * Version 1.0.0-alpha.1 kann ausschließlich das. Der Build-Zeit-Report, den das README des
+     * Projekts beschreibt, ist unveröffentlichter Code: im Paket gibt es weder die Option noch
+     * den `prerender:generate`-Hook. Selbst wenn — er ließe axe in linkedom laufen, also ohne
+     * Layout und ohne Cascade. Über die 13 Seiten dieser Site gemessen ergibt das null Verstöße
+     * und 39 Regeln, die mangels Rendering unentschieden bleiben: Kontrast, `landmark-one-main`,
+     * `page-has-heading-one`. Genau die Fragen also, für die man axe überhaupt einsetzt.
+     *
+     * Beantwortet werden sie vom Job "Barrierefreiheit" in ci.yml, der axe in einem echten
+     * Browser gegen die vorgerenderten Seiten laufen lässt.
+     */
+    '@nuxt/a11y',
     // Sammelmodul: sitemap, robots, schema-org, og-image, link-checker, seo-utils, site-config.
     '@nuxtjs/seo',
     '@nuxt/image',
