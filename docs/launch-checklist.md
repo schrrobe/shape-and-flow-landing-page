@@ -25,13 +25,20 @@ Terminschaltflächen stehen auf jeder Seite und führen derzeit ins Leere.
 
 ### Impressum (`app/pages/impressum.vue`)
 
-Vollständiger Vor- und Nachname der Inhaberin an zwei Stellen, dazu die Umsatzsteuerangabe:
-entweder die USt-IdNr. nach § 27 a UStG oder, bei Kleinunternehmerregelung nach § 19 UStG, den
-entsprechenden Hinweis. Ein Impressum mit Platzhaltern ist abmahnbar.
+Der Name der Inhaberin ist eingetragen und steht in `shared/site.ts`, damit die drei Stellen im
+Impressum und in der Datenschutzerklärung nicht auseinanderlaufen.
+
+Offen ist die **Umsatzsteuerangabe**: entweder die USt-IdNr. nach § 27 a UStG oder, bei
+Kleinunternehmerregelung nach § 19 UStG, der entsprechende Hinweis. Ein Impressum mit
+Platzhaltern ist abmahnbar.
 
 ### Datenschutzerklärung (`app/pages/datenschutz.vue`)
 
-Name der Inhaberin, dazu Anbieter und Standort des Hostings (Hostinger, Land des Servers).
+Erledigt: Name der Inhaberin, Standort des Servers (Deutschland) und Anbieter (Hostinger).
+
+Wer die vollständige Firmierung der Vertragspartnerin ergänzen will, nimmt sie aus dem
+Auftragsverarbeitungsvertrag. Art. 13 DSGVO verlangt an dieser Stelle den Empfänger, nicht dessen
+Handelsregisteranschrift — die Angabe ist also kein Blocker.
 
 ## Nicht blockierend, aber empfohlen
 

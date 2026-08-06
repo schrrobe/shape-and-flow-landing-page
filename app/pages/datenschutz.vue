@@ -32,8 +32,7 @@ useHead({ meta: [{ name: 'robots', content: 'noindex, follow' }] })
         <h2 class="mt-0!">Verantwortliche Stelle</h2>
         <p>
           {{ site.name }}<br />
-          <!-- TODO: identisch zum Impressum -->
-          [Vor- und Nachname der Inhaberin eintragen]<br />
+          {{ site.inhaberin }}<br />
           {{ adresse.strasse }}, {{ adresse.plz }} {{ adresse.ort }}<br />
           E-Mail: {{ kontakt.email }}<br />
           Telefon: {{ kontakt.telefonAnzeige }}
@@ -114,11 +113,12 @@ useHead({ meta: [{ name: 'robots', content: 'noindex, follow' }] })
 
         <h2>Hosting</h2>
         <p>
-          <!-- TODO: Namen und Sitz des Hosting-Anbieters ergänzen und, falls nötig, auf den
-               Auftragsverarbeitungsvertrag hinweisen -->
-          Die Website wird auf einem Server in [Land eintragen] betrieben, den wir bei [Anbieter
-          eintragen] gemietet haben. Mit dem Anbieter besteht ein Vertrag zur Auftragsverarbeitung
-          nach Art. 28 DSGVO.
+          <!-- Der Sitz der Vertragspartnerin steht bewusst nicht hier: er gehört in den
+               Auftragsverarbeitungsvertrag, und Art. 13 DSGVO verlangt an dieser Stelle den
+               Empfänger, nicht dessen Handelsregisteranschrift. Wer die vollständige Firmierung
+               ergänzen will, nimmt sie aus dem AVV und nicht aus der Hostinger-Website. -->
+          Die Website wird auf einem Server in Deutschland betrieben, den wir bei Hostinger gemietet
+          haben. Mit dem Anbieter besteht ein Vertrag zur Auftragsverarbeitung nach Art. 28 DSGVO.
         </p>
       </div>
     </div>

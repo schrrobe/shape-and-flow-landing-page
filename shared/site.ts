@@ -13,6 +13,12 @@ export const site = {
   name: 'Shape & Flow',
   /** Used where the ampersand would need escaping or reads badly, e.g. in URLs and alt text. */
   nameAscii: 'Shape and Flow',
+  /**
+   * Die Inhaberin. Steht dreimal auf der Website — im Impressum als Inhaberin und als
+   * Verantwortliche für den Inhalt, in der Datenschutzerklärung als verantwortliche Stelle. Das
+   * DDG und die DSGVO verlangen an diesen Stellen denselben Namen; deshalb einer statt drei.
+   */
+  inhaberin: 'Karin Pospelov',
   tagline: 'Brasilianische Lymphdrainage in Dortmund',
   url: 'https://shapeandflow.de',
 } as const

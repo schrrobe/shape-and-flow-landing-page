@@ -4,9 +4,12 @@ import { adresse, kontakt, site } from '#shared/site'
 /*
  * Pflichtangaben nach § 5 DDG.
  *
- * Die mit TODO markierten Stellen müssen vor dem Livegang mit den echten Angaben der Inhaberin
- * gefüllt werden. Ein Impressum mit Platzhaltern ist abmahnbar, deshalb steht diese Seite auch in
- * docs/launch-checklist.md.
+ * Der Name der Inhaberin kommt aus shared/site.ts, weil dieselbe Angabe hier zweimal und in der
+ * Datenschutzerklärung ein drittes Mal steht — DDG und DSGVO verlangen an allen drei Stellen
+ * denselben Namen.
+ *
+ * Offen ist noch die Umsatzsteuerangabe, siehe TODO unten. Ein Impressum mit Platzhaltern ist
+ * abmahnbar, deshalb steht diese Seite auch in docs/launch-checklist.md.
  */
 useSeite({
   titel: 'Impressum',
@@ -27,8 +30,7 @@ useHead({ meta: [{ name: 'robots', content: 'noindex, follow' }] })
         <h2 class="mt-0!">Angaben gemäß § 5 DDG</h2>
         <p>
           {{ site.name }}<br />
-          <!-- TODO: vollständigen Namen der Inhaberin eintragen -->
-          Inhaberin: [Vor- und Nachname eintragen]<br />
+          Inhaberin: {{ site.inhaberin }}<br />
           {{ adresse.strasse }}<br />
           {{ adresse.plz }} {{ adresse.ort }}<br />
           Deutschland
@@ -50,8 +52,7 @@ useHead({ meta: [{ name: 'robots', content: 'noindex, follow' }] })
 
         <h2>Verantwortlich für den Inhalt</h2>
         <p>
-          <!-- TODO: identisch zur Inhaberin oben -->
-          [Vor- und Nachname eintragen]<br />
+          {{ site.inhaberin }}<br />
           {{ adresse.strasse }}, {{ adresse.plz }} {{ adresse.ort }}
         </p>
 
