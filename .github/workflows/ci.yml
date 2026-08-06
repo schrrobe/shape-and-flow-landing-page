@@ -118,6 +118,40 @@ jobs:
           PR_TITLE: ${{ github.event.pull_request.title }}
         run: printf '%s' "$PR_TITLE" | npx commitlint --verbose
 
+  # axe-core in einem echten Browser gegen die vorgerenderten Seiten. Das ist die einzige Stufe,
+  # die Kontrast, Sichtbarkeit und Fokusreihenfolge beurteilen kann — im simulierten DOM bleiben
+  # genau diese Regeln unentschieden, siehe docs/barrierefreiheit.md.
+  #
+  # continue-on-error, weil der Lauf heute an drei bekannten Kontrastverstößen scheitert. Die
+  # hängen an --sf-primary, also an einer Markenfarbe, die aus dem booking-app-Repo stammt; das
+  # ist keine Entscheidung, die eine CI erzwingen sollte. Der Report steht trotzdem in jeder PR.
+  # Wenn die Tokens korrigiert sind, fällt diese Zeile weg und der Job wird zum Gate.
+  a11y:
+    name: Barrierefreiheit
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version-file: .tool-versions
+          cache: npm
+
+      - run: npm ci
+
+      # Nur Chromium: die Prüfung misst gerendertes CSS, nicht Browser-Unterschiede.
+      - run: npx playwright install --with-deps chromium
+
+      # Der Test liest die Routenliste aus .output/public, braucht also einen Build. `nuxt preview`
+      # startet Playwright anschließend selbst.
+      - run: npm run build
+
+      - run: npm run test:a11y
+
   # ── Deployment ──────────────────────────────────────────────────────────────
 
   deploy-dev:

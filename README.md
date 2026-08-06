@@ -19,11 +19,16 @@ npm run lint:fix     # dasselbe mit --fix
 npm run format       # Prettier schreibt
 npm run format:check # Prettier prüft nur
 npm run typecheck
+npm run test:a11y    # axe in Chromium, braucht ein vorheriges npm run build
 ```
 
-Die drei Prüfungen laufen bei jeder PR im Job _Prüfungen_. ESLint lädt seine Basis aus
+Lint, Formatcheck und Typecheck laufen bei jeder PR im Job _Prüfungen_. ESLint lädt seine Basis aus
 `.nuxt/eslint.config.mjs`, das `nuxt prepare` erzeugt — nach einem frisch geklonten Repository
 also erst `npm install` laufen lassen, sonst bricht `npm run lint` mit einem Import-Fehler ab.
+
+Die Barrierefreiheitsprüfung hat einen eigenen Job und ist derzeit nicht blockierend: sie scheitert
+an drei bekannten Kontrastverstößen, die an einer Markenfarbe hängen. Einzelheiten und der Weg
+heraus stehen in [docs/barrierefreiheit.md](docs/barrierefreiheit.md).
 
 ## Stack
 
