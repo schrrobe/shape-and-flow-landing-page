@@ -3,7 +3,8 @@
 Website für **Shape & Flow**, Studio für brasilianische Lymphdrainage (Jeveauxeffect®) in der
 Preinstraße 61, 44265 Dortmund. Deutschsprachig, auf lokale Suche und auf KI-Agenten ausgelegt.
 
-Live unter `shapeandflow.de`, Vorschau unter `dev.shapeandflow.de`.
+Live unter `shapeandflow.de`. Vorschau unter `stage.shapeandflow.de` (was auf `main` liegt) und
+`dev.shapeandflow.de` (was auf `fusion` liegt), beide hinter Basic Auth.
 
 ## Befehle
 
@@ -23,6 +24,12 @@ robots.txt, Structured Data, OG-Bilder und Link-Prüfung, `@nuxt/image` für Bil
 
 Gerendert wird hybrid: es läuft ein Node-Server, aber jede Seite wird beim Build vorgerendert. Siehe
 [docs/deploy.md](docs/deploy.md).
+
+## Branches
+
+`fusion` deployt nach dev, `main` nach stage. Produktion bewegt sich erst, wenn die Release-PR von
+release-please gemergt wird — Commits also im Conventional-Commits-Format schreiben, sonst taucht
+die Änderung im CHANGELOG nicht auf. Einzelheiten in [docs/deploy.md](docs/deploy.md).
 
 ## Wo was liegt
 
