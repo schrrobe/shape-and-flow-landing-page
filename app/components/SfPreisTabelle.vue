@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { behandlungen, preis } from '#shared/behandlungen'
+import { behandlungen, preis, preispositionen } from '#shared/behandlungen'
 import { site } from '#shared/site'
 
 /*
@@ -8,6 +8,9 @@ import { site } from '#shared/site'
  * Eine Liste aus <div>s würde genauso aussehen, aber eine Tabelle sagt Screenreadern und
  * Suchmaschinen, dass Behandlung und Preis zusammengehören. Die Preise selbst stehen in
  * shared/behandlungen.ts und damit an derselben Stelle wie im Structured Data.
+ *
+ * Zwei Gruppen in einer Tabelle: die Einzelbehandlungen mit Link auf ihre Seite, darunter
+ * Kombitermin und Pakete, die keine eigene Seite haben.
  */
 </script>
 
@@ -36,11 +39,7 @@ import { site } from '#shared/site'
       </tr>
     </thead>
     <tbody>
-      <tr
-        v-for="behandlung in behandlungen"
-        :key="behandlung.slug"
-        class="border-b border-border last:border-b-0"
-      >
+      <tr v-for="behandlung in behandlungen" :key="behandlung.slug" class="border-b border-border">
         <th scope="row" class="py-5 pr-4 align-top font-normal">
           <NuxtLink
             :to="behandlung.route"
@@ -57,6 +56,30 @@ import { site } from '#shared/site'
         </th>
         <td class="py-5 text-right align-top font-display text-xl whitespace-nowrap">
           {{ preis(behandlung.preisEuro) }}
+        </td>
+      </tr>
+    </tbody>
+    <tbody>
+      <tr class="border-b border-border">
+        <th
+          scope="colgroup"
+          colspan="2"
+          class="pt-12 pb-3 text-sm font-medium tracking-wide text-text-secondary uppercase"
+        >
+          Kombitermin und Pakete
+        </th>
+      </tr>
+      <tr
+        v-for="position in preispositionen"
+        :key="position.slug"
+        class="border-b border-border last:border-b-0"
+      >
+        <th scope="row" class="py-5 pr-4 align-top font-normal">
+          <span class="font-display text-xl text-text-primary">{{ position.name }}</span>
+          <span class="mt-1 block text-sm text-text-secondary">{{ position.hinweis }}</span>
+        </th>
+        <td class="py-5 text-right align-top font-display text-xl whitespace-nowrap">
+          {{ preis(position.preisEuro) }}
         </td>
       </tr>
     </tbody>

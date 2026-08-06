@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { behandlungBySlug, behandlungen, preis } from '#shared/behandlungen'
+import { behandlungBySlug, behandlungen, preis, preispositionen } from '#shared/behandlungen'
 import { faqZuThema } from '#shared/faq'
 import { adresse, disclaimer, site } from '#shared/site'
 
@@ -7,6 +7,7 @@ import { adresse, disclaimer, site } from '#shared/site'
 // Suchergebnis nach der nächsten Preisänderung mit einem Betrag, den die Seite nicht mehr nennt.
 const koerper = behandlungBySlug('jeveauxeffect')!
 const gesicht = behandlungBySlug('lymphdrainage-gesicht')!
+const kombi = preispositionen.find(p => p.slug === 'kombi-koerper-gesicht')!
 
 useSeite({
   titel: mitOrt('Preise brasilianische Lymphdrainage'),
@@ -14,7 +15,8 @@ useSeite({
   beschreibung:
     `Preise bei ${site.name} in ${adresse.ort}: ${gesicht.name} für das Gesicht ` +
     `${preis(gesicht.preisEuro)}, ${koerper.name} für den Körper ` +
-    `${preis(koerper.preisEuro)}. Keine versteckten Kosten.`,
+    `${preis(koerper.preisEuro)}, beides zusammen ${preis(kombi.preisEuro)}. ` +
+    `Pakete günstiger pro Behandlung, keine versteckten Kosten.`,
   ogLabel: 'Preise',
 })
 
@@ -24,15 +26,26 @@ useSchemaOrg([
   // Eine Angebotsliste, damit die Preise auch maschinenlesbar an einer Stelle stehen.
   defineItemList({
     name: 'Behandlungen und Preise',
-    itemListElement: behandlungen.map(b =>
-      defineOffer({
-        name: b.name,
-        description: b.titel,
-        price: b.preisEuro,
-        priceCurrency: 'EUR',
-        availability: 'https://schema.org/InStock',
-      }),
-    ),
+    itemListElement: [
+      ...behandlungen.map(b =>
+        defineOffer({
+          name: b.name,
+          description: b.titel,
+          price: b.preisEuro,
+          priceCurrency: 'EUR',
+          availability: 'https://schema.org/InStock',
+        }),
+      ),
+      ...preispositionen.map(p =>
+        defineOffer({
+          name: p.name,
+          description: p.hinweis,
+          price: p.preisEuro,
+          priceCurrency: 'EUR',
+          availability: 'https://schema.org/InStock',
+        }),
+      ),
+    ],
   }),
 ])
 
@@ -44,8 +57,8 @@ useFaqSchema(preisFaq)
     <SfSeitenkopf
       titel="Preise"
       label="Was es kostet"
-      lead="Zwei Behandlungen, zwei Preise. Bezahlt wird pro Termin, es gibt keine Mitgliedschaft
-        und keine Grundgebühr."
+      lead="Zwei Behandlungen, einzeln oder zusammen, dazu Pakete für mehrere Termine. Bezahlt
+        wird pro Termin, es gibt keine Mitgliedschaft und keine Grundgebühr."
     />
 
     <div class="sf-container">
@@ -54,7 +67,8 @@ useFaqSchema(preisFaq)
 
         <p class="mt-6 text-sm text-text-secondary">
           Alle Preise in Euro und inklusive Mehrwertsteuer. Beide Behandlungen lassen sich einzeln
-          oder zusammen buchen.
+          oder zusammen buchen. Bei den Paketen gilt der genannte Preis pro Behandlung, das Paket
+          wird im Studio vereinbart.
         </p>
       </div>
 

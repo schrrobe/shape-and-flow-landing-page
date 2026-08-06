@@ -140,8 +140,11 @@ export const faq: FaqEintrag[] = [
   {
     frage: 'Was kostet die Behandlung?',
     antwort: [
-      'Die Gesichtsbehandlung Jeveauxeffect Face® kostet 50 Euro, die Körperbehandlung ' +
-        'Jeveauxeffect® kostet 150 Euro.',
+      'Die Gesichtsbehandlung Jeveauxeffect Face® kostet 65 Euro, die Körperbehandlung ' +
+        'Jeveauxeffect® kostet 150 Euro. Beide zusammen in einem Termin kosten 215 Euro.',
+      'Für mehrere Termine gibt es Pakete: die Körperbehandlung kostet im 5er Paket 130 Euro und ' +
+        'im 10er Paket 120 Euro pro Behandlung, die Gesichtsbehandlung 59 Euro im 5er Paket und ' +
+        '45 Euro im 10er Paket pro Behandlung.',
     ],
     themen: ['preise'],
   },

@@ -38,7 +38,7 @@ export const behandlungen: Behandlung[] = [
     kurz:
       'Gesichtsbehandlung mit Fokus auf Entstauung, klarere Konturen und ein frisches, ' +
       'waches Aussehen.',
-    preisEuro: 50,
+    preisEuro: 65,
     dauerMinuten: null,
     route: '/lymphdrainage-gesicht',
   },
@@ -48,15 +48,65 @@ export function behandlungBySlug(slug: string): Behandlung | undefined {
   return behandlungen.find(b => b.slug === slug)
 }
 
+export interface Preisposition {
+  slug: string
+  /** Name der Position, wie er in der Preistabelle steht. */
+  name: string
+  /** Ein Satz darunter: was in der Position enthalten ist. */
+  hinweis: string
+  preisEuro: number
+}
+
 /**
- * Die Preisspanne für das LocalBusiness-Structured-Data, im Format "50 - 150 EUR".
+ * Kombitermin und Paketpreise.
+ *
+ * Bewusst getrennt von den Behandlungen: es sind andere Preise für dieselben zwei Behandlungen,
+ * also keine eigenen Seiten und keine eigenen Navigationseinträge, sondern nur Zeilen in der
+ * Preistabelle und Angebote im Structured Data. Paketpreise gelten pro Behandlung.
+ */
+export const preispositionen: Preisposition[] = [
+  {
+    slug: 'kombi-koerper-gesicht',
+    name: 'Jeveauxeffect® und Jeveauxeffect Face®',
+    hinweis: 'Körper- und Gesichtsbehandlung zusammen in einem Termin',
+    preisEuro: 215,
+  },
+  {
+    slug: 'jeveauxeffect-5er',
+    name: 'Jeveauxeffect® 5er Paket',
+    hinweis: 'Preis pro Körperbehandlung bei fünf Terminen',
+    preisEuro: 130,
+  },
+  {
+    slug: 'jeveauxeffect-10er',
+    name: 'Jeveauxeffect® 10er Paket',
+    hinweis: 'Preis pro Körperbehandlung bei zehn Terminen',
+    preisEuro: 120,
+  },
+  {
+    slug: 'jeveauxeffect-face-5er',
+    name: 'Jeveauxeffect Face® 5er Paket',
+    hinweis: 'Preis pro Gesichtsbehandlung bei fünf Terminen',
+    preisEuro: 59,
+  },
+  {
+    slug: 'jeveauxeffect-face-10er',
+    name: 'Jeveauxeffect Face® 10er Paket',
+    hinweis: 'Preis pro Gesichtsbehandlung bei zehn Terminen',
+    preisEuro: 45,
+  },
+]
+
+/** Alle Preise auf der Seite, Einzelbehandlungen und Pakete. */
+const allePreise = [...behandlungen.map(b => b.preisEuro), ...preispositionen.map(p => p.preisEuro)]
+
+/**
+ * Die Preisspanne für das LocalBusiness-Structured-Data, im Format "45 - 215 EUR".
  *
  * Abgeleitet und nicht getippt: sonst steht in der Konfiguration eine Spanne, die nach der
  * nächsten Preisänderung hier nicht mehr stimmt.
  */
-export const preisSpanne =
-  `${Math.min(...behandlungen.map(b => b.preisEuro))} - ` +
-  `${Math.max(...behandlungen.map(b => b.preisEuro))} EUR`
+export const preisSpanne = `${Math.min(...allePreise)} - ${Math.max(...allePreise)} EUR`
 
 /** Formatiert einen Preis deutsch: 150 → "150 €". Ganze Beträge ohne Nachkommastellen. */
 export function preis(euro: number): string {
