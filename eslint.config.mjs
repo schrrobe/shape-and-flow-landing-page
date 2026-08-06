@@ -3,9 +3,20 @@
 // Auto-Imports dieses Projekts. Die Datei ist deshalb nicht eingecheckt — ohne `npm ci` oder
 // `npx nuxt prepare` schlägt `eslint .` mit einem Import-Fehler fehl.
 import eslintConfigPrettier from 'eslint-config-prettier'
+import vuejsAccessibility from 'eslint-plugin-vuejs-accessibility'
 import withNuxt from './.nuxt/eslint.config.mjs'
 
 export default withNuxt(
+  /*
+   * Barrierefreiheit, soweit sie am Quelltext ablesbar ist: ein Bild ohne alt, ein <a> ohne
+   * Ziel, ein Klick-Handler auf einem <div>, eine ARIA-Rolle, die es nicht gibt. Das Regelwerk
+   * findet im aktuellen Stand nichts — es steht hier als Rückfallsicherung für neue Seiten.
+   *
+   * Was am Quelltext nicht ablesbar ist, sieht es auch nicht: Kontrastverhältnisse,
+   * Fokusreihenfolge, ob ein Element am Ende sichtbar ist. Dafür läuft axe im Job
+   * "Barrierefreiheit" gegen die fertig gerenderten Seiten.
+   */
+  ...vuejsAccessibility.configs['flat/recommended'],
   {
     rules: {
       // Auf einer statisch vorgerenderten Seite landet jedes console.* im Browser des Besuchers.
