@@ -188,6 +188,11 @@ jobs:
       IMAGE_TAG: ${{ needs.prepare.outputs.tag }}
       GHCR_OWNER: ${{ needs.prepare.outputs.owner }}
       WEB_PUBLISH_PORT: ${{ needs.prepare.outputs.port }}
+      # Ein eigenes Anmeldeverzeichnis je Umgebung. Die Concurrency-Gruppe trennt nur nach
+      # Umgebung, also können dev und stage gleichzeitig deployen — beide als Benutzer `deploy`
+      # auf derselben Maschine. Mit dem Standardpfad ~/.docker/config.json würde der
+      # `docker logout` des einen Deploys dem anderen die Anmeldung unter dem Hintern wegziehen.
+      REMOTE_DOCKER_CONFIG: /opt/landing/${{ inputs.env_name }}/.docker
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -252,7 +257,9 @@ jobs:
         run: |
           set -euo pipefail
           printf '%s' "$GHCR_TOKEN" \
-            | ssh -F /tmp/ssh_config landing "docker login ghcr.io -u '$ACTOR' --password-stdin"
+            | ssh -F /tmp/ssh_config landing \
+                "mkdir -p '$REMOTE_DOCKER_CONFIG' && chmod 700 '$REMOTE_DOCKER_CONFIG' \
+                 && DOCKER_CONFIG='$REMOTE_DOCKER_CONFIG' docker login ghcr.io -u '$ACTOR' --password-stdin"
 
       - name: Ziehen und starten
         run: |
@@ -261,7 +268,8 @@ jobs:
           # Umgebung der entfernten Shell. Der Heredoc-Körper ist gequotet und erreicht den
           # Server unverändert.
           # shellcheck disable=SC2029
-          ssh -F /tmp/ssh_config landing "DIR='$DIR' ENV_NAME='$ENV_NAME' bash -euo pipefail -s" <<'REMOTE_SCRIPT'
+          ssh -F /tmp/ssh_config landing \
+            "DIR='$DIR' ENV_NAME='$ENV_NAME' DOCKER_CONFIG='$REMOTE_DOCKER_CONFIG' bash -euo pipefail -s" <<'REMOTE_SCRIPT'
           cd "$DIR"
           COMPOSE="docker compose --env-file .env.$ENV_NAME -f docker-compose.prod.yml"
 
@@ -336,5 +344,6 @@ jobs:
           # Beides mit `|| true`: die Registry-Anmeldung und der Schlüssel gehören auch dann
           # weggeräumt, wenn der Deploy gescheitert ist, und kein Aufräumschritt soll den
           # eigentlichen Fehler überdecken.
-          ssh -F /tmp/ssh_config landing 'docker logout ghcr.io' || true
+          ssh -F /tmp/ssh_config landing \
+            "DOCKER_CONFIG='$REMOTE_DOCKER_CONFIG' docker logout ghcr.io" || true
           rm -f /tmp/deploy_key /tmp/deploy_known_hosts /tmp/ssh_config || true

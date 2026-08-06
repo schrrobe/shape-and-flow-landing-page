@@ -147,6 +147,17 @@ sudo rm -rf /var/www/shapeandflow          # der Platzhalter, jetzt unreferenzie
 
 Danach den privaten Schlüssel lokal löschen; er liegt ab dann nur noch als Repository-Secret.
 
+**Offen: HTTP/2.** Die Vhosts stehen auf `listen 443 ssl;` und sprechen damit nur HTTP/1.1. Die
+Syntax zum Einschalten hängt an der nginx-Version, und die falsche verhindert den Start:
+
+```bash
+ssh robert@186.240.146.22 'nginx -v'
+# 1.25.1 oder neuer → im server-Block: http2 on;
+# älter             → listen 443 ssl http2;  (auch in der [::]-Zeile)
+```
+
+Nach der Änderung `sudo nginx -t` vor dem Reload.
+
 ### Was in GitHub hinterlegt sein muss
 
 | Ort | Name | Wert |
@@ -160,6 +171,20 @@ Danach den privaten Schlüssel lokal löschen; er liegt ab dann nur noch als Rep
 `SSH_KNOWN_HOSTS` ist absichtlich eine Variable und kein Secret: der Hostkey ist öffentliche
 Information, als Secret wäre er in genau den Logzeilen zu `***` maskiert, die man bei einem
 SSH-Fehler lesen muss.
+
+Den Hostkey vor dem Eintragen einmal gegenprüfen. `ssh-keyscan` fragt den Server über genau den
+Netzwerkweg, dem man noch nicht traut; steht dort jemand dazwischen, speichert man dessen
+Schlüssel, und das `StrictHostKeyChecking yes` im Deploy bestätigt danach nur noch diese
+Fälschung. Vergleichen mit dem Fingerabdruck aus der VPS-Konsole des Providers (dort
+`ssh-keygen -lf /etc/ssh/ssh_host_ed25519_key.pub` ausführen):
+
+```bash
+ssh-keyscan -t ed25519 186.240.146.22 | ssh-keygen -lf -
+```
+
+Nur bei übereinstimmendem Fingerabdruck die vollständige `ssh-keyscan`-Zeile als
+`SSH_KNOWN_HOSTS` speichern. Wechselt der Schlüssel später (Neuinstallation, Serverumzug), gilt
+derselbe Ablauf — nicht blind die neue Ausgabe übernehmen.
 
 Zusätzlich muss unter *Settings → Actions → General* erlaubt sein, dass Actions Pull Requests
 anlegen — sonst kann release-please seine Release-PR nicht öffnen.

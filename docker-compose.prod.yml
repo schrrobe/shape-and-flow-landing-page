@@ -14,7 +14,10 @@ name: shape-and-flow-landing-${STACK_SUFFIX:-production}
 
 services:
   web:
-    image: ghcr.io/${GHCR_OWNER}/sf-landing:${IMAGE_TAG}
+    # Die :?-Form statt eines stillen Leerstrings: fehlt die env-Datei oder ein Eintrag darin,
+    # hieße das Image sonst `ghcr.io//sf-landing:` und der Fehler käme erst beim pull, getarnt
+    # als Registry-Problem.
+    image: ghcr.io/${GHCR_OWNER:?GHCR_OWNER fehlt in der env-Datei}/sf-landing:${IMAGE_TAG:?IMAGE_TAG fehlt in der env-Datei}
     container_name: sf-landing-${STACK_SUFFIX:-production}
     restart: unless-stopped
     ports:
