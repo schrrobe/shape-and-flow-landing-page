@@ -14,6 +14,11 @@ import { adresse, kontakt, site } from '#shared/site'
  * unten und es kommt keine Einwilligung im Sinne des § 25 TDDDG dazu. Wer das Formular um ein
  * Captcha, ein Analysewerkzeug oder eine Speicherung der Anfragen erweitert, muss den Absatz
  * ändern — die Angaben dort sind Art.-13-Pflichtangaben, keine Beschreibung.
+ *
+ * Ein Einwilligungshäkchen hat das Formular bewusst nicht, und dieser Text nennt deshalb auch
+ * keine Einwilligung als Rechtsgrundlage. Eine Einwilligung, ohne die das Formular nichts tut,
+ * wäre nach Art. 7 Abs. 4 DSGVO nicht freiwillig; Art. 6 Abs. 1 lit. b bzw. f trägt die Anfrage
+ * allein. Wer das Häkchen wieder einbaut, muss beides zusammen ändern.
  */
 useSeite({
   titel: 'Datenschutzerklärung',
@@ -90,10 +95,10 @@ useHead({ meta: [{ name: 'robots', content: 'noindex, follow' }] })
         </p>
         <p>
           Rechtsgrundlage ist Art. 6 Abs. 1 lit. b DSGVO, weil die Nachricht der Vorbereitung eines
-          Behandlungstermins dient, und im Übrigen Art. 6 Abs. 1 lit. a DSGVO auf Grundlage der
-          Einwilligung, die Sie beim Absenden erteilen. Sie können diese Einwilligung jederzeit für
-          die Zukunft widerrufen; die Rechtmäßigkeit der bis dahin erfolgten Verarbeitung bleibt
-          davon unberührt.
+          Behandlungstermins dient, sonst Art. 6 Abs. 1 lit. f DSGVO; das berechtigte Interesse
+          liegt darin, Anfragen zu beantworten. Eine Einwilligung holen wir dafür nicht ein und das
+          Formular verlangt auch keine: Wer eine Anfrage schickt, will eine Antwort, und die
+          Verarbeitung ist genau dafür nötig.
         </p>
         <p>
           Zum Schutz vor automatisierten Zusendungen enthält das Formular ein verstecktes Feld und
@@ -129,8 +134,7 @@ useHead({ meta: [{ name: 'robots', content: 'noindex, follow' }] })
         <p>
           Sie haben das Recht auf Auskunft (Art. 15 DSGVO), Berichtigung (Art. 16), Löschung (Art.
           17), Einschränkung der Verarbeitung (Art. 18), Datenübertragbarkeit (Art. 20) und
-          Widerspruch gegen eine Verarbeitung auf Grundlage berechtigter Interessen (Art. 21). Eine
-          erteilte Einwilligung können Sie jederzeit widerrufen.
+          Widerspruch gegen eine Verarbeitung auf Grundlage berechtigter Interessen (Art. 21).
         </p>
         <p>
           Wenden Sie sich dafür an die oben genannte Adresse. Außerdem können Sie sich bei einer

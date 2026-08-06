@@ -29,7 +29,6 @@ interface Anfrage {
   behandlung: string
   zeitfenster: string
   nachricht: string
-  einwilligung: boolean
   /** Honigtopf: für Menschen unsichtbar, deshalb füllen ihn nur Bots aus. */
   webseite: string
 }
@@ -96,7 +95,6 @@ export default defineEventHandler(async event => {
     behandlung: text(koerper?.behandlung, 'behandlung'),
     zeitfenster: text(koerper?.zeitfenster, 'zeitfenster'),
     nachricht: text(koerper?.nachricht, 'nachricht'),
-    einwilligung: koerper?.einwilligung === true,
     webseite: text(koerper?.webseite, 'name'),
   }
 
@@ -107,8 +105,10 @@ export default defineEventHandler(async event => {
   const fehler: Record<string, string> = {}
   if (anfrage.name.length < 2) fehler.name = 'Bitte einen Namen angeben.'
   if (!EMAIL_MUSTER.test(anfrage.email)) fehler.email = 'Bitte eine gültige E-Mail-Adresse angeben.'
+  // Kein Einwilligungsfeld: die Verarbeitung der Anfrage steht auf Art. 6 Abs. 1 lit. b bzw. f
+  // DSGVO. Eine Einwilligung, ohne die das Formular nichts tut, wäre nicht freiwillig und damit
+  // keine.
   if (anfrage.nachricht.length < 10) fehler.nachricht = 'Bitte etwas mehr schreiben.'
-  if (!anfrage.einwilligung) fehler.einwilligung = 'Ohne Einwilligung können wir nicht antworten.'
 
   if (Object.keys(fehler).length) {
     throw createError({

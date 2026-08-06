@@ -18,7 +18,6 @@ const felder = reactive({
   behandlung: '',
   zeitfenster: '',
   nachricht: '',
-  einwilligung: false,
   /** Honigtopf. Bleibt für Menschen leer, weil das Feld nicht sichtbar und nicht erreichbar ist. */
   webseite: '',
 })
@@ -200,32 +199,20 @@ async function absenden() {
         />
       </div>
 
-      <div class="mt-6 flex gap-3">
-        <input
-          id="kf-einwilligung"
-          v-model="felder.einwilligung"
-          class="mt-1 size-4 shrink-0 accent-primary"
-          type="checkbox"
-          name="einwilligung"
-          required
-          :aria-invalid="feldFehler.einwilligung ? 'true' : undefined"
-          :aria-describedby="feldFehler.einwilligung ? 'kf-einwilligung-fehler' : undefined"
-        />
-        <div>
-          <label for="kf-einwilligung" class="text-sm">
-            Ich bin damit einverstanden, dass meine Angaben zur Bearbeitung dieser Anfrage
-            verarbeitet werden. Näheres in der
-            <NuxtLink
-              to="/datenschutz"
-              class="text-primary underline underline-offset-2 hover:no-underline"
-              >Datenschutzerklärung</NuxtLink
-            >.
-          </label>
-          <p v-if="feldFehler.einwilligung" id="kf-einwilligung-fehler" class="sf-feldfehler">
-            {{ feldFehler.einwilligung }}
-          </p>
-        </div>
-      </div>
+      <!--
+        Hinweis statt Einwilligungshäkchen. Die Verarbeitung der Anfrage stützt sich auf Art. 6
+        Abs. 1 lit. b bzw. f DSGVO und braucht keine Einwilligung; ein Pflichthäkchen wäre auch
+        keine wirksame, weil eine Einwilligung nur freiwillig ist, wenn man sie verweigern kann,
+        ohne die Leistung zu verlieren. Der Wortlaut in app/pages/datenschutz.vue sagt dasselbe.
+      -->
+      <p class="mt-6 text-sm text-text-secondary">
+        Ihre Angaben verwenden wir, um diese Anfrage zu beantworten. Näheres in der
+        <NuxtLink
+          to="/datenschutz"
+          class="text-primary underline underline-offset-2 hover:no-underline"
+          >Datenschutzerklärung</NuxtLink
+        >.
+      </p>
 
       <div class="mt-7 flex flex-wrap items-center gap-4">
         <SfButton type="submit" size="lg" :aria-busy="zustand === 'sendet'">
