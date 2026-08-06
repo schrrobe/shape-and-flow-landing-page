@@ -26,7 +26,7 @@ useFaqSchema(faq)
       titel="Häufige Fragen"
       label="Fragen und Antworten"
       lead="Was Kundinnen vor dem ersten Termin wissen wollen. Wenn Ihre Frage fehlt, schreiben Sie
-        einfach kurz per WhatsApp."
+        uns kurz über das Kontaktformular."
     />
 
     <div class="sf-container">

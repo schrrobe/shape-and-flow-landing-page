@@ -4,10 +4,21 @@ import { adresse, kontakt, site } from '#shared/site'
 /*
  * Datenschutzerklärung.
  *
- * Sie ist kurz, weil die Website wenig tut: keine Cookies, kein Tracking, keine Formulare, keine
- * eingebetteten Karten oder Videos, Schriften selbst gehostet. Genau das steht hier auch. Wenn
- * später ein Kontaktformular, ein Pixel oder eine eingebettete Karte dazukommt, muss dieser Text
- * erweitert werden, und dann wird auch eine Einwilligungslösung fällig.
+ * Sie ist kurz, weil die Website wenig tut: keine Cookies, kein Tracking, keine eingebetteten
+ * Karten oder Videos, Schriften selbst gehostet. Genau das steht hier auch. Wenn später ein Pixel
+ * oder eine eingebettete Karte dazukommt, muss dieser Text erweitert werden, und dann wird auch
+ * eine Einwilligungslösung fällig.
+ *
+ * Das Kontaktformular ist die einzige Verarbeitung, die von der Website selbst ausgeht. Es setzt
+ * kein Cookie und lädt kein Captcha eines Drittanbieters, deshalb bleibt es beim Absatz weiter
+ * unten und es kommt keine Einwilligung im Sinne des § 25 TDDDG dazu. Wer das Formular um ein
+ * Captcha, ein Analysewerkzeug oder eine Speicherung der Anfragen erweitert, muss den Absatz
+ * ändern — die Angaben dort sind Art.-13-Pflichtangaben, keine Beschreibung.
+ *
+ * Ein Einwilligungshäkchen hat das Formular bewusst nicht, und dieser Text nennt deshalb auch
+ * keine Einwilligung als Rechtsgrundlage. Eine Einwilligung, ohne die das Formular nichts tut,
+ * wäre nach Art. 7 Abs. 4 DSGVO nicht freiwillig; Art. 6 Abs. 1 lit. b bzw. f trägt die Anfrage
+ * allein. Wer das Häkchen wieder einbaut, muss beides zusammen ändern.
  */
 useSeite({
   titel: 'Datenschutzerklärung',
@@ -34,8 +45,7 @@ useHead({ meta: [{ name: 'robots', content: 'noindex, follow' }] })
           {{ site.name }}<br />
           {{ site.inhaberin }}<br />
           {{ adresse.strasse }}, {{ adresse.plz }} {{ adresse.ort }}<br />
-          E-Mail: {{ kontakt.email }}<br />
-          Telefon: {{ kontakt.telefonAnzeige }}
+          E-Mail: {{ kontakt.email }}
         </p>
 
         <h2>Was beim Aufruf der Website passiert</h2>
@@ -69,20 +79,42 @@ useHead({ meta: [{ name: 'robots', content: 'noindex, follow' }] })
 
         <h2>Kontaktaufnahme</h2>
         <p>
-          Wenn Sie uns per E-Mail, Telefon oder WhatsApp erreichen, verarbeiten wir Ihre Angaben zur
-          Bearbeitung Ihrer Anfrage. Rechtsgrundlage ist Art. 6 Abs. 1 lit. b DSGVO bei einer
-          Terminanfrage, sonst Art. 6 Abs. 1 lit. f DSGVO. Wir bewahren die Angaben so lange auf,
-          wie es für die Anfrage nötig ist, und darüber hinaus nur, soweit gesetzliche
-          Aufbewahrungsfristen bestehen.
+          Wenn Sie uns per E-Mail erreichen, verarbeiten wir Ihre Angaben zur Bearbeitung Ihrer
+          Anfrage. Rechtsgrundlage ist Art. 6 Abs. 1 lit. b DSGVO bei einer Terminanfrage, sonst
+          Art. 6 Abs. 1 lit. f DSGVO. Wir bewahren die Angaben so lange auf, wie es für die Anfrage
+          nötig ist, und darüber hinaus nur, soweit gesetzliche Aufbewahrungsfristen bestehen.
+        </p>
+
+        <h2>Kontaktformular</h2>
+        <p>
+          Über das Formular auf der Kontaktseite übermitteln Sie Ihren Namen, Ihre E-Mail-Adresse,
+          Ihre Nachricht und, falls Sie sie angeben, die gewünschte Behandlung und Ihr Zeitfenster.
+          Diese Angaben werden von unserem Server als E-Mail an unser Studiopostfach zugestellt und
+          dort wie eine E-Mail-Anfrage behandelt. Auf dem Webserver selbst werden sie nicht
+          gespeichert.
         </p>
         <p>
-          Für WhatsApp gilt zusätzlich: der Dienst wird von WhatsApp Ireland Limited betrieben, und
-          bei der Nutzung werden Daten nach dessen eigenen Bestimmungen verarbeitet, auf die wir
-          keinen Einfluss haben. Wenn Sie das nicht möchten, nutzen Sie bitte Telefon oder E-Mail.
+          Rechtsgrundlage ist Art. 6 Abs. 1 lit. b DSGVO, weil die Nachricht der Vorbereitung eines
+          Behandlungstermins dient, sonst Art. 6 Abs. 1 lit. f DSGVO; das berechtigte Interesse
+          liegt darin, Anfragen zu beantworten. Eine Einwilligung holen wir dafür nicht ein und das
+          Formular verlangt auch keine: Wer eine Anfrage schickt, will eine Antwort, und die
+          Verarbeitung ist genau dafür nötig.
+        </p>
+        <p>
+          Zum Schutz vor automatisierten Zusendungen enthält das Formular ein verstecktes Feld und
+          der Server begrenzt die Zahl der Übermittlungen je Internetanschluss. Dafür wird Ihre
+          IP-Adresse für höchstens eine Stunde im Arbeitsspeicher gehalten. Rechtsgrundlage ist Art.
+          6 Abs. 1 lit. f DSGVO, das berechtigte Interesse liegt in der Abwehr von Missbrauch. Es
+          wird kein Captcha und kein Dienst eines Drittanbieters eingebunden.
         </p>
         <p>
           Bitte senden Sie uns keine Angaben zu Ihrer Gesundheit per Nachricht. Was gesundheitlich
           zu beachten ist, besprechen wir im Studio.
+        </p>
+        <p>
+          Die E-Mails werden über den Mailserver unseres Providers versandt und in unserem Postfach
+          bei diesem Provider abgelegt. Mit ihm besteht ein Vertrag zur Auftragsverarbeitung nach
+          Art. 28 DSGVO.
         </p>
 
         <h2>Online-Terminbuchung</h2>
@@ -102,8 +134,7 @@ useHead({ meta: [{ name: 'robots', content: 'noindex, follow' }] })
         <p>
           Sie haben das Recht auf Auskunft (Art. 15 DSGVO), Berichtigung (Art. 16), Löschung (Art.
           17), Einschränkung der Verarbeitung (Art. 18), Datenübertragbarkeit (Art. 20) und
-          Widerspruch gegen eine Verarbeitung auf Grundlage berechtigter Interessen (Art. 21). Eine
-          erteilte Einwilligung können Sie jederzeit widerrufen.
+          Widerspruch gegen eine Verarbeitung auf Grundlage berechtigter Interessen (Art. 21).
         </p>
         <p>
           Wenden Sie sich dafür an die oben genannte Adresse. Außerdem können Sie sich bei einer

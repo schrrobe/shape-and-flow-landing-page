@@ -25,6 +25,17 @@ services:
       # eigene iptables-Regeln, die an ufw vorbeigehen — ohne die Bindung an das Loopback-
       # Interface stünde der Port offen im Internet. Der Host-nginx ist der einzige Weg herein.
       - '127.0.0.1:${WEB_PUBLISH_PORT:-8090}:3000'
+    environment:
+      # Nur die Namen, keine Werte: so kommen die Zugangsdaten des Postausgangsservers aus der
+      # env-Datei auf dem Server und stehen nicht im Repository. Ohne sie startet der Container
+      # trotzdem — das Kontaktformular antwortet dann mit einem Hinweis auf die E-Mail-Adresse,
+      # statt Anfragen still zu verschlucken.
+      - NUXT_SMTP_HOST
+      - NUXT_SMTP_PORT
+      - NUXT_SMTP_USER
+      - NUXT_SMTP_PASSWORD
+      - NUXT_SMTP_ABSENDER
+      - NUXT_SMTP_EMPFAENGER
     logging:
       # Ohne Grenze wächst die JSON-Logdatei bis die Platte voll ist.
       driver: json-file

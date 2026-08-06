@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import { adresse, kontakt, oeffnungszeiten, telUrl, whatsappUrl } from '#shared/site'
+import { adresse, formularUrl, kontakt, mailtoUrl, oeffnungszeiten } from '#shared/site'
 
 /*
  * Der Terminblock. Steht am Ende jeder inhaltlichen Seite.
  *
- * Drei Wege, absichtlich in dieser Reihenfolge: WhatsApp zuerst, weil das der Kanal ist, über den
- * die meisten Anfragen kommen, dann das Telefon, dann die Online-Buchung für alle, die nicht
- * schreiben oder anrufen mögen.
+ * Drei Wege, absichtlich in dieser Reihenfolge: das Kontaktformular zuerst, weil es ohne
+ * Mailprogramm auskommt, dann die E-Mail für alle, die lieber aus ihrem eigenen Postfach
+ * schreiben, dann die Online-Buchung für alle, die direkt verbindlich buchen wollen.
  */
 withDefaults(
   defineProps<{
@@ -40,11 +40,11 @@ withDefaults(
     </p>
 
     <div class="mt-6 flex flex-wrap gap-3">
-      <SfButton :href="whatsappUrl" :variant="inverse ? 'inverse' : 'primary'" size="lg" external>
-        Per WhatsApp schreiben
+      <SfButton :to="formularUrl" :variant="inverse ? 'inverse' : 'primary'" size="lg">
+        Nachricht schreiben
       </SfButton>
-      <SfButton :href="telUrl" :variant="inverse ? 'inverse' : 'secondary'" size="lg">
-        Anrufen
+      <SfButton :href="mailtoUrl" :variant="inverse ? 'inverse' : 'secondary'" size="lg">
+        {{ kontakt.email }}
       </SfButton>
       <SfButton
         :href="kontakt.buchungUrl"

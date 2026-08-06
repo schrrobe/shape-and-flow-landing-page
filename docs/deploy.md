@@ -34,8 +34,9 @@ Versionsnummer sagt, was live steht.
 
 Hybrid: es läuft ein Node-Prozess, aber **jede Seite wird beim Build fertig gerendert**
 (`routeRules: { '/**': { prerender: true } }`). Suchmaschinen und KI-Agenten bekommen
-vollständiges HTML ohne Rendering pro Aufruf, und `server/api/` bleibt für später verfügbar, etwa
-für ein Kontaktformular.
+vollständiges HTML ohne Rendering pro Aufruf. Zur Laufzeit bedient der Prozess nur eine Route:
+`POST /api/kontakt` nimmt das Kontaktformular an und stellt die Anfrage per SMTP zu. Sie ist von
+der Prerender-Regel ausgenommen (`'/api/**': { prerender: false }`).
 
 Anders als früher liefert nginx keine Dateien mehr selbst aus, sondern reicht alles an den
 Container weiter. Nitro liefert die vorgerenderten Seiten und die vorkomprimierten `.br`-/`.gz`-
@@ -167,6 +168,34 @@ Nach der Änderung `sudo nginx -t` vor dem Reload.
 | Variable     | `SSH_KNOWN_HOSTS`            | Ausgabe von `ssh-keyscan -t ed25519 186.240.146.22` |
 | Secret       | `SSH_PRIVATE_KEY`            | der private Teil des Schlüssels von oben            |
 | Environments | `dev`, `stage`, `production` | für stage und production Branch-Policy `main`       |
+
+Dazu der Postausgangsserver für das Kontaktformular. Die Postfächer liegen bei ALL-INKL, nicht
+beim Hoster des VPS:
+
+| Ort                     | Name              | Wert                                                        |
+| ----------------------- | ----------------- | ----------------------------------------------------------- |
+| Repo-Variable           | `SMTP_HOST`       | `w021e434.kasserver.com`                                    |
+| Repo-Variable           | `SMTP_PORT`       | `465` (implizites TLS); `587` wäre STARTTLS, Standard `587` |
+| Repo-Variable           | `SMTP_USER`       | `nicht-antworten@shapeandflow.de`                           |
+| Secret                  | `SMTP_PASSWORD`   | Kennwort dieses Postfachs                                   |
+| Env-Variable dev, stage | `SMTP_EMPFAENGER` | `test@shapeandflow.de`                                      |
+| optional                | `SMTP_ABSENDER`   | überschreibt `kontakt.absenderEmail` aus `shared/site.ts`   |
+
+Host, Postfach und Kennwort gelten für alle drei Umgebungen, nur der Empfänger weicht ab:
+Environment-Variablen gehen Repo-Variablen vor, also schreiben dev und stage an
+`test@shapeandflow.de`, während production keinen Eintrag hat und `kontakt.email` nimmt. Testläufe
+landen so nicht im Studiopostfach.
+
+`SMTP_ABSENDER` und `SMTP_EMPFAENGER` schreibt der Deploy nur, wenn sie gesetzt sind: eine leere
+Zuweisung wäre für Nitro ein Wert und würde die Adressen aus `shared/site.ts` überschreiben statt
+offenlassen.
+
+Der Schritt „Umgebungsdatei schreiben" setzt sie als `NUXT_SMTP_*` in `/opt/landing/<env>/.env.<env>`,
+und `docker-compose.prod.yml` gibt genau diese Namen an den Container weiter. Fehlen sie, läuft der
+Deploy durch und die Website ebenfalls: das Formular antwortet dann mit einem Hinweis auf die
+E-Mail-Adresse, statt Anfragen still zu verschlucken. Das Kennwort steht im Klartext in der
+env-Datei, die deshalb mit `umask 077` geschrieben wird — der Deploy protokolliert nur die
+Schlüsselnamen, nie den Inhalt.
 
 `SSH_KNOWN_HOSTS` ist absichtlich eine Variable und kein Secret: der Hostkey ist öffentliche
 Information, als Secret wäre er in genau den Logzeilen zu `***` maskiert, die man bei einem
