@@ -1,14 +1,5 @@
 <script setup lang="ts">
-import {
-  adresse,
-  kartenUrl,
-  kontakt,
-  mailtoUrl,
-  oeffnungszeiten,
-  site,
-  telUrl,
-  whatsappUrl,
-} from '#shared/site'
+import { adresse, kartenUrl, kontakt, mailtoUrl, oeffnungszeiten, site } from '#shared/site'
 
 useSeite({
   titel: `Kontakt und Termin in ${adresse.ort}`,
@@ -16,23 +7,21 @@ useSeite({
   kurzTitel: 'Kontakt',
   beschreibung:
     `Termin für brasilianische Lymphdrainage bei Shape & Flow, ${adresse.strasse}, ${adresse.plz} ` +
-    `${adresse.ort}. Per WhatsApp, telefonisch oder online buchen.`,
+    `${adresse.ort}. Per Kontaktformular, per E-Mail oder online buchen.`,
   ogLabel: 'Kontakt',
 })
 
+/*
+ * Kein Telefon und kein WhatsApp: das Studio ist während einer Behandlung nicht am Apparat, und
+ * eine Anfrage, die im Postfach liegt, geht dabei seltener verloren als ein verpasster Anruf.
+ * Warum die Nummer auch im Impressum fehlt, steht in shared/site.ts.
+ */
 const wege = [
   {
-    titel: 'WhatsApp',
-    text: 'Der schnellste Weg. Schreiben Sie kurz, was Sie interessiert.',
-    label: 'Nachricht schreiben',
-    href: whatsappUrl,
-    external: true,
-  },
-  {
-    titel: 'Telefon',
-    text: 'Wenn gerade behandelt wird, klingelt es durch. Dann einfach später noch einmal.',
-    label: kontakt.telefonAnzeige,
-    href: telUrl,
+    titel: 'E-Mail',
+    text: 'Wenn Sie lieber aus Ihrem eigenen Postfach schreiben.',
+    label: kontakt.email,
+    href: mailtoUrl,
     external: false,
   },
   {
@@ -42,13 +31,6 @@ const wege = [
     href: kontakt.buchungUrl,
     external: true,
   },
-  {
-    titel: 'E-Mail',
-    text: 'Für alles, was länger ist als eine Nachricht.',
-    label: kontakt.email,
-    href: mailtoUrl,
-    external: false,
-  },
 ]
 </script>
 
@@ -57,11 +39,21 @@ const wege = [
     <SfSeitenkopf
       titel="Kontakt"
       label="Termin vereinbaren"
-      lead="Vier Wege, uns zu erreichen. Am schnellsten geht es per WhatsApp."
+      lead="Schreiben Sie uns über das Formular oder per E-Mail. Wer schon weiß, was er möchte,
+        bucht den Termin direkt online."
     />
 
     <div class="sf-container">
-      <div class="grid gap-6 sm:grid-cols-2">
+      <!-- Das Formular steht vor den anderen Wegen, weil es ohne Mailprogramm funktioniert. -->
+      <section id="formular" aria-labelledby="formular-titel">
+        <h2 id="formular-titel" class="text-2xl sm:text-3xl">Anfrage schreiben</h2>
+        <p class="mt-3 max-w-prose text-text-secondary">
+          Wir antworten in der Regel innerhalb eines Werktags mit freien Terminen.
+        </p>
+        <SfKontaktFormular class="mt-6" />
+      </section>
+
+      <div class="mt-14 grid gap-6 sm:grid-cols-2">
         <SfCard v-for="weg in wege" :key="weg.titel">
           <h2 class="font-display text-xl">
             {{ weg.titel }}
@@ -69,12 +61,7 @@ const wege = [
           <p class="mt-2 text-text-secondary">
             {{ weg.text }}
           </p>
-          <SfButton
-            :href="weg.href"
-            :variant="weg.titel === 'WhatsApp' ? 'primary' : 'secondary'"
-            :external="weg.external"
-            class="mt-5"
-          >
+          <SfButton :href="weg.href" variant="secondary" :external="weg.external" class="mt-5">
             {{ weg.label }}
           </SfButton>
         </SfCard>
@@ -108,20 +95,15 @@ const wege = [
           <ul>
             <li>welche Behandlung Sie interessiert, Körper oder Gesicht</li>
             <li>an welchen Tagen und Uhrzeiten es Ihnen passt</li>
-            <li>ob es gesundheitlich etwas zu beachten gibt</li>
           </ul>
           <p>
-            Der letzte Punkt ist kein Formalismus. Es gibt Situationen, in denen nicht behandelt
-            wird, und die klären wir lieber vor als nach der Terminvergabe.
+            Was gesundheitlich zu beachten ist, klären wir vor dem Termin persönlich und nicht per
+            Nachricht. Es gibt Situationen, in denen nicht behandelt wird.
             <NuxtLink to="/brasilianische-lymphdrainage#gegenanzeigen"
               >Die Gegenanzeigen stehen hier</NuxtLink
             >.
           </p>
         </div>
-      </div>
-
-      <div class="mt-16">
-        <SfCtaBlock inverse />
       </div>
     </div>
   </article>

@@ -86,8 +86,8 @@ folgt für jeden Text auf dieser Website:
 
 ## Vor dem Livegang
 
-Es stehen noch Platzhalter im Code, vor allem Telefonnummer, WhatsApp-Nummer und die
-Impressumsangaben. Die vollständige Liste steht in
+Es stehen noch Platzhalter im Code, vor allem die E-Mail-Adresse, und die Zugangsdaten des
+Postausgangsservers für das Kontaktformular fehlen. Die vollständige Liste steht in
 [docs/launch-checklist.md](docs/launch-checklist.md):
 
 ```bash

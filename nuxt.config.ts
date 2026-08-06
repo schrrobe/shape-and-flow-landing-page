@@ -94,11 +94,36 @@ export default defineNuxtConfig({
 
   /*
    * Hybrid: es läuft ein Node-Server, aber jede Seite wird beim Build gerendert. Crawler und
-   * KI-Agenten bekommen fertiges HTML ohne Wartezeit, und server/api/ bleibt für später offen
-   * (etwa ein Kontaktformular), ohne dass sich am Rendering etwas ändert.
+   * KI-Agenten bekommen fertiges HTML ohne Wartezeit, und das Kontaktformular unter server/api/
+   * läuft daneben zur Laufzeit, ohne dass sich am Rendering der Seiten etwas ändert.
    */
   routeRules: {
     '/**': { prerender: true },
+    // Muss nach der Regel darüber stehen und sie für /api/ wieder aufheben: der Prerenderer würde
+    // sonst versuchen, die Handler beim Build als GET abzurufen und deren Antwort einzufrieren.
+    '/api/**': { prerender: false },
+  },
+
+  /*
+   * Der Postausgangsserver für das Kontaktformular. Die Werte hier sind nur die Form; gesetzt
+   * werden sie zur Laufzeit über NUXT_SMTP_HOST, NUXT_SMTP_PORT, NUXT_SMTP_USER,
+   * NUXT_SMTP_PASSWORD, NUXT_SMTP_ABSENDER und NUXT_SMTP_EMPFAENGER (siehe docs/deploy.md).
+   *
+   * Bewusst nicht unter `public`: was dort steht, liegt im Browser offen. Fehlen die Werte,
+   * antwortet server/api/kontakt.post.ts mit 503 und das Formular nennt die E-Mail-Adresse.
+   */
+  runtimeConfig: {
+    smtp: {
+      host: '',
+      // 587 mit STARTTLS. Für 465 stellt der Handler von sich aus auf implizites TLS um.
+      port: 587,
+      user: '',
+      password: '',
+      /** Absenderadresse der Formularmails. Leer: dann wird `user` genommen. */
+      absender: '',
+      /** Zielpostfach. Leer: dann geht die Anfrage an kontakt.email aus shared/site.ts. */
+      empfaenger: '',
+    },
   },
 
   nitro: {
@@ -129,7 +154,8 @@ export default defineNuxtConfig({
       url: siteUrl,
       logo: `${siteUrl}/images/logo.jpg`,
       image: `${siteUrl}/images/studio-1.jpg`,
-      telephone: kontakt.telefon,
+      // Kein `telephone`: das Studio nimmt Anfragen per E-Mail und über das Kontaktformular an,
+      // und eine Rufnummer im Structured Data, die es nicht gibt, wäre eine Falschangabe.
       email: kontakt.email,
       priceRange: preisSpanne,
       currenciesAccepted: 'EUR',

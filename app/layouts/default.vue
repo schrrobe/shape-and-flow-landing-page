@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { adresse, kontakt, markenhinweis, oeffnungszeiten, site, telUrl } from '#shared/site'
+import { adresse, formularUrl, kontakt, markenhinweis, oeffnungszeiten, site } from '#shared/site'
 import { behandlungen } from '#shared/behandlungen'
 import { ratgeber } from '#shared/ratgeber'
 
@@ -198,12 +198,12 @@ onScopeDispose(stopGuard)
                 {{ adresse.plz }} {{ adresse.ort }}
               </p>
               <p>
-                <a :href="telUrl" class="hover:text-primary hover:underline">
-                  {{ kontakt.telefonAnzeige }} </a
-                ><br />
                 <a :href="`mailto:${kontakt.email}`" class="hover:text-primary hover:underline">
-                  {{ kontakt.email }}
-                </a>
+                  {{ kontakt.email }} </a
+                ><br />
+                <NuxtLink :to="formularUrl" class="hover:text-primary hover:underline">
+                  Kontaktformular
+                </NuxtLink>
               </p>
               <p>{{ oeffnungszeiten.hinweis }}</p>
               <p v-if="kontakt.instagram">

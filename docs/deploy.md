@@ -34,8 +34,9 @@ Versionsnummer sagt, was live steht.
 
 Hybrid: es läuft ein Node-Prozess, aber **jede Seite wird beim Build fertig gerendert**
 (`routeRules: { '/**': { prerender: true } }`). Suchmaschinen und KI-Agenten bekommen
-vollständiges HTML ohne Rendering pro Aufruf, und `server/api/` bleibt für später verfügbar, etwa
-für ein Kontaktformular.
+vollständiges HTML ohne Rendering pro Aufruf. Zur Laufzeit bedient der Prozess nur eine Route:
+`POST /api/kontakt` nimmt das Kontaktformular an und stellt die Anfrage per SMTP zu. Sie ist von
+der Prerender-Regel ausgenommen (`'/api/**': { prerender: false }`).
 
 Anders als früher liefert nginx keine Dateien mehr selbst aus, sondern reicht alles an den
 Container weiter. Nitro liefert die vorgerenderten Seiten und die vorkomprimierten `.br`-/`.gz`-
@@ -167,6 +168,25 @@ Nach der Änderung `sudo nginx -t` vor dem Reload.
 | Variable     | `SSH_KNOWN_HOSTS`            | Ausgabe von `ssh-keyscan -t ed25519 186.240.146.22` |
 | Secret       | `SSH_PRIVATE_KEY`            | der private Teil des Schlüssels von oben            |
 | Environments | `dev`, `stage`, `production` | für stage und production Branch-Policy `main`       |
+
+Dazu die Zugangsdaten des Postausgangsservers für das Kontaktformular. Sie gehören ins jeweilige
+Environment, weil dev und stage sinnvollerweise in ein anderes Postfach schreiben als production:
+
+| Ort                 | Name              | Wert                                                           |
+| ------------------- | ----------------- | -------------------------------------------------------------- |
+| Variable            | `SMTP_HOST`       | Postausgangsserver des Mail-Providers                          |
+| Variable            | `SMTP_PORT`       | `587` (STARTTLS) oder `465` (implizites TLS), Standard `587`   |
+| Variable            | `SMTP_USER`       | Postfach, über das versandt wird                               |
+| Secret              | `SMTP_PASSWORD`   | Kennwort dieses Postfachs                                      |
+| Variable (optional) | `SMTP_ABSENDER`   | Absenderadresse der Formularmails, sonst `SMTP_USER`           |
+| Variable (optional) | `SMTP_EMPFAENGER` | Zielpostfach der Anfragen, sonst `kontakt.email` aus `shared/` |
+
+Der Schritt „Umgebungsdatei schreiben" setzt sie als `NUXT_SMTP_*` in `/opt/landing/<env>/.env.<env>`,
+und `docker-compose.prod.yml` gibt genau diese Namen an den Container weiter. Fehlen sie, läuft der
+Deploy durch und die Website ebenfalls: das Formular antwortet dann mit einem Hinweis auf die
+E-Mail-Adresse, statt Anfragen still zu verschlucken. Das Kennwort steht im Klartext in der
+env-Datei, die deshalb mit `umask 077` geschrieben wird — der Deploy protokolliert nur die
+Schlüsselnamen, nie den Inhalt.
 
 `SSH_KNOWN_HOSTS` ist absichtlich eine Variable und kein Secret: der Hostkey ist öffentliche
 Information, als Secret wäre er in genau den Logzeilen zu `***` maskiert, die man bei einem

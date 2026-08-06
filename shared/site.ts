@@ -1,9 +1,9 @@
 /*
  * Every business fact the site states, in one place.
  *
- * The pages read from here and so does the structured data, which is the point: a phone number
- * that appears in the footer, in the WhatsApp link and in the LocalBusiness JSON-LD is one
- * string, not three that can drift apart.
+ * The pages read from here and so does the structured data, which is the point: an address that
+ * appears in the footer, on the contact page and in the LocalBusiness JSON-LD is one set of
+ * strings, not three that can drift apart.
  *
  * Values marked TODO are placeholders and must be replaced before launch — see
  * docs/launch-checklist.md. Grep for "TODO" to find them all.
@@ -32,13 +32,13 @@ export const adresse = {
   stadtteil: 'Dortmund-Süd',
 } as const
 
+/*
+ * Bewusst ohne Telefon- und WhatsApp-Nummer: der Kontakt läuft über E-Mail und das
+ * Kontaktformular. § 5 DDG verlangt eine schnelle elektronische Kontaktaufnahme, keine
+ * Rufnummer (EuGH C-298/07), und ein wa.me-Link würde Daten an WhatsApp Ireland tragen,
+ * bevor jemand eine Nachricht abschickt.
+ */
 export const kontakt = {
-  /** TODO: echte Telefonnummer eintragen (E.164 ohne Leerzeichen für tel:-Links). */
-  telefon: '+490000000000',
-  /** TODO: dieselbe Nummer lesbar formatiert für die Anzeige. */
-  telefonAnzeige: '+49 000 000000',
-  /** TODO: WhatsApp-Nummer, nur Ziffern mit Ländervorwahl, für wa.me. */
-  whatsapp: '490000000000',
   /** TODO: echte E-Mail-Adresse eintragen. */
   email: 'hallo@shapeandflow.de',
   /** Adresse der Booking-App. Alle Termin-Schaltflächen zeigen hierher. */
@@ -56,15 +56,10 @@ export const oeffnungszeiten = {
   hinweis: 'Termine nach Vereinbarung',
 }
 
-export const whatsappText =
-  'Hallo, ich interessiere mich für eine Behandlung bei Shape & Flow und hätte gern einen Termin.'
-
-/** Fertiger wa.me-Link inklusive vorformulierter Nachricht. */
-export const whatsappUrl = `https://wa.me/${kontakt.whatsapp}?text=${encodeURIComponent(whatsappText)}`
-
-export const telUrl = `tel:${kontakt.telefon}`
-
 export const mailtoUrl = `mailto:${kontakt.email}`
+
+/** Sprungziel des Kontaktformulars. Steht hier, weil vier Seiten darauf verlinken. */
+export const formularUrl = '/kontakt#formular'
 
 /** Google-Maps-Suchlink statt Karten-Embed: kein Drittanbieter-Skript, keine Einwilligung nötig. */
 export const kartenUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(

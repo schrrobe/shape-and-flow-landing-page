@@ -199,4 +199,51 @@
       font-size: 1.25rem;
     }
   }
+
+  /*
+   * Formularfelder. Als Komponentenklassen und nicht als Utility-Kette im Markup: die fünf Felder
+   * des Kontaktformulars sehen gleich aus, und eine Kette, die in fünf Zeilen einzeln gepflegt
+   * wird, läuft irgendwann auseinander.
+   *
+   * font-family und font-size müssen hier stehen: Eingabefelder erben beides nicht, und ohne die
+   * Angabe zoomt Safari auf iOS beim Fokus in ein Feld unter 16px hinein.
+   */
+  .sf-label {
+    display: block;
+    margin-bottom: 0.375rem;
+    font-size: 0.9375rem;
+    font-weight: 500;
+  }
+
+  .sf-feld {
+    width: 100%;
+    border: 1px solid var(--sf-border);
+    border-radius: var(--sf-radius);
+    background-color: var(--sf-surface);
+    padding: 0.625rem 0.75rem;
+    color: var(--sf-text-primary);
+    font-family: inherit;
+    font-size: 1rem;
+    line-height: 1.5;
+  }
+
+  .sf-feld::placeholder {
+    color: var(--sf-text-secondary);
+  }
+
+  /*
+   * Der fehlerhafte Zustand wird nicht über die Farbe erklärt, sondern über den Text unter dem
+   * Feld — WCAG 1.4.1. Der dunkle Rahmen ist die Zugabe, kein Träger der Aussage, und deshalb
+   * steht hier --sf-text-primary und nicht --sf-danger: das Token ist eine blasse Fläche für
+   * Meldungen und wäre als Rahmen kaum vom Normalzustand zu unterscheiden.
+   */
+  .sf-feld[aria-invalid='true'] {
+    border-color: var(--sf-text-primary);
+  }
+
+  .sf-feldfehler {
+    margin-top: 0.375rem;
+    font-size: 0.9375rem;
+    font-weight: 500;
+  }
 }

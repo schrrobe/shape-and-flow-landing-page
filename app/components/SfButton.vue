@@ -14,11 +14,14 @@ const props = withDefaults(
     size?: 'md' | 'lg'
     /** Externe Links bekommen rel="noopener" und öffnen in einem neuen Tab. */
     external?: boolean
+    /** Nur ohne Ziel: `submit` für den Absenden-Knopf eines Formulars. */
+    type?: 'button' | 'submit'
   }>(),
   {
     variant: 'primary',
     size: 'md',
     external: false,
+    type: 'button',
   },
 )
 
@@ -59,7 +62,7 @@ const classes = computed(() => [base, variants[props.variant], sizes[props.size]
   >
     <slot />
   </a>
-  <button v-else type="button" :class="classes">
+  <button v-else :type="type" :class="classes">
     <slot />
   </button>
 </template>

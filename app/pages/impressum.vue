@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { adresse, kontakt, site } from '#shared/site'
+import { adresse, formularUrl, kontakt, site } from '#shared/site'
 
 /*
  * Pflichtangaben nach § 5 DDG.
@@ -38,8 +38,14 @@ useHead({ meta: [{ name: 'robots', content: 'noindex, follow' }] })
 
         <h2>Kontakt</h2>
         <p>
-          Telefon: {{ kontakt.telefonAnzeige }}<br />
-          E-Mail: {{ kontakt.email }}
+          <!-- Keine Rufnummer: § 5 Abs. 1 Nr. 2 DDG verlangt Angaben, die eine schnelle
+               elektronische Kontaktaufnahme und unmittelbare Kommunikation ermöglichen, und
+               nennt dafür ausdrücklich nur die E-Mail-Adresse. Dass ein Telefonanschluss nicht
+               dazugehört, wenn ein zweiter elektronischer Weg bereitsteht, hat der EuGH in
+               C-298/07 entschieden — hier ist das das Kontaktformular. -->
+          E-Mail: {{ kontakt.email }}<br />
+          Kontaktformular:
+          <NuxtLink :to="formularUrl">shapeandflow.de/kontakt</NuxtLink>
         </p>
 
         <h2>Umsatzsteuer</h2>
