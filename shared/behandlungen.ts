@@ -60,9 +60,10 @@ export interface Preisposition {
 /**
  * Kombitermin und Paketpreise.
  *
- * Bewusst getrennt von den Behandlungen: es sind andere Preise für dieselben zwei Behandlungen,
- * also keine eigenen Seiten und keine eigenen Navigationseinträge, sondern nur Zeilen in der
- * Preistabelle und Angebote im Structured Data. Paketpreise gelten pro Behandlung.
+ * Bewusst getrennt von den Behandlungen: es sind andere Preise für dieselben zwei Behandlungen
+ * und deshalb keine eigenen Seiten. Sie erscheinen in der Preistabelle und im Structured Data,
+ * der Kombitermin zusätzlich auf der Startseite und in der Navigation. Paketpreise gelten pro
+ * Behandlung.
  */
 export const preispositionen: Preisposition[] = [
   {
@@ -96,6 +97,17 @@ export const preispositionen: Preisposition[] = [
     preisEuro: 45,
   },
 ]
+
+/**
+ * Der Kombitermin, der auch außerhalb der Preistabelle auftaucht.
+ *
+ * Als eigene Konstante, damit Startseite, Navigation und Kontaktformular nicht jede für sich in
+ * der Liste suchen — und der Anker der Preistabelle nur an einer Stelle steht.
+ */
+export const kombitermin = preispositionen.find(p => p.slug === 'kombi-koerper-gesicht')!
+
+/** Anker auf der Preisseite, an dem die Kombi- und Paketpreise stehen. */
+export const kombiAnker = '/preise#kombitermin'
 
 /** Alle Preise auf der Seite, Einzelbehandlungen und Pakete. */
 const allePreise = [...behandlungen.map(b => b.preisEuro), ...preispositionen.map(p => p.preisEuro)]

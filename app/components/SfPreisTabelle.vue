@@ -62,9 +62,10 @@ import { site } from '#shared/site'
     <tbody>
       <tr class="border-b border-border">
         <th
+          id="kombitermin"
           scope="colgroup"
           colspan="2"
-          class="pt-12 pb-3 text-sm font-medium tracking-wide text-text-secondary uppercase"
+          class="scroll-mt-28 pt-12 pb-3 text-sm font-medium tracking-wide text-text-secondary uppercase"
         >
           Kombitermin und Pakete
         </th>
