@@ -31,18 +31,22 @@ Deploy schreibt sie von dort in die env-Datei auf dem Server, siehe `docs/deploy
 
 | Wo                  | Name              | Was hin muss                                                                          |
 | ------------------- | ----------------- | ------------------------------------------------------------------------------------- |
-| Variable            | `SMTP_HOST`       | Postausgangsserver des Mail-Providers, etwa `smtp.hostinger.com`.                     |
-| Variable            | `SMTP_PORT`       | `587` für STARTTLS oder `465` für implizites TLS. Ohne Angabe wird `587` genommen.    |
-| Variable            | `SMTP_USER`       | Postfach, über das versandt wird. In der Regel dieselbe Adresse wie `kontakt.email`.  |
+| Variable            | `SMTP_HOST`       | `w021e434.kasserver.com` — die Postfächer liegen bei ALL-INKL, nicht beim VPS-Hoster. |
+| Variable            | `SMTP_PORT`       | `465` für implizites TLS, `587` für STARTTLS. Ohne Angabe wird `587` genommen.        |
+| Variable            | `SMTP_USER`       | `nicht-antworten@shapeandflow.de`, siehe Absatz darunter.                             |
 | Secret              | `SMTP_PASSWORD`   | Kennwort dieses Postfachs. Als Secret, nicht als Variable.                            |
 | Variable (optional) | `SMTP_ABSENDER`   | Nur zum Abweichen. Standard ist `kontakt.absenderEmail` aus `shared/site.ts`.         |
 | Variable (optional) | `SMTP_EMPFAENGER` | Nur zum Abweichen, etwa ein Testpostfach für dev und stage. Standard `kontakt.email`. |
 
 Absender und Empfänger stehen im Code, nicht in der Umgebung: Formularmails gehen von
 `nicht-antworten@shapeandflow.de` an `hallo@shapeandflow.de`, mit der anfragenden Person im
-Reply-To. Beide Postfächer müssen beim Mail-Provider existieren, und das Postfach hinter
-`SMTP_USER` muss berechtigt sein, unter der Absenderadresse zu senden — sonst weist der Provider
-die Mail ab, weil Absender und angemeldetes Postfach auseinandergehen.
+Reply-To.
+
+Beide müssen im KAS als echte Postfächer angelegt sein, nicht als Weiterleitung, und
+`nicht-antworten@shapeandflow.de` ist zugleich `SMTP_USER`. ALL-INKL lässt ein Postfach nur unter
+seiner eigenen Adresse senden: mit `hallo@` angemeldet und `nicht-antworten@` im From weist der
+Server die Mail ab. Sind angemeldetes Postfach und Absender identisch, stimmen SPF und DMARC ohne
+weitere Einträge im DNS.
 
 Nach dem ersten Deploy einmal von Hand prüfen: eine Anfrage über das Formular abschicken und
 sehen, ob sie im Studiopostfach ankommt. Kommt sie nicht an, steht der Grund im Containerlog
