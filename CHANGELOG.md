@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.3.0](https://github.com/schrrobe/shape-and-flow-landing-page/compare/shape-and-flow-landing-page-v1.2.0...shape-and-flow-landing-page-v1.3.0) (2026-08-06)
+
+
+### Features
+
+* Logo als Bilddatei statt nachgebautem Schriftzug ([#8](https://github.com/schrrobe/shape-and-flow-landing-page/issues/8)) ([42e75b7](https://github.com/schrrobe/shape-and-flow-landing-page/commit/42e75b7c67419b4afe02205cc3323098eae9be74))
+
+
+### Bug Fixes
+
+* **ci:** TypeScript-Major-Bumps von Dependabot ausschließen ([#11](https://github.com/schrrobe/shape-and-flow-landing-page/issues/11)) ([133a6e9](https://github.com/schrrobe/shape-and-flow-landing-page/commit/133a6e91cf663ee22bef0c054125077b21664fb2))
+
 ## [1.2.0](https://github.com/schrrobe/shape-and-flow-landing-page/compare/shape-and-flow-landing-page-v1.1.0...shape-and-flow-landing-page-v1.2.0) (2026-08-06)
 
 
