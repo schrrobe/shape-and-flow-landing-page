@@ -41,8 +41,13 @@ withDefaults(
     <span class="text-4xl sm:text-5xl">Flow</span>
     <template v-if="subline">
       <SfRule class="mt-3 w-full" />
+      <!--
+        Ohne opacity: auf dem orangen Panel rechnet der Browser die Deckkraft gegen den
+        Untergrund, und Creme bei 80 % landet bei 4,07:1 — unter den 4,5:1, die 11px Text
+        brauchen. Die Zurücknahme leisten Sperrung und Schriftgrad, nicht die Deckkraft.
+      -->
       <span
-        class="mt-2 text-center font-sans text-[0.6875rem] font-medium tracking-[0.2em] uppercase opacity-80 sm:text-xs"
+        class="mt-2 text-center font-sans text-[0.6875rem] font-medium tracking-[0.2em] uppercase sm:text-xs"
       >
         Brasilianische Lymphdrainage
       </span>

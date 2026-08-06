@@ -122,15 +122,13 @@ jobs:
   # die Kontrast, Sichtbarkeit und Fokusreihenfolge beurteilen kann — im simulierten DOM bleiben
   # genau diese Regeln unentschieden, siehe docs/barrierefreiheit.md.
   #
-  # continue-on-error, weil der Lauf heute an drei bekannten Kontrastverstößen scheitert. Die
-  # hängen an --sf-primary, also an einer Markenfarbe, die aus dem booking-app-Repo stammt; das
-  # ist keine Entscheidung, die eine CI erzwingen sollte. Der Report steht trotzdem in jeder PR.
-  # Wenn die Tokens korrigiert sind, fällt diese Zeile weg und der Job wird zum Gate.
+  # Blockierend. Die drei Kontrastverstöße, die der Job bei seiner Einführung fand, sind mit dem
+  # abgedunkelten --sf-primary behoben; alle 13 Seiten sind sauber. Ein Gate, das man erst
+  # scharfstellt, wenn es bequem ist, hätte den Fund nie erzwungen.
   a11y:
     name: Barrierefreiheit
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
-    continue-on-error: true
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:

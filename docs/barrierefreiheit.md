@@ -15,29 +15,50 @@ Build-Zeit-Report von `@nuxt/a11y` täte) liefert über dieselben 13 Seiten **nu
 `landmark-one-main` und `page-has-heading-one`. Ein grünes Ergebnis heißt dort nur, dass nichts
 geprüft werden konnte.
 
-## Offener Punkt: Kontrast
+## Was der erste Lauf fand
 
-Der Job ist deshalb `continue-on-error`. Er scheitert derzeit auf **allen 13 Seiten** — und zwar
-ausschließlich an `color-contrast`. Struktur, ARIA, Beschriftungen, Landmarks und
-Überschriftenhierarchie sind im echten Browser sauber. Es sind drei Farbpaare:
+Bei seiner Einführung scheiterte der Job auf **allen 13 Seiten**, und zwar ausschließlich an
+`color-contrast`. Struktur, ARIA, Beschriftungen, Landmarks und Überschriftenhierarchie waren
+bereits sauber. Es waren drei Farbpaare:
 
-| Vordergrund                | Hintergrund                      | Ist    | Gefordert (WCAG AA) | Wo                                        |
+| Vordergrund                | Hintergrund                      | War    | Gefordert (WCAG AA) | Wo                                        |
 | -------------------------- | -------------------------------- | ------ | ------------------- | ----------------------------------------- |
-| `#c2540a` (`--sf-primary`) | `#f5efe6` (`--sf-surface`)       | 4.02:1 | 4.5:1               | Links im Fließtext, `.sf-eyebrow`         |
+| `#c2540a` (`--sf-primary`) | `#f5efe6` (`--sf-background`)    | 4.02:1 | 4.5:1               | Links im Fließtext, `.sf-eyebrow`         |
 | `#c2540a`                  | `#ede4d6` (`--sf-surface-muted`) | 3.65:1 | 4.5:1               | `.sf-eyebrow` in abgesetzten Sektionen    |
 | `#ebd0ba`                  | `#c2540a`                        | 3.12:1 | 4.5:1               | Unterzeile der Wortmarke im orangen Panel |
 
-Die ersten beiden hängen an einem Wert: `--sf-primary` in `app/assets/css/tokens.css`. Ab
-`#a84908` erreicht er beide Flächen (5.07:1 und 4.60:1) und bleibt dabei nah genug am Original.
-Der Wert ist allerdings aus `booking-app/packages/ui/src/tokens.css` übernommen — eine Änderung
-hier läuft aus dem Takt, solange sie dort nicht mitgeht.
+Bemerkenswert daran ist, wo der Fehler saß: der Kommentar in `tokens.css` erklärte die Wahl des
+Orange ausdrücklich mit Kontrast — aber nur in einer Richtung. Weißer Text **auf** dem Orange
+erreichte 4,6:1 und war bedacht. Das Orange **als** Text auf dem Beige war es nicht, und genau so
+tritt es in Links, `.sf-eyebrow` und dem aktiven Navigationspunkt auf.
 
-Das dritte Paar ist kein Token-Problem: `#ebd0ba` entsteht aus cremeweißem Text mit `opacity-80`
-über dem Orange. Ohne die Deckkraftreduktion wäre es `#f5efe6` auf `#c2540a` und damit 4.02:1 —
-immer noch zu wenig, aber mit korrigiertem Primärton bei 5.07:1.
+### Was geändert wurde
 
-Wenn die Farben stehen, verschwindet `continue-on-error` aus dem Job in `.github/workflows/ci.yml`
-und die Prüfung wird zum Gate.
+`--sf-primary` von `#c2540a` auf **`#a04607`**, `--sf-inverse-surface` mit — ein Panel in einem
+anderen Orange als die Buttons darauf sähe nach Versehen aus. `--sf-primary-hover` musste
+nachziehen, sonst wäre der Hover heller als der Ruhezustand geworden.
+
+| Paarung                                  | Vorher | Nachher    |
+| ---------------------------------------- | ------ | ---------- |
+| Orange als Text auf `--sf-background`    | 4.02:1 | **5.45:1** |
+| Orange als Text auf `--sf-surface-muted` | 3.65:1 | **4.94:1** |
+| Weiß auf Orange (Button-Beschriftung)    | 4.60:1 | **6.22:1** |
+| Creme auf Orange (Panel)                 | 4.02:1 | **5.45:1** |
+
+Das dritte Paar war kein Token-Problem, sondern `opacity-80` an der Wortmarken-Unterzeile. Deckkraft
+rechnet der Browser gegen den Untergrund, und das Ergebnis steht in keinem Token: Creme bei 80 %
+über dem Orange ergibt `#e4cdb9` und damit 4,07:1 — auch mit dem neuen Orange zu wenig für 11px.
+Die Klasse ist raus; die Zurücknahme leisten Sperrung und Schriftgrad.
+
+Zwei Literale mussten mitgehen, weil sie keine CSS-Variable lesen können: `theme-color` in
+`nuxt.config.ts` und `orange` in `app/components/OgImage/SfOg.takumi.vue` — der Takumi-Renderer
+löst keine Custom Properties auf.
+
+### Offen: das Nachbar-Repo
+
+`--sf-primary` stammt laut README aus `booking-app/packages/ui/src/tokens.css`. Dort steht weiterhin
+`#c2540a`. Solange das so ist, laufen die beiden Oberflächen in unterschiedlichem Orange — und die
+Buchungs-App hat denselben Kontrastfehler, nur ungemessen.
 
 ## Prüfumfang
 

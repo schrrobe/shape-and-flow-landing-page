@@ -85,7 +85,8 @@ export default defineNuxtConfig({
         { rel: 'apple-touch-icon', href: '/apple-touch-icon.png' },
       ],
       meta: [
-        { name: 'theme-color', content: '#c2540a' },
+        // Muss --sf-primary aus app/assets/css/tokens.css folgen.
+        { name: 'theme-color', content: '#a04607' },
         { name: 'format-detection', content: 'telephone=no' },
       ],
     },
