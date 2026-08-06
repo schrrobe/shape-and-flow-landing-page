@@ -34,7 +34,7 @@ env-Datei auf dem Server, siehe `docs/deploy.md`. Gesetzt ist:
 | Repo-Variable           | `SMTP_HOST`       | `w021e434.kasserver.com` — die Postfächer liegen bei ALL-INKL, nicht beim VPS-Hoster.  |
 | Repo-Variable           | `SMTP_PORT`       | `465`, implizites TLS. Für STARTTLS wäre es `587`; ohne Angabe nimmt der Deploy `587`. |
 | Repo-Variable           | `SMTP_USER`       | `nicht-antworten@shapeandflow.de`, siehe Absatz darunter.                              |
-| Secret                  | `SMTP_PASSWORD`   | **Fehlt noch.** Kennwort dieses Postfachs, als Secret und nicht als Variable.          |
+| Secret                  | `SMTP_PASSWORD`   | Kennwort dieses Postfachs. Als Secret, nicht als Variable.                             |
 | Env-Variable dev, stage | `SMTP_EMPFAENGER` | `test@shapeandflow.de` — Testanfragen sollen nicht im Studiopostfach landen.           |
 | —                       | `SMTP_ABSENDER`   | Nicht gesetzt, gilt der Wert aus `shared/site.ts`.                                     |
 
