@@ -11,6 +11,10 @@
     "build": "nuxt build",
     "preview": "nuxt preview",
     "start": "node .output/server/index.mjs",
+    "lint": "eslint . --max-warnings=0",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
     "typecheck": "nuxt typecheck",
     "postinstall": "nuxt prepare"
   },
@@ -27,8 +31,15 @@
     "sharp": "^0.35.3"
   },
   "devDependencies": {
+    "@commitlint/cli": "^21.2.1",
+    "@commitlint/config-conventional": "^21.2.0",
+    "@nuxt/eslint": "^1.17.0",
     "@tailwindcss/vite": "^4.3.3",
     "@takumi-rs/core": "^2.5.9",
+    "eslint": "^10.8.0",
+    "eslint-config-prettier": "^10.1.8",
+    "prettier": "^3.9.6",
+    "prettier-plugin-tailwindcss": "^0.8.1",
     "tailwindcss": "^4.3.3",
     "typescript": "^6.0.3",
     "vue-tsc": "^3.3.9"

@@ -27,12 +27,33 @@ export default defineNuxtConfig({
   compatibilityDate: '2026-08-05',
 
   modules: [
+    // Erzeugt .nuxt/eslint.config.mjs mit den Auto-Imports dieses Projekts. Ohne das Modul hielte
+    // ESLint useSeoMeta, defineOgImageComponent und den Rest für undefinierte Globals.
+    '@nuxt/eslint',
     // Sammelmodul: sitemap, robots, schema-org, og-image, link-checker, seo-utils, site-config.
     '@nuxtjs/seo',
     '@nuxt/image',
     '@nuxt/fonts',
     'nuxt-llms',
   ],
+
+  /*
+   * Drei Prüfungen, die Nuxt von sich aus nicht einschaltet. Sie gehören hierher und nicht in
+   * tsconfig.json: die vier Konfigurationen unter .nuxt/ schreibt jeder `nuxt prepare` neu.
+   *
+   * noUncheckedIndexedAccess betrifft nur Zugriffe über Index-Signaturen und Arrays. Die
+   * Nachschlagetabellen in SfButton.vue laufen über `as const`-Objekte mit festen Schlüsseln und
+   * bleiben davon unberührt.
+   */
+  typescript: {
+    tsConfig: {
+      compilerOptions: {
+        noUnusedLocals: true,
+        noUnusedParameters: true,
+        noUncheckedIndexedAccess: true,
+      },
+    },
+  },
 
   css: ['~/assets/css/main.css'],
 

@@ -1,0 +1,11 @@
+# Erzeugt
+.nuxt/
+.output/
+node_modules/
+package-lock.json
+
+# Schreibt release-please
+CHANGELOG.md
+
+# Binärdateien und fremde Formate
+public/
