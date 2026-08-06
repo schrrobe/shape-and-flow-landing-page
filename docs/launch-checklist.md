@@ -23,14 +23,15 @@ grep -rn "TODO" shared/ app/ --include="*.ts" --include="*.vue"
 Diese Werte sind der Grund, warum die Seite noch nicht live gehen sollte: die
 Terminschaltflächen stehen auf jeder Seite und führen derzeit ins Leere.
 
-### Impressum (`app/pages/impressum.vue`)
+### Impressum (`app/pages/impressum.vue`) — erledigt
 
-Der Name der Inhaberin ist eingetragen und steht in `shared/site.ts`, damit die drei Stellen im
-Impressum und in der Datenschutzerklärung nicht auseinanderlaufen.
+Der Name der Inhaberin steht in `shared/site.ts`, damit die drei Stellen im Impressum und in der
+Datenschutzerklärung nicht auseinanderlaufen. Die Umsatzsteuerangabe ist der Hinweis nach § 19
+UStG; eine USt-IdNr. nach § 27 a UStG wird nicht geführt und ist ohne Erteilung auch nicht
+verlangt.
 
-Offen ist die **Umsatzsteuerangabe**: entweder die USt-IdNr. nach § 27 a UStG oder, bei
-Kleinunternehmerregelung nach § 19 UStG, der entsprechende Hinweis. Ein Impressum mit
-Platzhaltern ist abmahnbar.
+Sollte die Umsatzgrenze des § 19 UStG einmal überschritten werden, ersetzt die dann erteilte
+Nummer diesen Absatz.
 
 ### Datenschutzerklärung (`app/pages/datenschutz.vue`)
 

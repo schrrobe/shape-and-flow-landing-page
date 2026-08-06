@@ -8,8 +8,8 @@ import { adresse, kontakt, site } from '#shared/site'
  * Datenschutzerklärung ein drittes Mal steht — DDG und DSGVO verlangen an allen drei Stellen
  * denselben Namen.
  *
- * Offen ist noch die Umsatzsteuerangabe, siehe TODO unten. Ein Impressum mit Platzhaltern ist
- * abmahnbar, deshalb steht diese Seite auch in docs/launch-checklist.md.
+ * Alle Pflichtangaben sind gesetzt. Ein Impressum mit Platzhaltern ist abmahnbar — wer hier etwas
+ * ändert, prüft danach docs/launch-checklist.md.
  */
 useSeite({
   titel: 'Impressum',
@@ -44,10 +44,11 @@ useHead({ meta: [{ name: 'robots', content: 'noindex, follow' }] })
 
         <h2>Umsatzsteuer</h2>
         <p>
-          <!-- TODO: entweder USt-IdNr. eintragen oder den Kleinunternehmer-Satz stehen lassen -->
-          [Umsatzsteuer-Identifikationsnummer gemäß § 27 a UStG eintragen, oder falls die
-          Kleinunternehmerregelung nach § 19 UStG gilt, diesen Absatz durch den entsprechenden
-          Hinweis ersetzen.]
+          <!-- Kleinunternehmerregelung, deshalb steht hier keine USt-IdNr.: § 27 a UStG verlangt
+               sie nur, wenn eine erteilt wurde. Sollte die Grenze des § 19 UStG einmal
+               überschritten werden, ersetzt die Nummer diesen Absatz. -->
+          Gemäß § 19 UStG wird keine Umsatzsteuer berechnet und daher auch nicht in Rechnungen
+          ausgewiesen.
         </p>
 
         <h2>Verantwortlich für den Inhalt</h2>
