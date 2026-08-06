@@ -24,6 +24,16 @@ updates:
           - patch
     # Majors bleiben ungruppiert. Ein Nuxt- oder Tailwind-Sprung gehört einzeln angesehen, nicht
     # zwischen zwanzig Patchbumps versteckt.
+    ignore:
+      # TypeScript 7 ist der native Port und exportiert die internen Enums nicht mehr, auf die
+      # ts-api-utils zugreift. Dadurch stirbt ESLint schon beim Laden des Moduls:
+      # "TypeError: Cannot read properties of undefined (reading 'Intrinsic')".
+      # @typescript-eslint (via @nuxt/eslint) verlangt aktuell typescript <6.1.0, selbst
+      # ts-api-utils 3.0.0-rc.1 verlangt <7. Der Bump kommt zurück, sobald typescript-eslint
+      # TypeScript 7 unterstützt – dann diese Regel entfernen.
+      - dependency-name: typescript
+        update-types:
+          - version-update:semver-major
 
   # Hält die per Commit-SHA gepinnten Actions in ci.yml und deploy.yml aktuell. Dependabot
   # aktualisiert dabei den SHA und den Versionskommentar dahinter.
