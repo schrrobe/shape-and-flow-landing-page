@@ -47,7 +47,7 @@ onScopeDispose(stopGuard)
           class="flex items-center rounded-sf py-1 hover:text-primary"
           :aria-label="`${site.nameAscii}, zur Startseite`"
         >
-          <SfWordmark />
+          <SfLogo />
         </NuxtLink>
 
         <nav aria-label="Hauptmenü" class="hidden items-center gap-6 lg:flex">
@@ -122,7 +122,7 @@ onScopeDispose(stopGuard)
       <div class="sf-container py-14">
         <div class="grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
           <div class="sm:col-span-2 lg:col-span-1">
-            <SfWordmark variant="stacked" subline class="items-start! text-left!" />
+            <SfLogo variant="stacked" />
           </div>
 
           <div>

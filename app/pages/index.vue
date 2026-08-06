@@ -43,7 +43,7 @@ const startFaq = faqZuThema('allgemein').slice(0, 4)
 <template>
   <div>
     <!--
-      Der Hero setzt das Logo ins Bauliche um: links das cremefarbene Wortzeichen auf dem
+      Der Hero setzt das Logo ins Bauliche um: links das cremefarbene Logo auf dem
       Markenorange, rechts der Behandlungsraum. Dass die Akzentwand im Studio dasselbe Orange hat,
       ist kein Zufall des Zuschnitts, sondern der Grund für diese Aufteilung: die Naht zwischen
       Panel und Foto verschwindet fast.
@@ -52,7 +52,7 @@ const startFaq = faqZuThema('allgemein').slice(0, 4)
       <div
         class="sf-on-inverse flex flex-col justify-center bg-inverse-surface px-5 py-14 text-inverse-text sm:px-8 sm:py-20 lg:py-24 lg:pr-14 lg:pl-[max(2rem,calc((100vw-72rem)/2+2rem))]"
       >
-        <SfWordmark variant="stacked" subline class="items-start! self-start text-left!" />
+        <SfLogo variant="stacked" class="self-start" />
 
         <h1 class="mt-10 text-3xl sm:text-4xl lg:text-[2.75rem]">
           Brasilianische Lymphdrainage in {{ adresse.ort }}

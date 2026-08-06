@@ -79,7 +79,7 @@
   /*
    * Fließtext auf dem orangen Panel. Mit dem abgedunkelten Orange erreicht das Creme selbst
    * 5,45:1 und wäre für Lesegrösse ausreichend; dieses Weiss bleibt trotzdem, weil es die
-   * Abstufung zwischen Wortmarke und Fließtext trägt.
+   * Abstufung zwischen Überschrift und Fließtext trägt.
    *
    * Was es hier weiterhin nicht gibt, ist eine abgeschwächte Variante über `opacity`. Der
    * Browser rechnet die Deckkraft gegen den Untergrund, und was dabei herauskommt, steht in

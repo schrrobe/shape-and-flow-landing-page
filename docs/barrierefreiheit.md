@@ -25,7 +25,7 @@ bereits sauber. Es waren drei Farbpaare:
 | -------------------------- | -------------------------------- | ------ | ------------------- | ----------------------------------------- |
 | `#c2540a` (`--sf-primary`) | `#f5efe6` (`--sf-background`)    | 4.02:1 | 4.5:1               | Links im Fließtext, `.sf-eyebrow`         |
 | `#c2540a`                  | `#ede4d6` (`--sf-surface-muted`) | 3.65:1 | 4.5:1               | `.sf-eyebrow` in abgesetzten Sektionen    |
-| `#ebd0ba`                  | `#c2540a`                        | 3.12:1 | 4.5:1               | Unterzeile der Wortmarke im orangen Panel |
+| `#ebd0ba`                  | `#c2540a`                        | 3.12:1 | 4.5:1               | Unterzeile der Wortmarke (heute `SfLogo`) |
 
 Bemerkenswert daran ist, wo der Fehler saß: der Kommentar in `tokens.css` erklärte die Wahl des
 Orange ausdrücklich mit Kontrast — aber nur in einer Richtung. Weißer Text **auf** dem Orange
@@ -64,10 +64,15 @@ Aufgefallen ist es an der Kontrast-Spec der Booking-App
 (`booking-app/packages/ui/src/tokens.spec.ts`), die genau diese Paarung prüft. Wer die Farben
 hier anfasst, rechnet sie mit.
 
-Das dritte Paar war kein Token-Problem, sondern `opacity-80` an der Wortmarken-Unterzeile. Deckkraft
-rechnet der Browser gegen den Untergrund, und das Ergebnis steht in keinem Token: Creme bei 80 %
-über dem Orange ergibt `#e4cdb9` und damit 4,07:1 — auch mit dem neuen Orange zu wenig für 11px.
-Die Klasse ist raus; die Zurücknahme leisten Sperrung und Schriftgrad.
+Das dritte Paar war kein Token-Problem, sondern `opacity-80` an der Unterzeile der damaligen
+Wortmarken-Komponente. Deckkraft rechnet der Browser gegen den Untergrund, und das Ergebnis steht
+in keinem Token: Creme bei 80 % über dem Orange ergibt `#e4cdb9` und damit 4,07:1 — auch mit dem
+neuen Orange zu wenig für 11px.
+
+Die Komponente selbst ist inzwischen weg: `SfWordmark` wurde durch `SfLogo` ersetzt, der Schriftzug
+ist jetzt eine Bilddatei. Die Lehre gilt trotzdem und steht deshalb hier — **Deckkraft ist keine
+Farbe.** Wer eine Textfarbe abstufen will, nimmt einen zweiten Farbwert; was `opacity` daraus
+macht, sieht man der Klasse nicht an und kein Token hält es fest.
 
 Zwei Literale mussten mitgehen, weil sie keine CSS-Variable lesen können: `theme-color` in
 `nuxt.config.ts` und `orange` in `app/components/OgImage/SfOg.takumi.vue` — der Takumi-Renderer
