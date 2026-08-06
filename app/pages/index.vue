@@ -85,8 +85,8 @@ const startFaq = faqZuThema('allgemein').slice(0, 4)
           src="/images/studio-1.jpg"
           alt="Behandlungsraum bei Shape and Flow: Massageliege mit orangefarbenem Plaid vor der orangefarbenen Wand mit Jeveaux-Postern"
           class="absolute inset-0 size-full object-cover"
-          width="360"
-          height="480"
+          width="1301"
+          height="1600"
           sizes="100vw lg:50vw"
           preload
           fetchpriority="high"
