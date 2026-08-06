@@ -46,9 +46,20 @@
   --sf-warning: #ffe0b2;
   --sf-danger: #f5c6c6;
 
-  /* The focus ring is near-black rather than the brand orange: it has to be visible on the
-   * orange button too, where an orange ring would disappear. */
-  --sf-focus-ring: #16130f;
+  /*
+   * The focus ring is black rather than the brand orange: it has to be visible on the orange
+   * button too, where an orange ring would disappear.
+   *
+   * Schwarz und nicht das Fast-Schwarz von --sf-text-primary. WCAG 1.4.11 verlangt für den
+   * Fokusindikator 3:1 gegen die angrenzende Fläche, und die ist beim Primärbutton das Orange.
+   * #16130F kam darauf nur noch auf 2,97:1, seit --sf-primary abgedunkelt wurde — die beiden
+   * ziehen in entgegengesetzte Richtungen. Schwarz hat auf beiden Seiten Luft: 3,37:1 auf dem
+   * Orange, 18,37:1 auf dem Beige.
+   *
+   * axe findet das nicht. Ein Fokusindikator existiert nur im :focus-visible-Zustand, und den
+   * nimmt kein Seitenscan ein.
+   */
+  --sf-focus-ring: #000000;
 
   --sf-radius: 0.5rem;
   --sf-shadow-card: 0 1px 2px rgb(22 19 15 / 8%), 0 4px 12px rgb(22 19 15 / 6%);

@@ -45,6 +45,25 @@ nachziehen, sonst wäre der Hover heller als der Ruhezustand geworden.
 | Weiß auf Orange (Button-Beschriftung)    | 4.60:1 | **6.22:1** |
 | Creme auf Orange (Panel)                 | 4.02:1 | **5.45:1** |
 
+### Der Fokusring musste mit
+
+Das Abdunkeln hat an einer Stelle in die Gegenrichtung gewirkt. `--sf-focus-ring` war das
+Fast-Schwarz `#16130f`, und WCAG 1.4.11 verlangt für einen Fokusindikator 3:1 gegen die
+angrenzende Fläche — beim Primärbutton ist das genau das Orange. Auf `#c2540a` waren es 4,03:1,
+auf `#a04607` nur noch **2,97:1**. Die Verbesserung für den Text war eine Verschlechterung für den
+Ring.
+
+Es gibt ein Fenster, in dem beides mit dem alten Ring aufgeht — `#a84908` bis `#a34608` —, aber
+die Margen liegen dort zwischen 0,03 und 0,19. Statt darauf zu balancieren ist der Ring jetzt
+reines Schwarz: 3,37:1 auf dem Orange, 18,37:1 auf dem Beige. Der Unterschied zwischen `#16130f`
+und `#000000` ist im Betrieb nicht zu sehen, weil der Ring nur bei Tastaturfokus erscheint.
+
+**Diese Regression hätte kein Test gefunden.** Ein Fokusindikator existiert nur im
+`:focus-visible`-Zustand, und den nimmt ein Seitenscan nicht ein — die axe-Suite blieb grün.
+Aufgefallen ist es an der Kontrast-Spec der Booking-App
+(`booking-app/packages/ui/src/tokens.spec.ts`), die genau diese Paarung prüft. Wer die Farben
+hier anfasst, rechnet sie mit.
+
 Das dritte Paar war kein Token-Problem, sondern `opacity-80` an der Wortmarken-Unterzeile. Deckkraft
 rechnet der Browser gegen den Untergrund, und das Ergebnis steht in keinem Token: Creme bei 80 %
 über dem Orange ergibt `#e4cdb9` und damit 4,07:1 — auch mit dem neuen Orange zu wenig für 11px.
