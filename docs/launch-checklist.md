@@ -56,7 +56,12 @@ Name der Inhaberin, dazu Anbieter und Standort des Hostings (Hostinger, Land des
    `shared/site.ts` übereinstimmen.
 3. Prüfen, dass `stage.shapeandflow.de` und `dev.shapeandflow.de` nicht im Index landen. Beide
    stehen hinter Basic Auth und werden mit `NUXT_SITE_ENV=staging` gebaut, liefern also
-   `Disallow: /`. Der Deploy prüft das bei jedem Lauf selbst (siehe `docs/deploy.md`); ein Blick
-   auf `https://dev.shapeandflow.de/robots.txt` bestätigt es.
+   `Disallow: /`. Der Deploy prüft das bei jedem Lauf selbst (siehe `docs/deploy.md`); von Hand
+   bestätigen lässt es sich nur mit den Basic-Auth-Zugangsdaten, sonst antwortet nginx mit 401:
+
+   ```bash
+   curl -fsS -u "$BASIC_AUTH_USER:$BASIC_AUTH_PASSWORD" \
+     https://dev.shapeandflow.de/robots.txt | grep -Fx 'Disallow: /'
+   ```
 4. Structured Data stichprobenartig mit dem Rich-Results-Test von Google prüfen, insbesondere
    `/preise` (Angebote) und `/faq` (Fragen).

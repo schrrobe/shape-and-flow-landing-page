@@ -84,6 +84,12 @@ for cmd in nginx certbot docker install; do
   command -v "$cmd" >/dev/null || { echo "$cmd nicht gefunden." >&2; exit 1; }
 done
 
+# `docker compose` ist ein Plugin und kein eigenes Binary, `command -v docker` sagt darüber
+# nichts. Der Deploy-Workflow ruft es auf dem Server auf; fehlt es, liefe dieses Skript bis
+# "Fertig" durch und der erste Deploy scheiterte remote mit "'compose' is not a docker command".
+docker compose version >/dev/null 2>&1 \
+  || { echo "docker compose (Plugin v2) nicht gefunden." >&2; exit 1; }
+
 id "$DEPLOY_USER" >/dev/null 2>&1 || { echo "Benutzer $DEPLOY_USER existiert nicht." >&2; exit 1; }
 id -nG "$DEPLOY_USER" | tr ' ' '\n' | grep -qx docker \
   || { echo "$DEPLOY_USER ist nicht in der Gruppe docker." >&2; exit 1; }

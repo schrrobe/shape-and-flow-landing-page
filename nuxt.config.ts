@@ -18,7 +18,10 @@ const gesicht = behandlungBySlug('lymphdrainage-gesicht')!
  * robots.txt. schemaOrg und llms unten lesen den Literal aus shared/site.ts, und ohne diese
  * Zeile stünde in JSON-LD und llms.txt auf stage und dev weiterhin die Produktionsdomain.
  */
-const siteUrl = process.env.NUXT_SITE_URL || site.url
+// Ohne den abschließenden Schrägstrich, weil unten `${siteUrl}/images/...` verkettet wird: ein
+// aus der Doku kopiertes NUXT_SITE_URL mit Schrägstrich am Ende ergäbe sonst doppelte in
+// JSON-LD und llms.txt.
+const siteUrl = (process.env.NUXT_SITE_URL || site.url).replace(/\/+$/, '')
 
 export default defineNuxtConfig({
   compatibilityDate: '2026-08-05',
