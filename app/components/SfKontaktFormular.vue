@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { behandlungen } from '#shared/behandlungen'
+import { behandlungen, kombitermin } from '#shared/behandlungen'
 import { kontakt, mailtoUrl } from '#shared/site'
 
 /*
@@ -142,6 +142,11 @@ async function absenden() {
             >
               {{ behandlung.name }}
             </option>
+            <!--
+              Der Kombitermin steht hier als dritte Wahl, obwohl er keine eigene Behandlung ist:
+              wer beides zusammen will, soll es nicht in das Nachrichtenfeld schreiben müssen.
+            -->
+            <option :value="kombitermin.name">Beides zusammen in einem Termin</option>
           </select>
         </div>
 
