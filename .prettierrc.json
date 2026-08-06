@@ -1,0 +1,8 @@
+{
+  "semi": false,
+  "singleQuote": true,
+  "printWidth": 100,
+  "arrowParens": "avoid",
+  "plugins": ["prettier-plugin-tailwindcss"],
+  "tailwindStylesheet": "./app/assets/css/main.css"
+}

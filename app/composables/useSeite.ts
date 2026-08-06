@@ -28,7 +28,7 @@ export interface SeiteOptions {
    * Die Zwischenstufen des Brotkrümelpfads, also ohne Startseite und ohne die aktuelle Seite.
    * Beide setzt die Funktion selbst.
    */
-  pfad?: { name: string, url: string }[]
+  pfad?: { name: string; url: string }[]
   /** Das Label im Vorschaubild. Ohne Angabe steht dort der Firmenname. */
   ogLabel?: string
   /** Kürzere Fassung des Titels für das Vorschaubild, wenn der echte Titel dort zu lang wird. */
@@ -82,10 +82,12 @@ export function useSeite(options: SeiteOptions) {
 export function useFaqSchema(eintraege: FaqEintrag[]) {
   useSchemaOrg([
     defineWebPage({ '@type': 'FAQPage' }),
-    ...eintraege.map(eintrag => defineQuestion({
-      name: eintrag.frage,
-      acceptedAnswer: faqAntwortText(eintrag),
-    })),
+    ...eintraege.map(eintrag =>
+      defineQuestion({
+        name: eintrag.frage,
+        acceptedAnswer: faqAntwortText(eintrag),
+      }),
+    ),
   ])
 }
 

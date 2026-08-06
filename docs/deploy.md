@@ -3,11 +3,11 @@
 Drei Umgebungen, drei Container, ein nginx davor. Gebaut wird ausschließlich in GitHub Actions;
 auf dem Server ist nicht einmal Node installiert.
 
-| Umgebung | Adresse | Zugriff | Port (nur `127.0.0.1`) | Verzeichnis auf dem Server |
-| --- | --- | --- | --- | --- |
-| production | `shapeandflow.de` (`www.` → 301) | öffentlich | 8090 | `/opt/landing/production` |
-| stage | `stage.shapeandflow.de` | Basic Auth | 8091 | `/opt/landing/stage` |
-| dev | `dev.shapeandflow.de` | Basic Auth | 8092 | `/opt/landing/dev` |
+| Umgebung   | Adresse                          | Zugriff    | Port (nur `127.0.0.1`) | Verzeichnis auf dem Server |
+| ---------- | -------------------------------- | ---------- | ---------------------- | -------------------------- |
+| production | `shapeandflow.de` (`www.` → 301) | öffentlich | 8090                   | `/opt/landing/production`  |
+| stage      | `stage.shapeandflow.de`          | Basic Auth | 8091                   | `/opt/landing/stage`       |
+| dev        | `dev.shapeandflow.de`            | Basic Auth | 8092                   | `/opt/landing/dev`         |
 
 Die Booking-App liegt auf derselben Maschine unter `buchung.shapeandflow.de` und benutzt dieselbe
 Mechanik mit eigenen Ports. Die Serverdokumentation dazu steht in `/opt/README.md` auf dem VPS.
@@ -49,18 +49,18 @@ Das Prerendern schreibt die absolute Adresse fest ins HTML: Canonicals, Sitemap,
 Structured Data, `llms.txt`. Ein Image kann deshalb **nicht** durch die Stufen wandern. Jede
 Umgebung wird mit eigenen Build-Argumenten gebaut:
 
-| Umgebung | `NUXT_SITE_URL` | `NUXT_SITE_ENV` |
-| --- | --- | --- |
-| production | `https://shapeandflow.de` | `production` |
-| stage | `https://stage.shapeandflow.de` | `staging` |
-| dev | `https://dev.shapeandflow.de` | `staging` |
+| Umgebung   | `NUXT_SITE_URL`                 | `NUXT_SITE_ENV` |
+| ---------- | ------------------------------- | --------------- |
+| production | `https://shapeandflow.de`       | `production`    |
+| stage      | `https://stage.shapeandflow.de` | `staging`       |
+| dev        | `https://dev.shapeandflow.de`   | `staging`       |
 
 Was daraus folgt und was man wissen muss:
 
 - Identisch zwischen den Stufen ist der **Commit**, nicht das Artefakt. Was auf stage getestet
   wurde, wird für Produktion neu gebaut.
 - `NUXT_SITE_ENV=staging` liefert `Disallow: /` in der `robots.txt`. Der Smoke-Test im Deploy
-  prüft das in beide Richtungen — auch, dass Produktion sich *nicht* aussperrt.
+  prüft das in beide Richtungen — auch, dass Produktion sich _nicht_ aussperrt.
 - Auf stage und dev ist die **Sitemap leer**. Das ist kein Fehler: `nuxt-sitemap` lässt Routen
   weg, die auf `noindex` stehen, und das sind bei `Disallow: /` alle.
 - `nuxt.config.ts` löst die Adresse einmal in `siteUrl` auf. `NUXT_SITE_URL` allein erreicht nur
@@ -108,7 +108,7 @@ bleibt der einzige.
 
 ### Rollback
 
-Die Tags sind `<commit-sha>-<umgebung>`. Welche es gibt, steht unter *Packages* am Repository;
+Die Tags sind `<commit-sha>-<umgebung>`. Welche es gibt, steht unter _Packages_ am Repository;
 welcher gerade läuft, steht auf dem Server:
 
 ```bash
@@ -160,13 +160,13 @@ Nach der Änderung `sudo nginx -t` vor dem Reload.
 
 ### Was in GitHub hinterlegt sein muss
 
-| Ort | Name | Wert |
-| --- | --- | --- |
-| Variable | `DEPLOY_HOST` | `186.240.146.22` |
-| Variable | `DEPLOY_USER` | `deploy` |
-| Variable | `SSH_KNOWN_HOSTS` | Ausgabe von `ssh-keyscan -t ed25519 186.240.146.22` |
-| Secret | `SSH_PRIVATE_KEY` | der private Teil des Schlüssels von oben |
-| Environments | `dev`, `stage`, `production` | für stage und production Branch-Policy `main` |
+| Ort          | Name                         | Wert                                                |
+| ------------ | ---------------------------- | --------------------------------------------------- |
+| Variable     | `DEPLOY_HOST`                | `186.240.146.22`                                    |
+| Variable     | `DEPLOY_USER`                | `deploy`                                            |
+| Variable     | `SSH_KNOWN_HOSTS`            | Ausgabe von `ssh-keyscan -t ed25519 186.240.146.22` |
+| Secret       | `SSH_PRIVATE_KEY`            | der private Teil des Schlüssels von oben            |
+| Environments | `dev`, `stage`, `production` | für stage und production Branch-Policy `main`       |
 
 `SSH_KNOWN_HOSTS` ist absichtlich eine Variable und kein Secret: der Hostkey ist öffentliche
 Information, als Secret wäre er in genau den Logzeilen zu `***` maskiert, die man bei einem
@@ -186,7 +186,7 @@ Nur bei übereinstimmendem Fingerabdruck die vollständige `ssh-keyscan`-Zeile a
 `SSH_KNOWN_HOSTS` speichern. Wechselt der Schlüssel später (Neuinstallation, Serverumzug), gilt
 derselbe Ablauf — nicht blind die neue Ausgabe übernehmen.
 
-Zusätzlich muss unter *Settings → Actions → General* erlaubt sein, dass Actions Pull Requests
+Zusätzlich muss unter _Settings → Actions → General_ erlaubt sein, dass Actions Pull Requests
 anlegen — sonst kann release-please seine Release-PR nicht öffnen.
 
 ## Nach dem Ausrollen prüfen

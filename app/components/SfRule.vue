@@ -9,10 +9,13 @@
  * Farbe über currentColor, damit dieselbe Komponente auf Beige und auf dem orangen Panel
  * funktioniert.
  */
-withDefaults(defineProps<{
-  /** Ohne Punkt, wenn die Linie nur trennen und nicht auszeichnen soll. */
-  plain?: boolean
-}>(), { plain: false })
+withDefaults(
+  defineProps<{
+    /** Ohne Punkt, wenn die Linie nur trennen und nicht auszeichnen soll. */
+    plain?: boolean
+  }>(),
+  { plain: false },
+)
 </script>
 
 <template>

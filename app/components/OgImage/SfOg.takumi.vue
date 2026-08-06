@@ -12,19 +12,24 @@ import { adresse, site } from '#shared/site'
  * Renderer als Datei laden kann: "Playfair Display" wird beim Build heruntergeladen, "sans-serif"
  * ist die eingebaute Reserve. Ein Systemfont wie Georgia würde hier nur eine Warnung erzeugen.
  */
-withDefaults(defineProps<{
-  title?: string
-  description?: string
-  eyebrow?: string
-}>(), {
-  title: 'Brasilianische Lymphdrainage',
-  description: '',
-  eyebrow: site.nameAscii,
-})
+withDefaults(
+  defineProps<{
+    title?: string
+    description?: string
+    eyebrow?: string
+  }>(),
+  {
+    title: 'Brasilianische Lymphdrainage',
+    description: '',
+    eyebrow: site.nameAscii,
+  },
+)
 
 const anschrift = `${adresse.strasse} · ${adresse.plz} ${adresse.ort}`
 
-const orange = '#c2540a'
+// Literale statt Tokens, weil der Takumi-Renderer keine CSS-Variablen auflöst. Muss
+// --sf-inverse-surface und --sf-inverse-text aus app/assets/css/tokens.css folgen.
+const orange = '#a04607'
 const cream = '#f5efe6'
 const line = 'rgba(245, 239, 230, 0.45)'
 </script>

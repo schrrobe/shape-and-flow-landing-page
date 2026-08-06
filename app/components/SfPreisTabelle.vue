@@ -14,11 +14,17 @@ import { site } from '#shared/site'
 <template>
   <table class="w-full border-collapse text-left">
     <caption class="sr-only">
-      Behandlungen und Preise bei {{ site.nameAscii }}
+      Behandlungen und Preise bei
+      {{
+        site.nameAscii
+      }}
     </caption>
     <thead>
       <tr class="border-b border-border">
-        <th scope="col" class="pb-3 text-sm font-medium tracking-wide text-text-secondary uppercase">
+        <th
+          scope="col"
+          class="pb-3 text-sm font-medium tracking-wide text-text-secondary uppercase"
+        >
           Behandlung
         </th>
         <th
@@ -35,7 +41,7 @@ import { site } from '#shared/site'
         :key="behandlung.slug"
         class="border-b border-border last:border-b-0"
       >
-        <th scope="row" class="py-5 pr-4 font-normal align-top">
+        <th scope="row" class="py-5 pr-4 align-top font-normal">
           <NuxtLink
             :to="behandlung.route"
             class="font-display text-xl text-text-primary underline decoration-1 underline-offset-4 hover:text-primary"

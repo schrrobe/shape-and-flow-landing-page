@@ -1,0 +1,15 @@
+# Dieselben Werte wie in .prettierrc.json, damit der Editor beim Tippen nichts anderes macht
+# als der Formatter beim Speichern.
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+indent_style = space
+indent_size = 2
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+# In Markdown beenden zwei Leerzeichen am Zeilenende einen Absatz.
+[*.md]
+trim_trailing_whitespace = false

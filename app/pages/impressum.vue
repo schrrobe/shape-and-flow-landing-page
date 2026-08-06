@@ -4,9 +4,12 @@ import { adresse, kontakt, site } from '#shared/site'
 /*
  * Pflichtangaben nach § 5 DDG.
  *
- * Die mit TODO markierten Stellen müssen vor dem Livegang mit den echten Angaben der Inhaberin
- * gefüllt werden. Ein Impressum mit Platzhaltern ist abmahnbar, deshalb steht diese Seite auch in
- * docs/launch-checklist.md.
+ * Der Name der Inhaberin kommt aus shared/site.ts, weil dieselbe Angabe hier zweimal und in der
+ * Datenschutzerklärung ein drittes Mal steht — DDG und DSGVO verlangen an allen drei Stellen
+ * denselben Namen.
+ *
+ * Alle Pflichtangaben sind gesetzt. Ein Impressum mit Platzhaltern ist abmahnbar — wer hier etwas
+ * ändert, prüft danach docs/launch-checklist.md.
  */
 useSeite({
   titel: 'Impressum',
@@ -24,36 +27,33 @@ useHead({ meta: [{ name: 'robots', content: 'noindex, follow' }] })
 
     <div class="sf-container">
       <div class="sf-prose">
-        <h2 class="mt-0!">
-          Angaben gemäß § 5 DDG
-        </h2>
+        <h2 class="mt-0!">Angaben gemäß § 5 DDG</h2>
         <p>
-          {{ site.name }}<br>
-          <!-- TODO: vollständigen Namen der Inhaberin eintragen -->
-          Inhaberin: [Vor- und Nachname eintragen]<br>
-          {{ adresse.strasse }}<br>
-          {{ adresse.plz }} {{ adresse.ort }}<br>
+          {{ site.name }}<br />
+          Inhaberin: {{ site.inhaberin }}<br />
+          {{ adresse.strasse }}<br />
+          {{ adresse.plz }} {{ adresse.ort }}<br />
           Deutschland
         </p>
 
         <h2>Kontakt</h2>
         <p>
-          Telefon: {{ kontakt.telefonAnzeige }}<br>
+          Telefon: {{ kontakt.telefonAnzeige }}<br />
           E-Mail: {{ kontakt.email }}
         </p>
 
         <h2>Umsatzsteuer</h2>
         <p>
-          <!-- TODO: entweder USt-IdNr. eintragen oder den Kleinunternehmer-Satz stehen lassen -->
-          [Umsatzsteuer-Identifikationsnummer gemäß § 27 a UStG eintragen, oder falls die
-          Kleinunternehmerregelung nach § 19 UStG gilt, diesen Absatz durch den entsprechenden
-          Hinweis ersetzen.]
+          <!-- Kleinunternehmerregelung, deshalb steht hier keine USt-IdNr.: § 27 a UStG verlangt
+               sie nur, wenn eine erteilt wurde. Sollte die Grenze des § 19 UStG einmal
+               überschritten werden, ersetzt die Nummer diesen Absatz. -->
+          Gemäß § 19 UStG wird keine Umsatzsteuer berechnet und daher auch nicht in Rechnungen
+          ausgewiesen.
         </p>
 
         <h2>Verantwortlich für den Inhalt</h2>
         <p>
-          <!-- TODO: identisch zur Inhaberin oben -->
-          [Vor- und Nachname eintragen]<br>
+          {{ site.inhaberin }}<br />
           {{ adresse.strasse }}, {{ adresse.plz }} {{ adresse.ort }}
         </p>
 
@@ -71,9 +71,7 @@ useHead({ meta: [{ name: 'robots', content: 'noindex, follow' }] })
         </p>
 
         <h2>Bildnachweis</h2>
-        <p>
-          Die Studioaufnahmen und das Logo stammen von {{ site.name }}.
-        </p>
+        <p>Die Studioaufnahmen und das Logo stammen von {{ site.name }}.</p>
 
         <h2>Haftung für Inhalte und Links</h2>
         <p>
@@ -83,9 +81,9 @@ useHead({ meta: [{ name: 'robots', content: 'noindex, follow' }] })
         </p>
         <p>
           Für die Inhalte verlinkter externer Seiten sind deren Betreiber verantwortlich. Zum
-          Zeitpunkt der Verlinkung waren dort keine rechtswidrigen Inhalte erkennbar. Eine dauerhafte
-          inhaltliche Kontrolle fremder Seiten ist ohne konkreten Anlass nicht zumutbar. Bei
-          Kenntnis von Rechtsverstößen entfernen wir solche Links.
+          Zeitpunkt der Verlinkung waren dort keine rechtswidrigen Inhalte erkennbar. Eine
+          dauerhafte inhaltliche Kontrolle fremder Seiten ist ohne konkreten Anlass nicht zumutbar.
+          Bei Kenntnis von Rechtsverstößen entfernen wir solche Links.
         </p>
 
         <h2>Urheberrecht</h2>

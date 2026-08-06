@@ -12,9 +12,9 @@ useSeite({
   titel: mitOrt('Preise brasilianische Lymphdrainage'),
   ogTitel: 'Preise',
   beschreibung:
-    `Preise bei ${site.name} in ${adresse.ort}: ${gesicht.name} für das Gesicht `
-    + `${preis(gesicht.preisEuro)}, ${koerper.name} für den Körper `
-    + `${preis(koerper.preisEuro)}. Keine versteckten Kosten.`,
+    `Preise bei ${site.name} in ${adresse.ort}: ${gesicht.name} für das Gesicht ` +
+    `${preis(gesicht.preisEuro)}, ${koerper.name} für den Körper ` +
+    `${preis(koerper.preisEuro)}. Keine versteckten Kosten.`,
   ogLabel: 'Preise',
 })
 
@@ -24,13 +24,15 @@ useSchemaOrg([
   // Eine Angebotsliste, damit die Preise auch maschinenlesbar an einer Stelle stehen.
   defineItemList({
     name: 'Behandlungen und Preise',
-    itemListElement: behandlungen.map(b => defineOffer({
-      name: b.name,
-      description: b.titel,
-      price: b.preisEuro,
-      priceCurrency: 'EUR',
-      availability: 'https://schema.org/InStock',
-    })),
+    itemListElement: behandlungen.map(b =>
+      defineOffer({
+        name: b.name,
+        description: b.titel,
+        price: b.preisEuro,
+        priceCurrency: 'EUR',
+        availability: 'https://schema.org/InStock',
+      }),
+    ),
   }),
 ])
 
@@ -72,15 +74,14 @@ useFaqSchema(preisFaq)
           <p>
             Die Behandlungen sind ästhetische Anwendungen im Beauty-Bereich, keine medizinischen
             Leistungen. Es gibt deshalb kein Rezept und keine Erstattung durch die Krankenkasse.
-            <NuxtLink to="/ratgeber/brasilianische-vs-medizinische-lymphdrainage">Der Unterschied
-              zur medizinischen Lymphdrainage ist hier erklärt</NuxtLink>.
+            <NuxtLink to="/ratgeber/brasilianische-vs-medizinische-lymphdrainage"
+              >Der Unterschied zur medizinischen Lymphdrainage ist hier erklärt</NuxtLink
+            >.
           </p>
         </div>
 
         <div>
-          <h2 class="text-2xl">
-            Fragen zu den Preisen
-          </h2>
+          <h2 class="text-2xl">Fragen zu den Preisen</h2>
           <div class="mt-6">
             <SfFaqListe :eintraege="preisFaq" />
           </div>

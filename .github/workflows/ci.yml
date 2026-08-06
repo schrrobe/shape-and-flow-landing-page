@@ -29,7 +29,7 @@ permissions:
 
 jobs:
   check:
-    name: Typecheck
+    name: Prüfungen
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -43,8 +43,12 @@ jobs:
           cache: npm
 
       # Kein --omit=dev: postinstall ruft `nuxt prepare`, und ohne die erzeugten Typen in
-      # .nuxt/ hat `nuxt typecheck` nichts zu prüfen.
+      # .nuxt/ hat `nuxt typecheck` nichts zu prüfen. Dasselbe gilt für ESLint — es lädt seine
+      # Basis aus .nuxt/eslint.config.mjs und bricht ohne die Datei mit einem Import-Fehler ab.
       - run: npm ci
+      # Vor dem Typecheck, weil ESLint und Prettier in Sekunden antworten und vue-tsc nicht.
+      - run: npm run lint
+      - run: npm run format:check
       - run: npm run typecheck
 
   # Das einzige, was den vollständigen Build prüft. Er kann aus Gründen scheitern, die kein
@@ -76,6 +80,75 @@ jobs:
             NUXT_SITE_ENV=staging
           cache-from: type=gha,scope=stage
           provenance: false
+
+  # release-please liest die Commit-Messages auf main und bestimmt daraus Version und CHANGELOG.
+  # Was das Conventional-Commits-Format verfehlt, fehlt anschließend im Release — bisher fiel das
+  # erst nach dem Merge auf.
+  #
+  # Geprüft werden beide Wege, auf denen Text nach main gelangt: die einzelnen Commits, falls per
+  # Merge-Commit oder Rebase gemergt wird, und der Titel der PR, der beim Squash-Merge zur
+  # Commit-Message wird. Das Repository erlaubt derzeit alle drei Strategien.
+  commits:
+    name: Commit-Konvention
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          # commitlint braucht die Commits zwischen Basis und HEAD; der Standard holt nur einen.
+          fetch-depth: 0
+          persist-credentials: false
+
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version-file: .tool-versions
+          cache: npm
+
+      - run: npm ci
+
+      - name: Commits prüfen
+        run: >-
+          npx commitlint
+          --from ${{ github.event.pull_request.base.sha }}
+          --to ${{ github.event.pull_request.head.sha }}
+          --verbose
+
+      - name: PR-Titel prüfen
+        env:
+          PR_TITLE: ${{ github.event.pull_request.title }}
+        run: printf '%s' "$PR_TITLE" | npx commitlint --verbose
+
+  # axe-core in einem echten Browser gegen die vorgerenderten Seiten. Das ist die einzige Stufe,
+  # die Kontrast, Sichtbarkeit und Fokusreihenfolge beurteilen kann — im simulierten DOM bleiben
+  # genau diese Regeln unentschieden, siehe docs/barrierefreiheit.md.
+  #
+  # Blockierend. Die drei Kontrastverstöße, die der Job bei seiner Einführung fand, sind mit dem
+  # abgedunkelten --sf-primary behoben; alle 13 Seiten sind sauber. Ein Gate, das man erst
+  # scharfstellt, wenn es bequem ist, hätte den Fund nie erzwungen.
+  a11y:
+    name: Barrierefreiheit
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version-file: .tool-versions
+          cache: npm
+
+      - run: npm ci
+
+      # Nur Chromium: die Prüfung misst gerendertes CSS, nicht Browser-Unterschiede.
+      - run: npx playwright install --with-deps chromium
+
+      # Der Test liest die Routenliste aus .output/public, braucht also einen Build. `nuxt preview`
+      # startet Playwright anschließend selbst.
+      - run: npm run build
+
+      - run: npm run test:a11y
 
   # ── Deployment ──────────────────────────────────────────────────────────────
 

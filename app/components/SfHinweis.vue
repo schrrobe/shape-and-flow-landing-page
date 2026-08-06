@@ -7,9 +7,12 @@
  * Als <aside> ausgezeichnet, damit Screenreader und Suchmaschinen ihn als Nebeninformation
  * einordnen können.
  */
-withDefaults(defineProps<{
-  titel?: string
-}>(), { titel: 'Wichtiger Hinweis' })
+withDefaults(
+  defineProps<{
+    titel?: string
+  }>(),
+  { titel: 'Wichtiger Hinweis' },
+)
 </script>
 
 <template>

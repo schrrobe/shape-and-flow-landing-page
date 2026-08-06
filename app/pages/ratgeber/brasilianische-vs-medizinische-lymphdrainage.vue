@@ -16,8 +16,8 @@ useSeite({
   kurzTitel: artikel.titel,
   ogTitel: 'Brasilianisch oder medizinisch?',
   beschreibung:
-    'Ziel, Durchführung, Kosten und Kassenerstattung im Vergleich: wann eine ästhetische '
-    + 'Lymphdrainage passt und wann die medizinische Behandlung die richtige ist.',
+    'Ziel, Durchführung, Kosten und Kassenerstattung im Vergleich: wann eine ästhetische ' +
+    'Lymphdrainage passt und wann die medizinische Behandlung die richtige ist.',
   ogLabel: 'Ratgeber',
   pfad: [{ name: 'Ratgeber', url: '/ratgeber' }],
 })
@@ -26,8 +26,8 @@ useSchemaOrg([
   defineArticle({
     headline: artikel.titel,
     description:
-      'Vergleich von ästhetischer und medizinischer Lymphdrainage nach Ziel, Durchführung, '
-      + 'Verordnung und Kosten.',
+      'Vergleich von ästhetischer und medizinischer Lymphdrainage nach Ziel, Durchführung, ' +
+      'Verordnung und Kosten.',
   }),
 ])
 
@@ -77,9 +77,7 @@ const vergleich = [
 
     <div class="sf-container">
       <div class="sf-prose">
-        <h2 class="mt-0!">
-          Der kurze Unterschied
-        </h2>
+        <h2 class="mt-0!">Der kurze Unterschied</h2>
         <p>
           Die medizinische Lymphdrainage ist eine Heilbehandlung. Sie wird ärztlich verordnet, wenn
           eine Diagnose vorliegt, meist ein Lymphödem, und von Physiotherapeutinnen und
@@ -102,15 +100,9 @@ const vergleich = [
           </caption>
           <thead>
             <tr class="border-b border-border">
-              <th scope="col" class="py-3 pr-4 font-medium">
-                Merkmal
-              </th>
-              <th scope="col" class="py-3 pr-4 font-medium">
-                Brasilianisch, ästhetisch
-              </th>
-              <th scope="col" class="py-3 font-medium">
-                Medizinisch
-              </th>
+              <th scope="col" class="py-3 pr-4 font-medium">Merkmal</th>
+              <th scope="col" class="py-3 pr-4 font-medium">Brasilianisch, ästhetisch</th>
+              <th scope="col" class="py-3 font-medium">Medizinisch</th>
             </tr>
           </thead>
           <tbody>
@@ -133,7 +125,7 @@ const vergleich = [
         </table>
       </div>
 
-      <div class="mt-12 sf-prose">
+      <div class="sf-prose mt-12">
         <h2>Was das für Ihren Termin bedeutet</h2>
         <p>
           Wenn eine Ärztin ein Lymphödem festgestellt hat, ist die verordnete Behandlung die
@@ -163,9 +155,7 @@ const vergleich = [
       </div>
 
       <SfHinweis class="mt-14 max-w-3xl">
-        <p>
-          Dieser Text ist allgemeine Information und keine medizinische Beratung.
-        </p>
+        <p>Dieser Text ist allgemeine Information und keine medizinische Beratung.</p>
         <p>{{ disclaimer }}</p>
       </SfHinweis>
 

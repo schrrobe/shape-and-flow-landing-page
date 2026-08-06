@@ -15,8 +15,8 @@ useSeite({
   titel: 'Brasilianische Lymphdrainage: Methode und Ablauf',
   ogTitel: 'Brasilianische Lymphdrainage',
   beschreibung:
-    'Was die brasilianische Lymphdrainage ist, wie der Jeveauxeffect® abläuft, wie er sich von '
-    + 'der medizinischen Lymphdrainage unterscheidet und wann nicht behandelt wird.',
+    'Was die brasilianische Lymphdrainage ist, wie der Jeveauxeffect® abläuft, wie er sich von ' +
+    'der medizinischen Lymphdrainage unterscheidet und wann nicht behandelt wird.',
   ogLabel: 'Die Methode',
 })
 
@@ -50,9 +50,7 @@ useFaqSchema(methodeFaq)
             {{ adresse.ort }} als lizenzierter Partner mit dieser Methode.
           </p>
 
-          <h2 id="ablauf">
-            Wie eine Behandlung abläuft
-          </h2>
+          <h2 id="ablauf">Wie eine Behandlung abläuft</h2>
           <p>
             Der Ablauf ist festgelegt und wird nicht nach Tagesform improvisiert. Genau das
             unterscheidet die Methode von einer Massage, bei der nach Gefühl gearbeitet wird.
@@ -74,9 +72,7 @@ useFaqSchema(methodeFaq)
           </p>
 
           <h2>Was Kundinnen danach beschreiben</h2>
-          <p>
-            Rückmeldungen nach einem Termin ähneln sich. Am häufigsten genannt werden:
-          </p>
+          <p>Rückmeldungen nach einem Termin ähneln sich. Am häufigsten genannt werden:</p>
           <ul>
             <li>ein leichteres, freieres Gefühl im Körper</li>
             <li>weniger Spannung oder Druckgefühl</li>
@@ -90,26 +86,23 @@ useFaqSchema(methodeFaq)
             von körperlichen Voraussetzungen, Bewegung, Ernährung und allgemeinem Wohlbefinden ab.
           </p>
 
-          <h2 id="unterschied">
-            Der Unterschied zur medizinischen Lymphdrainage
-          </h2>
+          <h2 id="unterschied">Der Unterschied zur medizinischen Lymphdrainage</h2>
           <p>
             Beide Verfahren arbeiten am Lymphsystem, aber sie haben verschiedene Aufgaben. Die
-            medizinische Lymphdrainage ist eine Heilbehandlung: Sie wird bei einem
-            diagnostizierten Lymphödem ärztlich verordnet und von Physiotherapeutinnen und
-            Physiotherapeuten durchgeführt, die Krankenkasse beteiligt sich an den Kosten.
+            medizinische Lymphdrainage ist eine Heilbehandlung: Sie wird bei einem diagnostizierten
+            Lymphödem ärztlich verordnet und von Physiotherapeutinnen und Physiotherapeuten
+            durchgeführt, die Krankenkasse beteiligt sich an den Kosten.
           </p>
           <p>
             Der Jeveauxeffect® ist eine ästhetische Anwendung im Beauty-Bereich. Es gibt kein
             Rezept, keine Kassenleistung und keine Diagnose. Wer eine medizinische Behandlung
             braucht, gehört zur Ärztin oder zum Arzt, nicht ins Beauty-Studio.
-            <NuxtLink to="/ratgeber/brasilianische-vs-medizinische-lymphdrainage">Der ausführliche
-              Vergleich steht hier</NuxtLink>.
+            <NuxtLink to="/ratgeber/brasilianische-vs-medizinische-lymphdrainage"
+              >Der ausführliche Vergleich steht hier</NuxtLink
+            >.
           </p>
 
-          <h2 id="gegenanzeigen">
-            Wann nicht behandelt wird
-          </h2>
+          <h2 id="gegenanzeigen">Wann nicht behandelt wird</h2>
           <p>
             Auch eine ästhetische Behandlung hat Grenzen. In diesen Situationen findet keine
             Behandlung statt:
@@ -129,9 +122,7 @@ useFaqSchema(methodeFaq)
         <!-- Seitenspalte mit den beiden Angeboten, damit die Themenseite auch verkauft. -->
         <aside class="lg:sticky lg:top-28 lg:self-start">
           <SfCard>
-            <h2 class="sf-eyebrow">
-              Behandlungen
-            </h2>
+            <h2 class="sf-eyebrow">Behandlungen</h2>
             <ul class="mt-4 space-y-4">
               <li v-for="behandlung in behandlungen" :key="behandlung.slug">
                 <NuxtLink :to="behandlung.route" class="group block">
@@ -166,9 +157,7 @@ useFaqSchema(methodeFaq)
       </SfHinweis>
 
       <section class="mt-16 max-w-3xl">
-        <h2 class="text-2xl sm:text-3xl">
-          Fragen zu Gesundheit und Eignung
-        </h2>
+        <h2 class="text-2xl sm:text-3xl">Fragen zu Gesundheit und Eignung</h2>
         <div class="mt-6">
           <SfFaqListe :eintraege="methodeFaq" />
         </div>

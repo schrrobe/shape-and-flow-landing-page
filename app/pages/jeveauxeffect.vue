@@ -17,9 +17,9 @@ useSeite({
   ogTitel: 'Jeveauxeffect® für den Körper',
   kurzTitel: 'Jeveauxeffect®',
   beschreibung:
-    `Jeveauxeffect® in ${adresse.ort}: brasilianische Lymphdrainage als ästhetische `
-    + `Ganzkörperbehandlung mit Faszienarbeit und Modellierung. ${preis(behandlung.preisEuro)}, `
-    + `Termine nach Vereinbarung.`,
+    `Jeveauxeffect® in ${adresse.ort}: brasilianische Lymphdrainage als ästhetische ` +
+    `Ganzkörperbehandlung mit Faszienarbeit und Modellierung. ${preis(behandlung.preisEuro)}, ` +
+    `Termine nach Vereinbarung.`,
   ogLabel: 'Körperbehandlung',
 })
 
@@ -63,9 +63,7 @@ const nichtGeeignet = [
               {{ preis(behandlung.preisEuro) }}
             </p>
           </div>
-          <SfButton to="/preise" variant="secondary">
-            Alle Preise
-          </SfButton>
+          <SfButton to="/preise" variant="secondary"> Alle Preise </SfButton>
         </div>
       </SfCard>
 
@@ -74,15 +72,16 @@ const nichtGeeignet = [
           <h2>Was in der Behandlung passiert</h2>
           <p>
             Der Jeveauxeffect® ist eine ästhetische Ganzkörpermassage, die manuelle Techniken zur
-            Aktivierung des Lymphsystems mit Faszienarbeit und Körpermodellierung verbindet. Sie
-            ist das Herzstück der Jeveaux Methode und folgt einem festen Ablauf.
+            Aktivierung des Lymphsystems mit Faszienarbeit und Körpermodellierung verbindet. Sie ist
+            das Herzstück der Jeveaux Methode und folgt einem festen Ablauf.
           </p>
           <p>
             Zu Beginn wird die Lymphe sanft angeregt, um den Körper in Bewegung zu bringen.
             Anschließend wird intensiv gearbeitet und modelliert, präzise und deutlich spürbar. Eine
             Wellnessmassage ist das nicht: die Behandlung ist kraftvoll und hat Struktur.
-            <NuxtLink to="/brasilianische-lymphdrainage#ablauf">Der Ablauf im Detail steht
-              hier</NuxtLink>.
+            <NuxtLink to="/brasilianische-lymphdrainage#ablauf"
+              >Der Ablauf im Detail steht hier</NuxtLink
+            >.
           </p>
 
           <h2>Wobei die Behandlung unterstützen kann</h2>
@@ -111,9 +110,9 @@ const nichtGeeignet = [
             </li>
           </ul>
           <p>
-            <NuxtLink to="/brasilianische-lymphdrainage#gegenanzeigen">Die vollständige Liste der
-              Gegenanzeigen steht auf der Methodenseite</NuxtLink>. Im Zweifel klären Sie das bitte
-            vorab ärztlich ab.
+            <NuxtLink to="/brasilianische-lymphdrainage#gegenanzeigen"
+              >Die vollständige Liste der Gegenanzeigen steht auf der Methodenseite</NuxtLink
+            >. Im Zweifel klären Sie das bitte vorab ärztlich ab.
           </p>
 
           <h2>Wie es weitergeht</h2>
@@ -135,9 +134,7 @@ const nichtGeeignet = [
             loading="lazy"
           />
           <SfCard>
-            <h2 class="sf-eyebrow">
-              Auch im Angebot
-            </h2>
+            <h2 class="sf-eyebrow">Auch im Angebot</h2>
             <p class="mt-3">
               <NuxtLink to="/lymphdrainage-gesicht" class="font-display text-lg hover:text-primary">
                 Jeveauxeffect Face®
@@ -160,9 +157,7 @@ const nichtGeeignet = [
       </SfHinweis>
 
       <section class="mt-16 max-w-3xl">
-        <h2 class="text-2xl sm:text-3xl">
-          Fragen zur Körperbehandlung
-        </h2>
+        <h2 class="text-2xl sm:text-3xl">Fragen zur Körperbehandlung</h2>
         <div class="mt-6">
           <SfFaqListe :eintraege="koerperFaq" />
         </div>

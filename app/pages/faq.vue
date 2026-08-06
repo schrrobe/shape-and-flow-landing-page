@@ -12,8 +12,8 @@ useSeite({
   titel: 'Häufige Fragen zur brasilianischen Lymphdrainage',
   ogTitel: 'Häufige Fragen',
   beschreibung:
-    'Antworten zu Ablauf, Wirkung, Gegenanzeigen, Schwangerschaft, Preisen und Krankenkasse rund '
-    + `um die brasilianische Lymphdrainage bei Shape & Flow in ${adresse.ort}.`,
+    'Antworten zu Ablauf, Wirkung, Gegenanzeigen, Schwangerschaft, Preisen und Krankenkasse rund ' +
+    `um die brasilianische Lymphdrainage bei Shape & Flow in ${adresse.ort}.`,
   ogLabel: 'Fragen und Antworten',
 })
 

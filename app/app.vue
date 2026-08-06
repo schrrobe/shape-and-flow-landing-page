@@ -6,10 +6,7 @@ useHead({
 })
 
 // Ein WebSite-Knoten pro Seite, damit Google Seitenname und Sprache sicher zuordnen kann.
-useSchemaOrg([
-  defineWebSite({ name: site.name, inLanguage: 'de-DE' }),
-  defineWebPage(),
-])
+useSchemaOrg([defineWebSite({ name: site.name, inLanguage: 'de-DE' }), defineWebPage()])
 </script>
 
 <template>

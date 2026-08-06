@@ -13,11 +13,14 @@ import { site } from '#shared/site'
  * Die Seitenverhältnisse stammen aus den Dateien selbst. Ohne sie müsste die Maske eine Höhe *und*
  * eine Breite bekommen, und jede Änderung am Zuschnitt würde das Logo verzerren.
  */
-const props = withDefaults(defineProps<{
-  variant?: 'inline' | 'stacked'
-}>(), {
-  variant: 'inline',
-})
+const props = withDefaults(
+  defineProps<{
+    variant?: 'inline' | 'stacked'
+  }>(),
+  {
+    variant: 'inline',
+  },
+)
 
 const zuschnitte = {
   inline: { datei: '/images/logo-maske-wortmarke.webp', seitenverhaeltnis: 1.5328 },

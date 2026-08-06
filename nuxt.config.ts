@@ -27,12 +27,48 @@ export default defineNuxtConfig({
   compatibilityDate: '2026-08-05',
 
   modules: [
+    // Erzeugt .nuxt/eslint.config.mjs mit den Auto-Imports dieses Projekts. Ohne das Modul hielte
+    // ESLint useSeoMeta, defineOgImageComponent und den Rest für undefinierte Globals.
+    '@nuxt/eslint',
+    /*
+     * axe-core als Panel in den Nuxt DevTools. `enabled` steht per Default auf `nuxt.options.dev`,
+     * im Produktionsbuild macht das Modul also nichts.
+     *
+     * Version 1.0.0-alpha.1 kann ausschließlich das. Der Build-Zeit-Report, den das README des
+     * Projekts beschreibt, ist unveröffentlichter Code: im Paket gibt es weder die Option noch
+     * den `prerender:generate`-Hook. Selbst wenn — er ließe axe in linkedom laufen, also ohne
+     * Layout und ohne Cascade. Über die 13 Seiten dieser Site gemessen ergibt das null Verstöße
+     * und 39 Regeln, die mangels Rendering unentschieden bleiben: Kontrast, `landmark-one-main`,
+     * `page-has-heading-one`. Genau die Fragen also, für die man axe überhaupt einsetzt.
+     *
+     * Beantwortet werden sie vom Job "Barrierefreiheit" in ci.yml, der axe in einem echten
+     * Browser gegen die vorgerenderten Seiten laufen lässt.
+     */
+    '@nuxt/a11y',
     // Sammelmodul: sitemap, robots, schema-org, og-image, link-checker, seo-utils, site-config.
     '@nuxtjs/seo',
     '@nuxt/image',
     '@nuxt/fonts',
     'nuxt-llms',
   ],
+
+  /*
+   * Drei Prüfungen, die Nuxt von sich aus nicht einschaltet. Sie gehören hierher und nicht in
+   * tsconfig.json: die vier Konfigurationen unter .nuxt/ schreibt jeder `nuxt prepare` neu.
+   *
+   * noUncheckedIndexedAccess betrifft nur Zugriffe über Index-Signaturen und Arrays. Die
+   * Nachschlagetabellen in SfButton.vue laufen über `as const`-Objekte mit festen Schlüsseln und
+   * bleiben davon unberührt.
+   */
+  typescript: {
+    tsConfig: {
+      compilerOptions: {
+        noUnusedLocals: true,
+        noUnusedParameters: true,
+        noUncheckedIndexedAccess: true,
+      },
+    },
+  },
 
   css: ['~/assets/css/main.css'],
 
@@ -49,7 +85,8 @@ export default defineNuxtConfig({
         { rel: 'apple-touch-icon', href: '/apple-touch-icon.png' },
       ],
       meta: [
-        { name: 'theme-color', content: '#c2540a' },
+        // Muss --sf-primary aus app/assets/css/tokens.css folgen.
+        { name: 'theme-color', content: '#a04607' },
         { name: 'format-detection', content: 'telephone=no' },
       ],
     },
@@ -77,8 +114,9 @@ export default defineNuxtConfig({
   site: {
     url: siteUrl,
     name: site.name,
-    description: `Brasilianische Lymphdrainage in ${adresse.ort}: Jeveauxeffect® für Körper und `
-      + `Gesicht bei ${site.name}, lizenzierter Partner der Jeveaux Company®.`,
+    description:
+      `Brasilianische Lymphdrainage in ${adresse.ort}: Jeveauxeffect® für Körper und ` +
+      `Gesicht bei ${site.name}, lizenzierter Partner der Jeveaux Company®.`,
     defaultLocale: 'de',
     trailingSlash: false,
   },
@@ -86,28 +124,28 @@ export default defineNuxtConfig({
   schemaOrg: {
     identity: {
       '@type': ['Organization', 'LocalBusiness', 'HealthAndBeautyBusiness'],
-      'name': site.name,
-      'description': `Studio für brasilianische Lymphdrainage in ${adresse.ort}.`,
-      'url': siteUrl,
-      'logo': `${siteUrl}/images/logo.jpg`,
-      'image': `${siteUrl}/images/studio-1.jpg`,
-      'telephone': kontakt.telefon,
-      'email': kontakt.email,
-      'priceRange': preisSpanne,
-      'currenciesAccepted': 'EUR',
-      'address': {
+      name: site.name,
+      description: `Studio für brasilianische Lymphdrainage in ${adresse.ort}.`,
+      url: siteUrl,
+      logo: `${siteUrl}/images/logo.jpg`,
+      image: `${siteUrl}/images/studio-1.jpg`,
+      telephone: kontakt.telefon,
+      email: kontakt.email,
+      priceRange: preisSpanne,
+      currenciesAccepted: 'EUR',
+      address: {
         streetAddress: adresse.strasse,
         postalCode: adresse.plz,
         addressLocality: adresse.ort,
         addressCountry: adresse.land,
       },
-      'areaServed': [adresse.ort, 'Ruhrgebiet'],
+      areaServed: [adresse.ort, 'Ruhrgebiet'],
       // Solange kein Profil hinterlegt ist, steht hier nichts: ein leeres sameAs wäre ein
       // Fehler im Structured Data.
       ...(kontakt.instagram ? { sameAs: [kontakt.instagram] } : {}),
       // Keine openingHoursSpecification: das Studio arbeitet auf Termin, und erfundene
       // Öffnungszeiten im Structured Data wären eine Falschangabe gegenüber Google.
-      'slogan': oeffnungszeiten.hinweis,
+      slogan: oeffnungszeiten.hinweis,
     },
   },
 
@@ -129,7 +167,12 @@ export default defineNuxtConfig({
   fonts: {
     families: [
       // Wird beim Build heruntergeladen und selbst gehostet, es geht also kein Request an Google.
-      { name: 'Playfair Display', provider: 'google', weights: [400, 500, 600], styles: ['normal'] },
+      {
+        name: 'Playfair Display',
+        provider: 'google',
+        weights: [400, 500, 600],
+        styles: ['normal'],
+      },
     ],
   },
 
@@ -137,16 +180,16 @@ export default defineNuxtConfig({
     domain: siteUrl,
     title: `${site.name} – ${site.tagline}`,
     description:
-      `${site.name} ist ein Studio für brasilianische Lymphdrainage in ${adresse.strasse}, `
-      + `${adresse.plz} ${adresse.ort}. Angeboten werden der ${koerper.name} als ästhetische `
-      + `Ganzkörperbehandlung (${koerper.preisEuro} Euro) und der ${gesicht.name} als `
-      + `Gesichtsbehandlung (${gesicht.preisEuro} Euro). ${site.name} ist lizenzierter Partner `
-      + `der Jeveaux Company®.`,
+      `${site.name} ist ein Studio für brasilianische Lymphdrainage in ${adresse.strasse}, ` +
+      `${adresse.plz} ${adresse.ort}. Angeboten werden der ${koerper.name} als ästhetische ` +
+      `Ganzkörperbehandlung (${koerper.preisEuro} Euro) und der ${gesicht.name} als ` +
+      `Gesichtsbehandlung (${gesicht.preisEuro} Euro). ${site.name} ist lizenzierter Partner ` +
+      `der Jeveaux Company®.`,
     notes: [
-      'Der Jeveauxeffect® ist eine ästhetische Anwendung im Beauty-Bereich, keine medizinische '
-      + 'oder therapeutische Behandlung, und ersetzt keine ärztliche Maßnahme.',
-      'Es werden keine Heilversprechen abgegeben. Beschriebene Effekte beruhen auf subjektiven '
-      + 'Wahrnehmungen und können individuell abweichen.',
+      'Der Jeveauxeffect® ist eine ästhetische Anwendung im Beauty-Bereich, keine medizinische ' +
+        'oder therapeutische Behandlung, und ersetzt keine ärztliche Maßnahme.',
+      'Es werden keine Heilversprechen abgegeben. Beschriebene Effekte beruhen auf subjektiven ' +
+        'Wahrnehmungen und können individuell abweichen.',
       'Behandelt wird nach Terminvereinbarung.',
       'Jeveauxeffect® und Jeveauxeffect Face® sind eingetragene Marken der Jeveaux Company®.',
     ],

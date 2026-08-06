@@ -1,12 +1,5 @@
 <script setup lang="ts">
-import {
-  adresse,
-  kontakt,
-  markenhinweis,
-  oeffnungszeiten,
-  site,
-  telUrl,
-} from '#shared/site'
+import { adresse, kontakt, markenhinweis, oeffnungszeiten, site, telUrl } from '#shared/site'
 import { behandlungen } from '#shared/behandlungen'
 import { ratgeber } from '#shared/ratgeber'
 
@@ -45,7 +38,9 @@ onScopeDispose(stopGuard)
       Zum Inhalt springen
     </a>
 
-    <header class="sticky top-0 z-40 border-b border-border bg-background/95 shadow-header backdrop-blur">
+    <header
+      class="sticky top-0 z-40 border-b border-border bg-background/95 shadow-header backdrop-blur"
+    >
       <div class="sf-container flex h-16 items-center justify-between gap-4 sm:h-20">
         <NuxtLink
           to="/"
@@ -75,9 +70,7 @@ onScopeDispose(stopGuard)
             in die Wortmarke.
           -->
           <div class="hidden sm:flex">
-            <SfButton :href="kontakt.buchungUrl" external>
-              Termin buchen
-            </SfButton>
+            <SfButton :href="kontakt.buchungUrl" external> Termin buchen </SfButton>
           </div>
 
           <details ref="menue" class="relative lg:hidden">
@@ -133,17 +126,21 @@ onScopeDispose(stopGuard)
           </div>
 
           <div>
-            <h2 class="sf-eyebrow">
-              Behandlungen
-            </h2>
+            <h2 class="sf-eyebrow">Behandlungen</h2>
             <ul class="mt-4 space-y-2 text-sm">
               <li v-for="behandlung in behandlungen" :key="behandlung.slug">
-                <NuxtLink :to="behandlung.route" class="text-text-secondary hover:text-primary hover:underline">
+                <NuxtLink
+                  :to="behandlung.route"
+                  class="text-text-secondary hover:text-primary hover:underline"
+                >
                   {{ behandlung.name }}
                 </NuxtLink>
               </li>
               <li>
-                <NuxtLink to="/preise" class="text-text-secondary hover:text-primary hover:underline">
+                <NuxtLink
+                  to="/preise"
+                  class="text-text-secondary hover:text-primary hover:underline"
+                >
                   Preise
                 </NuxtLink>
               </li>
@@ -159,9 +156,7 @@ onScopeDispose(stopGuard)
           </div>
 
           <div>
-            <h2 class="sf-eyebrow">
-              Mehr erfahren
-            </h2>
+            <h2 class="sf-eyebrow">Mehr erfahren</h2>
             <ul class="mt-4 space-y-2 text-sm">
               <li>
                 <NuxtLink to="/faq" class="text-text-secondary hover:text-primary hover:underline">
@@ -169,12 +164,18 @@ onScopeDispose(stopGuard)
                 </NuxtLink>
               </li>
               <li>
-                <NuxtLink to="/studio" class="text-text-secondary hover:text-primary hover:underline">
+                <NuxtLink
+                  to="/studio"
+                  class="text-text-secondary hover:text-primary hover:underline"
+                >
                   Das Studio
                 </NuxtLink>
               </li>
               <li>
-                <NuxtLink to="/ratgeber" class="text-text-secondary hover:text-primary hover:underline">
+                <NuxtLink
+                  to="/ratgeber"
+                  class="text-text-secondary hover:text-primary hover:underline"
+                >
                   Ratgeber
                 </NuxtLink>
               </li>
@@ -190,18 +191,16 @@ onScopeDispose(stopGuard)
           </div>
 
           <div>
-            <h2 class="sf-eyebrow">
-              Kontakt
-            </h2>
+            <h2 class="sf-eyebrow">Kontakt</h2>
             <address class="mt-4 space-y-2 text-sm text-text-secondary not-italic">
               <p>
-                {{ adresse.strasse }}<br>
+                {{ adresse.strasse }}<br />
                 {{ adresse.plz }} {{ adresse.ort }}
               </p>
               <p>
                 <a :href="telUrl" class="hover:text-primary hover:underline">
-                  {{ kontakt.telefonAnzeige }}
-                </a><br>
+                  {{ kontakt.telefonAnzeige }} </a
+                ><br />
                 <a :href="`mailto:${kontakt.email}`" class="hover:text-primary hover:underline">
                   {{ kontakt.email }}
                 </a>
@@ -219,15 +218,15 @@ onScopeDispose(stopGuard)
               </p>
             </address>
 
-            <SfButton :href="kontakt.buchungUrl" class="mt-5" external>
-              Termin buchen
-            </SfButton>
+            <SfButton :href="kontakt.buchungUrl" class="mt-5" external> Termin buchen </SfButton>
           </div>
         </div>
 
         <SfRule class="mt-12 text-text-secondary" />
 
-        <div class="mt-6 flex flex-col gap-4 text-sm text-text-secondary sm:flex-row sm:items-start sm:justify-between">
+        <div
+          class="mt-6 flex flex-col gap-4 text-sm text-text-secondary sm:flex-row sm:items-start sm:justify-between"
+        >
           <p class="max-w-xl">
             {{ markenhinweis }}
           </p>

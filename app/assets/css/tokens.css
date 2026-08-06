@@ -9,8 +9,17 @@
  * palette is one edit here.
  *
  * The palette is beige, black and orange. The orange is darker than a brand orange usually is
- * (#C2540A rather than something around #E8710A) for one reason: white text on it has to reach
- * 4.5:1, and a lighter orange does not. A button label nobody can read is not a design decision.
+ * (#A04607 rather than something around #E8710A) because it has to work in both directions, and
+ * the second one is the harder one:
+ *
+ *   - White text *on* the orange — the button label. Any orange up to about #C2540A manages this.
+ *   - The orange *as* text on the beige — links, `.sf-eyebrow`, the active nav item. This needs
+ *     the orange itself to be dark, and #C2540A is not: it reaches 4.02:1 on `--sf-background`
+ *     and 3.65:1 on `--sf-surface-muted`, both short of the 4.5:1 that WCAG AA asks of text.
+ *
+ * #A04607 clears every pairing with room to spare: 5.45:1 on the beige, 4.94:1 on the muted
+ * beige, 6.22:1 under white. Measured by axe in Chromium against all 13 rendered pages, see
+ * docs/barrierefreiheit.md — the ratios were guesses until then.
  */
 :root {
   /* Surfaces, warm rather than grey — the beige is the page, not an accent. */
@@ -25,8 +34,10 @@
   --sf-border: #d9cdba;
 
   /* Action. */
-  --sf-primary: #c2540a;
-  --sf-primary-hover: #a34608;
+  --sf-primary: #a04607;
+  /* Muss dunkler bleiben als --sf-primary, sonst wirkt der Hover wie ein Zurücksetzen.
+   * Weiß darauf: 7.34:1. */
+  --sf-primary-hover: #8f3e06;
   --sf-primary-contrast: #ffffff;
 
   /* Status surfaces. Backgrounds for a message, not text colours — they carry
@@ -35,9 +46,20 @@
   --sf-warning: #ffe0b2;
   --sf-danger: #f5c6c6;
 
-  /* The focus ring is near-black rather than the brand orange: it has to be visible on the
-   * orange button too, where an orange ring would disappear. */
-  --sf-focus-ring: #16130f;
+  /*
+   * The focus ring is black rather than the brand orange: it has to be visible on the orange
+   * button too, where an orange ring would disappear.
+   *
+   * Schwarz und nicht das Fast-Schwarz von --sf-text-primary. WCAG 1.4.11 verlangt für den
+   * Fokusindikator 3:1 gegen die angrenzende Fläche, und die ist beim Primärbutton das Orange.
+   * #16130F kam darauf nur noch auf 2,97:1, seit --sf-primary abgedunkelt wurde — die beiden
+   * ziehen in entgegengesetzte Richtungen. Schwarz hat auf beiden Seiten Luft: 3,37:1 auf dem
+   * Orange, 18,37:1 auf dem Beige.
+   *
+   * axe findet das nicht. Ein Fokusindikator existiert nur im :focus-visible-Zustand, und den
+   * nimmt kein Seitenscan ein.
+   */
+  --sf-focus-ring: #000000;
 
   --sf-radius: 0.5rem;
   --sf-shadow-card: 0 1px 2px rgb(22 19 15 / 8%), 0 4px 12px rgb(22 19 15 / 6%);
@@ -47,16 +69,22 @@
    * does not need a display face or a full-bleed brand panel.
    */
 
-  /* The logo is cream on orange, so the inverted section is the logo enlarged. */
-  --sf-inverse-surface: #c2540a;
+  /* The logo is cream on orange, so the inverted section is the logo enlarged. Same value as
+   * --sf-primary: ein Panel in einem anderen Orange als die Buttons darauf sieht nach Versehen
+   * aus. Die beiden gehören zusammen bewegt. */
+  --sf-inverse-surface: #a04607;
   --sf-inverse-text: #f5efe6;
   --sf-inverse-border: #d9723a;
 
   /*
-   * Fließtext auf dem orangen Panel. Das Creme kommt auf dem Orange nur auf 4,0:1 und trägt
-   * deshalb ausschließlich die grossen Elemente — Wortmarke und Überschriften, für die 3:1
-   * genügt. Alles in Lesegrösse bekommt dieses Weiss, das 4,6:1 erreicht. Eine abgeschwächte
-   * Variante des Cremes gibt es hier bewusst nicht: 70 % Deckkraft landen bei 2,7:1.
+   * Fließtext auf dem orangen Panel. Mit dem abgedunkelten Orange erreicht das Creme selbst
+   * 5,45:1 und wäre für Lesegrösse ausreichend; dieses Weiss bleibt trotzdem, weil es die
+   * Abstufung zwischen Überschrift und Fließtext trägt.
+   *
+   * Was es hier weiterhin nicht gibt, ist eine abgeschwächte Variante über `opacity`. Der
+   * Browser rechnet die Deckkraft gegen den Untergrund, und was dabei herauskommt, steht in
+   * keinem Token: Creme bei 80 % ergibt #E4CDB9 und damit 4,07:1 — zu wenig, und niemand sieht
+   * es der Klasse an. Wer hier abstufen will, nimmt einen zweiten Farbwert, keine Deckkraft.
    */
   --sf-inverse-text-body: #ffffff;
 

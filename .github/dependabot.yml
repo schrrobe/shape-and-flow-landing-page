@@ -1,0 +1,41 @@
+# Updates laufen gegen main, weil von dort aus released wird.
+#
+# Das Commit-Präfix ist nicht Kosmetik: der neue Job "Commit-Konvention" in ci.yml prüft auch
+# Dependabot-PRs, und release-please sortiert `chore` unter "Miscellaneous" statt in die
+# Feature-Liste.
+version: 2
+
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: 'chore(deps)'
+      prefix-development: 'chore(deps-dev)'
+    groups:
+      # Minor und Patch in einer PR. Einzeln wären das jede Woche ein Dutzend, die alle denselben
+      # Review bekämen: CI grün, Seite baut.
+      minor-und-patch:
+        update-types:
+          - minor
+          - patch
+    # Majors bleiben ungruppiert. Ein Nuxt- oder Tailwind-Sprung gehört einzeln angesehen, nicht
+    # zwischen zwanzig Patchbumps versteckt.
+
+  # Hält die per Commit-SHA gepinnten Actions in ci.yml und deploy.yml aktuell. Dependabot
+  # aktualisiert dabei den SHA und den Versionskommentar dahinter.
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+    commit-message:
+      prefix: 'chore(deps)'
+    groups:
+      actions:
+        update-types:
+          - minor
+          - patch

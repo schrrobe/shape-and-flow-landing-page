@@ -13,8 +13,23 @@ npm install
 npm run dev        # Entwicklungsserver auf http://localhost:3000
 npm run build      # Produktionsbuild, rendert alle Seiten vor
 npm start          # den gebauten Server starten
+
+npm run lint         # ESLint, keine Warnungen erlaubt
+npm run lint:fix     # dasselbe mit --fix
+npm run format       # Prettier schreibt
+npm run format:check # Prettier prüft nur
 npm run typecheck
+npm run test:a11y    # axe in Chromium, braucht ein vorheriges npm run build
 ```
+
+Lint, Formatcheck und Typecheck laufen bei jeder PR im Job _Prüfungen_. ESLint lädt seine Basis aus
+`.nuxt/eslint.config.mjs`, das `nuxt prepare` erzeugt — nach einem frisch geklonten Repository
+also erst `npm install` laufen lassen, sonst bricht `npm run lint` mit einem Import-Fehler ab.
+
+Die Barrierefreiheitsprüfung hat einen eigenen Job, weil sie einen Browser braucht. Sie ist
+blockierend und alle 13 Seiten sind sauber. Einzelheiten in
+[docs/barrierefreiheit.md](docs/barrierefreiheit.md) — dort steht auch, warum `--sf-primary`
+abgedunkelt wurde und was das für das `booking-app`-Repo bedeutet.
 
 ## Stack
 
@@ -29,7 +44,9 @@ Gerendert wird hybrid: es läuft ein Node-Server, aber jede Seite wird beim Buil
 
 `fusion` deployt nach dev, `main` nach stage. Produktion bewegt sich erst, wenn die Release-PR von
 release-please gemergt wird — Commits also im Conventional-Commits-Format schreiben, sonst taucht
-die Änderung im CHANGELOG nicht auf. Einzelheiten in [docs/deploy.md](docs/deploy.md).
+die Änderung im CHANGELOG nicht auf. commitlint prüft in der PR sowohl die Commits als auch den
+Titel, weil beim Squash-Merge der Titel zur Commit-Message wird. Einzelheiten in
+[docs/deploy.md](docs/deploy.md).
 
 ## Wo was liegt
 
@@ -46,9 +63,15 @@ Inhalte ändern heißt in den meisten Fällen: eine Datei in `shared/` anfassen.
 und Kontaktdaten stehen dort jeweils genau einmal und wirken gleichzeitig auf die sichtbare Seite
 und auf das Structured Data.
 
-Die Farbwerte stammen unverändert aus der Booking-App (`booking-app/packages/ui/src/tokens.css` im
-Repo `shape-and-flow`), damit Website und Buchungsstrecke dieselbe Marke zeigen. Wer dort etwas
-ändert, sollte es hier mitziehen.
+Die Farbwerte stammen aus der Booking-App (`booking-app/packages/ui/src/tokens.css` im Repo
+`shape-and-flow`), damit Website und Buchungsstrecke dieselbe Marke zeigen. Wer dort etwas ändert,
+sollte es hier mitziehen.
+
+**Eine Abweichung gibt es derzeit.** `--sf-primary` steht hier auf `#a04607` statt `#c2540a`, weil
+das ursprüngliche Orange als Textfarbe auf dem Beige die WCAG-AA-Schwelle von 4,5:1 verfehlt —
+gemessen, nicht geschätzt, siehe [docs/barrierefreiheit.md](docs/barrierefreiheit.md). Mitbewegt
+haben sich `--sf-primary-hover` und `--sf-inverse-surface`. Die Booking-App hat denselben Fehler
+und sollte nachziehen; bis dahin zeigen die beiden Oberflächen unterschiedliche Orangetöne.
 
 ## Inhaltliche Regeln
 

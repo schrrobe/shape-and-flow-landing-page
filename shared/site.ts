@@ -13,6 +13,12 @@ export const site = {
   name: 'Shape & Flow',
   /** Used where the ampersand would need escaping or reads badly, e.g. in URLs and alt text. */
   nameAscii: 'Shape and Flow',
+  /**
+   * Die Inhaberin. Steht dreimal auf der Website — im Impressum als Inhaberin und als
+   * Verantwortliche für den Inhalt, in der Datenschutzerklärung als verantwortliche Stelle. Das
+   * DDG und die DSGVO verlangen an diesen Stellen denselben Namen; deshalb einer statt drei.
+   */
+  inhaberin: 'Karin Pospelov',
   tagline: 'Brasilianische Lymphdrainage in Dortmund',
   url: 'https://shapeandflow.de',
 } as const
@@ -50,33 +56,32 @@ export const oeffnungszeiten = {
   hinweis: 'Termine nach Vereinbarung',
 }
 
-export const whatsappText
-  = 'Hallo, ich interessiere mich für eine Behandlung bei Shape & Flow und hätte gern einen Termin.'
+export const whatsappText =
+  'Hallo, ich interessiere mich für eine Behandlung bei Shape & Flow und hätte gern einen Termin.'
 
 /** Fertiger wa.me-Link inklusive vorformulierter Nachricht. */
-export const whatsappUrl
-  = `https://wa.me/${kontakt.whatsapp}?text=${encodeURIComponent(whatsappText)}`
+export const whatsappUrl = `https://wa.me/${kontakt.whatsapp}?text=${encodeURIComponent(whatsappText)}`
 
 export const telUrl = `tel:${kontakt.telefon}`
 
 export const mailtoUrl = `mailto:${kontakt.email}`
 
 /** Google-Maps-Suchlink statt Karten-Embed: kein Drittanbieter-Skript, keine Einwilligung nötig. */
-export const kartenUrl = `https://www.google.com/maps/search/?api=1&query=${
-  encodeURIComponent(`${adresse.strasse}, ${adresse.plz} ${adresse.ort}`)
-}`
+export const kartenUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+  `${adresse.strasse}, ${adresse.plz} ${adresse.ort}`,
+)}`
 
 /** Der Lizenzhinweis, der auf jeder Seite mit Markennennung stehen muss. */
-export const markenhinweis
-  = 'Jeveauxeffect® und Jeveauxeffect Face® sind eingetragene Marken der Jeveaux Company®. '
-    + 'Shape & Flow ist lizenzierter Partner der Jeveaux Company®.'
+export const markenhinweis =
+  'Jeveauxeffect® und Jeveauxeffect Face® sind eingetragene Marken der Jeveaux Company®. ' +
+  'Shape & Flow ist lizenzierter Partner der Jeveaux Company®.'
 
 /**
  * Der Pflicht-Disclaimer aus den Unterlagen des Lizenzgebers. Steht auf jeder Seite, die eine
  * Wirkung beschreibt — inhaltlich verlangt vom Heilmittelwerbegesetz, nicht nur vom Lizenzvertrag.
  */
-export const disclaimer
-  = 'Der Jeveauxeffect® ist eine ästhetische Anwendung im Beauty-Bereich und keine medizinische '
-    + 'oder therapeutische Behandlung. Er ersetzt keine ärztliche Maßnahme. Es werden keine '
-    + 'Heilversprechen abgegeben. Die beschriebenen Effekte beruhen auf subjektiven Wahrnehmungen; '
-    + 'individuelle Ergebnisse können abweichen.'
+export const disclaimer =
+  'Der Jeveauxeffect® ist eine ästhetische Anwendung im Beauty-Bereich und keine medizinische ' +
+  'oder therapeutische Behandlung. Er ersetzt keine ärztliche Maßnahme. Es werden keine ' +
+  'Heilversprechen abgegeben. Die beschriebenen Effekte beruhen auf subjektiven Wahrnehmungen; ' +
+  'individuelle Ergebnisse können abweichen.'
