@@ -35,7 +35,7 @@ export const kontakt = {
   whatsapp: '490000000000',
   /** TODO: echte E-Mail-Adresse eintragen. */
   email: 'hallo@shapeandflow.de',
-  /** TODO: URL der Booking-App eintragen. */
+  /** Adresse der Booking-App. Alle Termin-Schaltflächen zeigen hierher. */
   buchungUrl: 'https://booking.shapeandflow.de',
   /** TODO: Instagram-Profil eintragen oder auf null setzen, dann wird der Link ausgeblendet. */
   instagram: null as string | null,

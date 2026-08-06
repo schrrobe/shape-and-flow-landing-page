@@ -6,7 +6,6 @@ import {
   oeffnungszeiten,
   site,
   telUrl,
-  whatsappUrl,
 } from '#shared/site'
 import { behandlungen } from '#shared/behandlungen'
 import { ratgeber } from '#shared/ratgeber'
@@ -69,9 +68,17 @@ onScopeDispose(stopGuard)
         </nav>
 
         <div class="flex items-center gap-2">
-          <SfButton :href="whatsappUrl" class="hidden sm:inline-flex" external>
-            Termin anfragen
-          </SfButton>
+          <!--
+            Der Wrapper trägt das hidden, nicht der Button: SfButton bringt selbst inline-flex mit,
+            und zwei Display-Utilities auf demselben Element entscheidet die Reihenfolge im
+            Stylesheet, nicht die Absicht. Auf Mobil bleibt nur das Menü, sonst drängt der Button
+            in die Wortmarke.
+          -->
+          <div class="hidden sm:flex">
+            <SfButton :href="kontakt.buchungUrl" external>
+              Termin buchen
+            </SfButton>
+          </div>
 
           <details ref="menue" class="relative lg:hidden">
             <summary
@@ -101,12 +108,12 @@ onScopeDispose(stopGuard)
                 {{ eintrag.name }}
               </NuxtLink>
               <a
-                :href="whatsappUrl"
+                :href="kontakt.buchungUrl"
                 target="_blank"
                 rel="noopener"
                 class="mt-1 block rounded-sf bg-primary px-3 py-2.5 text-center font-medium text-primary-contrast hover:bg-primary-hover"
               >
-                Termin anfragen
+                Termin buchen
               </a>
             </nav>
           </details>
@@ -211,6 +218,10 @@ onScopeDispose(stopGuard)
                 </a>
               </p>
             </address>
+
+            <SfButton :href="kontakt.buchungUrl" class="mt-5" external>
+              Termin buchen
+            </SfButton>
           </div>
         </div>
 
