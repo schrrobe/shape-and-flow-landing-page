@@ -3,11 +3,14 @@ import { expect, test } from '@playwright/test'
 import { kontakt } from '../shared/site'
 
 /*
- * Solange enable_booking_redirect aus ist, darf keine ausgelieferte Seite die Booking-App
- * erwähnen — weder als Link noch als Nebensatz. Über zehn Dateien verteilt ist das eine Stelle
- * zu viel, um es beim nächsten Textwechsel zuverlässig im Kopf zu haben, also prüft es ein Test.
+ * Keine vorgerenderte Seite darf die Booking-App erwähnen — weder als Link noch als Nebensatz.
  *
- * Geprüft wird das gebaute HTML und nicht die Seite im Browser: die Frage ist, was ausgeliefert
+ * Das gilt hier unbedingt und nicht nur bei ausgeschaltetem Flag: `enable_booking_redirect` wird
+ * im Browser ausgewertet, beim Bauen weiß niemand davon, und der Fallback ist aus. Im HTML steht
+ * deshalb immer die Fassung ohne Buchungsstrecke. Genau das prüft der Test — er hält fest, dass
+ * niemand versehentlich einen Verweis einbaut, der am Flag vorbei ins Markup gerät.
+ *
+ * Geprüft wird die gebaute Datei und nicht die Seite im Browser: die Frage ist, was ausgeliefert
  * wird, und die beantwortet die Datei besser als das gerenderte DOM. Playwright startet trotzdem
  * seinen Vorschauserver — der Aufwand ist geschenkt gegenüber einer zweiten Testkonfiguration.
  */
@@ -16,16 +19,6 @@ const seiten = globSync('.output/public/**/*.html')
 
 if (!seiten.length)
   throw new Error('Keine vorgerenderten Seiten in .output/public gefunden. Erst `npm run build`.')
-
-/*
- * Der Flag-Zustand steht in der Nuxt-Nutzlast jeder Seite, weil er aus der öffentlichen
- * runtimeConfig kommt. Ihn dort abzulesen ist genauer als eine Umgebungsvariable im Testlauf:
- * gebaut wurde das HTML womöglich in einem ganz anderen Prozess.
- */
-// Der Schlüssel steht in der Nutzlast mal mit und mal ohne Anführungszeichen, je nachdem, wie
-// Nuxt sie serialisiert. Beides zu erlauben ist billiger, als sich auf eine Form zu verlassen.
-const startseite = readFileSync('.output/public/index.html', 'utf8')
-const flagAn = /"?bookingRedirect"?\s*:\s*true/.test(startseite)
 
 /*
  * Absichtlich enge Begriffe. Ein bloßes "buchen" käme auch in Sätzen vor, die nichts mit der
@@ -40,9 +33,7 @@ const verboten = [
   'direkt online',
 ]
 
-test.describe('Ohne enable_booking_redirect', () => {
-  test.skip(flagAn, 'enable_booking_redirect ist an: die Booking-App darf dann erwähnt werden.')
-
+test.describe('Vorgerendertes HTML', () => {
   for (const datei of seiten) {
     const route = datei.replace(/^\.output\/public/, '').replace(/\/?index\.html$/, '') || '/'
 

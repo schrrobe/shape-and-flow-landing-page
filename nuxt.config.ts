@@ -128,22 +128,18 @@ export default defineNuxtConfig({
       absender: kontakt.absenderEmail,
       empfaenger: kontakt.email,
     },
-
-    /*
-     * Feature-Flags. Die Werte hier sind der sichere Standard; gesetzt werden sie beim Build von
-     * modules/unleash.ts aus Unleash. Zur Laufzeit ändert sich daran nichts mehr, weil jede Seite
-     * vorgerendert ist — die Begründung steht im Modul.
-     *
-     * Unter `public`, weil die Seiten sie beim Rendern lesen. Geheim ist daran nichts: was hier
-     * steht, kann man dem ausgelieferten HTML ohnehin ansehen.
-     *
-     * Für die lokale Arbeit ohne Unleash-Zugang:
-     * NUXT_PUBLIC_FEATURES_BOOKING_REDIRECT=true npm run dev
-     */
+    unleash: {
+      url: '',
+      backendToken: '',
+      environment: '',
+      deployment: '',
+    },
     public: {
-      features: {
-        /** Verweist die Website auf die Booking-App? Aus heißt: keine Schaltfläche, kein Hinweis. */
-        bookingRedirect: false,
+      unleash: {
+        url: '',
+        frontendToken: '',
+        environment: '',
+        deployment: '',
       },
     },
   },

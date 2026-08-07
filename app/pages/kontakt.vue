@@ -1,10 +1,11 @@
 <script setup lang="ts">
+import { computed } from 'vue'
 import { adresse, kartenUrl, kontakt, mailtoUrl, oeffnungszeiten, site } from '#shared/site'
 
 /*
- * Diese Seite spricht an vier Stellen von der Online-Buchung: in der Beschreibung für Suchmaschinen,
- * im Vorspann, im Absatz über dem Formular und in der zweiten Karte. Ist das Flag aus, gibt es
- * keine Buchungsseite — dann darf hier auch nichts stehen, was auf eine hindeutet.
+ * Diese Seite spricht an drei sichtbaren Stellen von der Online-Buchung: im Vorspann, im Absatz
+ * über dem Formular und in der zweiten Karte. Ist das Flag aus, gibt es keine Buchungsseite —
+ * dann darf hier auch nichts stehen, was auf eine hindeutet.
  */
 const buchungSichtbar = useBuchungSichtbar()
 
@@ -12,27 +13,34 @@ useSeite({
   titel: `Kontakt und Termin in ${adresse.ort}`,
   ogTitel: 'Kontakt und Termin',
   kurzTitel: 'Kontakt',
+  /*
+   * Die Beschreibung erwähnt die Online-Buchung bewusst in keinem Fall. Sie steht im
+   * vorgerenderten HTML und im Vorschaubild, beides entsteht beim Build — also lange bevor das
+   * Browser-SDK das Flag kennt. Eine Fassung "oder online buchen" käme deshalb nie zur
+   * Auslieferung, und ein Zweig, den niemand je zu sehen bekommt, ist toter Code.
+   */
   beschreibung:
     `Termin für brasilianische Lymphdrainage bei Shape & Flow, ${adresse.strasse}, ${adresse.plz} ` +
-    `${adresse.ort}. ` +
-    (buchungSichtbar
-      ? 'Per Kontaktformular, per E-Mail oder online buchen.'
-      : 'Per Kontaktformular oder per E-Mail.'),
+    `${adresse.ort}. Per Kontaktformular oder per E-Mail.`,
   ogLabel: 'Kontakt',
 })
 
-const vorspann = buchungSichtbar
-  ? `Schreiben Sie uns über das Formular oder per E-Mail. Wer schon weiß, was er möchte,
-    bucht den Termin direkt online.`
-  : `Schreiben Sie uns über das Formular oder per E-Mail. Wir melden uns mit freien Terminen
-    zurück.`
+// computed und nicht einmalig ausgewertet: das Flag steht erst fest, wenn das Browser-SDK
+// geantwortet hat, und das ist nach dem ersten Rendern. Gilt genauso für `wege` unten.
+const vorspann = computed(() =>
+  buchungSichtbar.value
+    ? `Schreiben Sie uns über das Formular oder per E-Mail. Wer schon weiß, was er möchte,
+      bucht den Termin direkt online.`
+    : `Schreiben Sie uns über das Formular oder per E-Mail. Wir melden uns mit freien Terminen
+      zurück.`,
+)
 
 /*
  * Kein Telefon und kein WhatsApp: das Studio ist während einer Behandlung nicht am Apparat, und
  * eine Anfrage, die im Postfach liegt, geht dabei seltener verloren als ein verpasster Anruf.
  * Warum die Nummer auch im Impressum fehlt, steht in shared/site.ts.
  */
-const wege = [
+const wege = computed(() => [
   {
     titel: 'E-Mail',
     text: 'Wenn Sie lieber aus Ihrem eigenen Postfach schreiben.',
@@ -40,7 +48,7 @@ const wege = [
     href: mailtoUrl,
     external: false,
   },
-  ...(buchungSichtbar
+  ...(buchungSichtbar.value
     ? [
         {
           titel: 'Online buchen',
@@ -51,7 +59,7 @@ const wege = [
         },
       ]
     : []),
-]
+])
 </script>
 
 <template>

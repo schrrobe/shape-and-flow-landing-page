@@ -23,18 +23,6 @@ ARG NUXT_SITE_ENV=production
 ENV NUXT_SITE_URL=$NUXT_SITE_URL \
     NUXT_SITE_ENV=$NUXT_SITE_ENV
 
-# Die Feature-Flags aus Unleash aus demselben Grund: modules/unleash.ts fragt sie einmal beim
-# Build ab, und das Ergebnis steht danach in den vorgerenderten Seiten. Ohne Adresse — etwa bei
-# einem Build von Hand — bleiben sie aus, der Build läuft trotzdem durch.
-#
-# Der Token ist bewusst kein ARG: Build-Args stehen in der Image-History und wären damit für
-# jeden lesbar, der das Image ziehen kann. Er kommt weiter unten als BuildKit-Secret herein und
-# existiert nur für die Dauer des einen RUN-Befehls.
-ARG UNLEASH_URL
-ARG UNLEASH_APP_NAME
-ENV UNLEASH_URL=$UNLEASH_URL \
-    UNLEASH_APP_NAME=$UNLEASH_APP_NAME
-
 # Hier steht bewusst kein NODE_ENV=production: npm ci wertet das aus und ließe dann die
 # devDependencies weg. Der Build braucht sie alle — Tailwind, vue-tsc und den OG-Renderer —
 # und postinstall ruft `nuxt prepare`, das ohne sie gar nicht erst startet. Nuxt setzt für das
@@ -48,13 +36,8 @@ RUN npm ci
 COPY . .
 
 # Der Build geht ins Netz: @nuxt/fonts lädt Playfair Display bei Google und legt sie lokal ab,
-# nuxt-link-checker prüft die internen Links, und modules/unleash.ts fragt die Flags ab. Ohne
-# Egress schlägt er fehl.
-#
-# `|| true` beim Lesen des Secrets, damit `docker build` ohne --secret weiterhin funktioniert:
-# dann ist der Token leer, das Modul meldet das und die Flags bleiben aus.
-RUN --mount=type=secret,id=unleash_token \
-    UNLEASH_TOKEN="$(cat /run/secrets/unleash_token 2>/dev/null || true)" npm run build
+# nuxt-link-checker prüft die internen Links. Ohne Egress schlägt er fehl.
+RUN npm run build
 
 # ── Laufzeit ────────────────────────────────────────────────────────────────
 
