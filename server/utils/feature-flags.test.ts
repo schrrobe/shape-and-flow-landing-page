@@ -77,6 +77,21 @@ describe('createServerFeatureFlags', () => {
     expect(factory).not.toHaveBeenCalled()
   })
 
+  it.each([
+    ['development', 'production'],
+    ['production', 'dev'],
+    ['production', 'stage'],
+  ])('rejects the invalid %s/%s pair before SDK startup', (environment, deployment) => {
+    vi.spyOn(console, 'warn').mockImplementation(() => undefined)
+    const factory = vi.fn<ServerFeatureFlagClientFactory>()
+    const flags = createServerFeatureFlags(factory)
+
+    flags.start({ ...config, environment, deployment })
+
+    expect(factory).not.toHaveBeenCalled()
+    expect(flags.isEnabled('landing.new-hero')).toBe(false)
+  })
+
   it('isolates initialization, SDK event, and evaluation errors', () => {
     const warning = vi.spyOn(console, 'warn').mockImplementation(() => undefined)
     const startup = createServerFeatureFlags(() => {

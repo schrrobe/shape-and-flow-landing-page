@@ -25,6 +25,11 @@ export interface ServerFeatureFlags {
 
 const environments = new Set(['development', 'production'])
 const deployments = new Set(['dev', 'stage', 'production'])
+const environmentDeployments = new Set([
+  'development/dev',
+  'development/stage',
+  'production/production',
+])
 
 const defaultFactory: ServerFeatureFlagClientFactory = config => initialize(config)
 
@@ -41,7 +46,8 @@ export function createServerFeatureFlags(
         !config.url ||
         !config.backendToken ||
         !environments.has(config.environment) ||
-        !deployments.has(config.deployment)
+        !deployments.has(config.deployment) ||
+        !environmentDeployments.has(`${config.environment}/${config.deployment}`)
       ) {
         console.warn('Unleash server configuration is incomplete')
         return
