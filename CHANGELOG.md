@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.4.0](https://github.com/schrrobe/shape-and-flow-landing-page/compare/shape-and-flow-landing-page-v1.3.0...shape-and-flow-landing-page-v1.4.0) (2026-08-07)
+
+
+### Features
+
+* Kombitermin und Paketpreise in die Preisliste aufnehmen ([#13](https://github.com/schrrobe/shape-and-flow-landing-page/issues/13)) ([5489052](https://github.com/schrrobe/shape-and-flow-landing-page/commit/54890528c22af37116de5068c5319c9f1eb62e2f))
+* Kontakt per E-Mail und Formular statt Telefon und WhatsApp ([#12](https://github.com/schrrobe/shape-and-flow-landing-page/issues/12)) ([626e285](https://github.com/schrrobe/shape-and-flow-landing-page/commit/626e285cb028afcf94f0c3242ff9d10960ebd955))
+* neues Studiofoto und Hinweis zur Terminbuchung ([#14](https://github.com/schrrobe/shape-and-flow-landing-page/issues/14)) ([f558bdd](https://github.com/schrrobe/shape-and-flow-landing-page/commit/f558bdd7afed516cb51eb023272682aaf31f232b))
+
 ## [1.3.0](https://github.com/schrrobe/shape-and-flow-landing-page/compare/shape-and-flow-landing-page-v1.2.0...shape-and-flow-landing-page-v1.3.0) (2026-08-06)
 
 
