@@ -46,6 +46,7 @@
     "@tailwindcss/vite": "^4.3.3",
     "@takumi-rs/core": "^2.5.9",
     "@types/nodemailer": "^8.0.1",
+    "@vue/test-utils": "2.4.11",
     "eslint": "^10.8.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-vuejs-accessibility": "^2.5.0",
