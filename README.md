@@ -40,6 +40,10 @@ robots.txt, Structured Data, OG-Bilder und Link-Prüfung, `@nuxt/image` für Bil
 Gerendert wird hybrid: es läuft ein Node-Server, aber jede Seite wird beim Build vorgerendert. Siehe
 [docs/deploy.md](docs/deploy.md).
 
+Feature-Flags kommen aus Unleash und werden aus demselben Grund **beim Build** ausgewertet
+(`modules/unleash.ts`): umschalten heißt neu bauen. Ohne Zugangsdaten bleiben sie aus, der Build
+läuft trotzdem. Lokal erzwingen: `NUXT_PUBLIC_FEATURES_BOOKING_REDIRECT=true npm run dev`.
+
 ## Branches
 
 `fusion` deployt nach dev, `main` nach stage. Produktion bewegt sich erst, wenn die Release-PR von
@@ -55,6 +59,7 @@ shared/          Alle Geschäftsdaten: Kontakt, Behandlungen, Preise, FAQ, Ratge
 app/pages/       Die 13 Seiten
 app/components/  Sf*-Komponenten
 app/composables/ useSeite() setzt Meta-Tags, OG-Bild und Brotkrümelpfad in einem Aufruf
+modules/         unleash.ts liest die Feature-Flags beim Build
 app/assets/css/  tokens.css (die einzigen Farbwerte), theme.css (Tailwind-Anbindung), main.css
 public/images/   Logo und Studiofotos
 ```

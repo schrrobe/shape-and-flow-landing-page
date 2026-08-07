@@ -27,6 +27,8 @@ useSeite({
 })
 
 useHead({ meta: [{ name: 'robots', content: 'noindex, follow' }] })
+
+const buchungSichtbar = useBuchungSichtbar()
 </script>
 
 <template>
@@ -117,11 +119,18 @@ useHead({ meta: [{ name: 'robots', content: 'noindex, follow' }] })
           Art. 28 DSGVO.
         </p>
 
-        <h2>Online-Terminbuchung</h2>
-        <p>
-          Für die Terminbuchung verlinken wir auf ein eigenes Buchungssystem unter einer anderen
-          Adresse. Sobald Sie diesem Link folgen, gilt die Datenschutzerklärung des Buchungssystems.
-        </p>
+        <!--
+          Steht und fällt mit den Buchungslinks: ohne sie beschreibt der Abschnitt eine
+          Datenverarbeitung, zu der es auf dieser Website gar nicht kommen kann.
+        -->
+        <template v-if="buchungSichtbar">
+          <h2>Online-Terminbuchung</h2>
+          <p>
+            Für die Terminbuchung verlinken wir auf ein eigenes Buchungssystem unter einer anderen
+            Adresse. Sobald Sie diesem Link folgen, gilt die Datenschutzerklärung des
+            Buchungssystems.
+          </p>
+        </template>
 
         <h2>Externe Links</h2>
         <p>

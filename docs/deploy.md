@@ -69,8 +69,44 @@ Was daraus folgt und was man wissen muss:
   sonst auf stage und dev weiterhin auf der Produktionsdomain.
 
 Der Build geht ins Netz: `@nuxt/fonts` holt Playfair Display bei Google und legt sie lokal ab,
-`nuxt-link-checker` prüft die internen Links. Ohne Egress schlägt er fehl — ein toter interner
-Link fällt also beim Bauen auf.
+`nuxt-link-checker` prüft die internen Links, `modules/unleash.ts` fragt die Feature-Flags ab.
+Ohne Egress schlägt er fehl — ein toter interner Link fällt also beim Bauen auf.
+
+### Feature-Flags aus Unleash
+
+Aus demselben Grund wie die Site-URL werden auch die Flags **beim Bauen** gelesen und nicht zur
+Laufzeit: das HTML steht fest, sobald das Image gebaut ist. Ein Flag in Unleash umzulegen ändert
+daran nichts — dafür braucht es einen neuen Build und ein Deploy.
+
+| Was                | Woher                                         |
+| ------------------ | --------------------------------------------- |
+| `UNLEASH_URL`      | Build-Arg, aus `vars.UNLEASH_URL`             |
+| `UNLEASH_TOKEN`    | BuildKit-Secret, aus `secrets.UNLEASH_TOKEN`  |
+| `UNLEASH_APP_NAME` | Build-Arg, fest `shape-and-flow-landing-page` |
+
+Was man dazu wissen muss:
+
+- Der Token ist ein **Client-API-Token** und gilt jeweils für **eine** Unleash-Umgebung. Die
+  Umgebung steckt also im Token, nicht in der Adresse — deshalb liegen beide am
+  GitHub-Environment und nicht am Repository.
+- Er kommt als BuildKit-Secret ins Image und nicht als Build-Arg: Build-Args landen in der
+  Image-History und wären für jeden lesbar, der das Image ziehen kann.
+- Deshalb hat der Job `build` in `deploy.yml` ein `environment:`. Nebenwirkung: eine
+  Freigabepflicht am Environment greift damit schon vor dem Bauen.
+- **Antwortet Unleash nicht, bricht der Build nicht ab.** Die Flags bleiben dann auf ihrem
+  Standard aus `nuxt.config.ts`, und der ist bei allen `false`. Im Build-Log steht eine Warnung
+  mit dem Präfix `[unleash]`.
+
+Aktuell gibt es ein Flag: `enable_booking_redirect`. Ist es aus, verweist keine Seite mehr auf
+die Booking-App — weder mit einer Schaltfläche noch im Text. Der Playwright-Test
+`test/buchung-flag.spec.ts` prüft das am gebauten HTML und überspringt sich, wenn das Flag an
+ist.
+
+Lokal ohne Unleash-Zugang lässt sich der Ein-Zustand über die runtimeConfig erzwingen:
+
+```bash
+NUXT_PUBLIC_FEATURES_BOOKING_REDIRECT=true npm run dev
+```
 
 Gebaut wird ausdrücklich für `linux/amd64`. `sharp` und der OG-Renderer legen native Binärdateien
 ins Image, und der VPS ist x86_64; ein auf einem Apple-Silicon-Mac gebautes Image startet dort
@@ -82,6 +118,14 @@ nicht.
 docker build \
   --build-arg NUXT_SITE_URL=https://stage.shapeandflow.de \
   --build-arg NUXT_SITE_ENV=staging \
+  -t sf-landing:test .
+
+# Mit Feature-Flags aus Unleash. Ohne diese beiden Zeilen bleiben sie schlicht aus.
+docker build \
+  --build-arg NUXT_SITE_URL=https://stage.shapeandflow.de \
+  --build-arg NUXT_SITE_ENV=staging \
+  --build-arg UNLEASH_URL=https://unleash.example/api \
+  --secret id=unleash_token,env=UNLEASH_TOKEN \
   -t sf-landing:test .
 
 docker run --rm -p 8090:3000 sf-landing:test
@@ -168,6 +212,15 @@ Nach der Änderung `sudo nginx -t` vor dem Reload.
 | Variable     | `SSH_KNOWN_HOSTS`            | Ausgabe von `ssh-keyscan -t ed25519 186.240.146.22` |
 | Secret       | `SSH_PRIVATE_KEY`            | der private Teil des Schlüssels von oben            |
 | Environments | `dev`, `stage`, `production` | für stage und production Branch-Policy `main`       |
+
+Dazu der Zugang zu Unleash, je Environment eigen, weil der Token die Umgebung festlegt:
+
+| Ort                      | Name            | Wert                                              |
+| ------------------------ | --------------- | ------------------------------------------------- |
+| Env-Variable je Umgebung | `UNLEASH_URL`   | Adresse der Unleash-API, z. B. `https://…/api`    |
+| Env-Secret je Umgebung   | `UNLEASH_TOKEN` | Client-API-Token für genau diese Unleash-Umgebung |
+
+Fehlt beides, bleiben die Flags aus und der Build läuft trotzdem durch.
 
 Dazu der Postausgangsserver für das Kontaktformular. Die Postfächer liegen bei ALL-INKL, nicht
 beim Hoster des VPS:

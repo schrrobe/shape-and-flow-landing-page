@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { behandlungen, kombiAnker, kombitermin, preis } from '#shared/behandlungen'
 import { faqZuThema } from '#shared/faq'
-import { adresse, disclaimer, kontakt, site } from '#shared/site'
+import { adresse, disclaimer, site } from '#shared/site'
 
 // Der Titel bleibt kurz, weil der Firmenname per Vorlage angehängt wird und Google bei etwa
 // 60 Zeichen abschneidet.
@@ -65,9 +65,7 @@ const startFaq = faqZuThema('allgemein').slice(0, 4)
         </p>
 
         <div class="mt-8 flex flex-wrap gap-3">
-          <SfButton :href="kontakt.buchungUrl" variant="inverse" size="lg" external>
-            Termin buchen
-          </SfButton>
+          <SfTerminButton variant="inverse" size="lg" />
           <!-- Auf Orange braucht der zweite Button einen Rahmen, sonst liest er sich als Fließtext. -->
           <SfButton
             to="/brasilianische-lymphdrainage"

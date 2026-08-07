@@ -24,8 +24,12 @@ name: Deploy
 #                           genau den Logzeilen zu `***` maskiert, die man bei einem
 #                           SSH-Fehler lesen muss.
 #   secrets.SSH_PRIVATE_KEY Repository-Secret, ein Schlüssel nur für diesen Workflow.
+#   vars.UNLEASH_URL        Adresse der Unleash-Instanz. Pro Umgebung, auch wenn dort dieselbe
+#                           steht: die Umgebung steckt beim Token, nicht in der Adresse.
+#   secrets.UNLEASH_TOKEN   Client-API-Token für genau diese Umgebung. Wird nur beim Bauen
+#                           gebraucht, nicht zur Laufzeit — siehe modules/unleash.ts.
 #
-# Ein ENV_FILE-Secret wie beim Booking-Stack gibt es hier nicht: die Landingpage hat keine
+# Ein ENV_FILE-Secret wie beim Booking-Stack gibt es hier nicht: das laufende Image hat keine
 # Geheimnisse. Alles, was der Server wissen muss — Image-Tag, Port, Stack-Name — steht unten
 # in diesem Workflow und wird beim Deploy geschrieben.
 
@@ -123,6 +127,14 @@ jobs:
     # es neu zu bauen würde den Zweck aufheben, einen bekannten Stand zu benennen.
     if: inputs.image_tag == ''
     runs-on: ubuntu-latest
+    # Das Environment steht hier, weil der Build seit den Feature-Flags einen Zugang zu Unleash
+    # braucht und der sich pro Umgebung unterscheidet. Die Folge ist gewollt: eine Freigabepflicht
+    # am Environment greift damit schon vor dem Build und nicht erst vor dem Deploy — es wird also
+    # nichts mehr gebaut, was hinterher niemand freigibt.
+    #
+    # Ohne `url`: die Adresse gehört an den Deploy, der sie tatsächlich in Betrieb nimmt.
+    environment:
+      name: ${{ inputs.env_name }}
     permissions:
       contents: read
       packages: write
@@ -152,6 +164,12 @@ jobs:
           build-args: |
             NUXT_SITE_URL=${{ needs.prepare.outputs.site_url }}
             NUXT_SITE_ENV=${{ needs.prepare.outputs.site_env }}
+            UNLEASH_URL=${{ vars.UNLEASH_URL }}
+            UNLEASH_APP_NAME=shape-and-flow-landing-page
+          # Als Secret und nicht als Build-Arg: Build-Args landen in der Image-History, die jeder
+          # lesen kann, der das Image zieht. Fehlt das Secret, bleiben die Flags aus.
+          secrets: |
+            unleash_token=${{ secrets.UNLEASH_TOKEN }}
           # Zwei Tags: der unveränderliche mit dem Commit, an den ein Rollback sich halten
           # kann, und der bewegliche, an dem man sieht, was gerade in einer Umgebung steht.
           tags: |

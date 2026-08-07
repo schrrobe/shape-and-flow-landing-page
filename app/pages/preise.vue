@@ -9,6 +9,9 @@ const koerper = behandlungBySlug('jeveauxeffect')!
 const gesicht = behandlungBySlug('lymphdrainage-gesicht')!
 const kombi = preispositionen.find(p => p.slug === 'kombi-koerper-gesicht')!
 
+// Ohne Booking-App gibt es keine Zahlung im Buchungssystem, also auch keinen Satz darüber.
+const buchungSichtbar = useBuchungSichtbar()
+
 useSeite({
   titel: mitOrt('Preise brasilianische Lymphdrainage'),
   ogTitel: 'Preise',
@@ -76,8 +79,9 @@ useFaqSchema(preisFaq)
         <div class="sf-prose">
           <h2>Zahlung und Absage</h2>
           <p>
-            Bezahlt wird im Studio nach der Behandlung. Wer online über das Buchungssystem bucht,
-            kann direkt dort bezahlen.
+            Bezahlt wird im Studio nach der Behandlung.<template v-if="buchungSichtbar">
+              Wer online über das Buchungssystem bucht, kann direkt dort bezahlen.</template
+            >
           </p>
           <p>
             Wenn ein Termin nicht klappt, sagen Sie bitte so früh wie möglich ab. Dann kann jemand
@@ -107,7 +111,9 @@ useFaqSchema(preisFaq)
       </SfHinweis>
 
       <div class="mt-16">
-        <SfCtaBlock inverse titel="Termin buchen" />
+        <!-- Ohne Buchungsseite bleibt im Block nur Formular und E-Mail: "buchen" wäre dann zu viel
+             versprochen, und der Standardtitel des Blocks passt genauer. -->
+        <SfCtaBlock inverse :titel="buchungSichtbar ? 'Termin buchen' : 'Termin vereinbaren'" />
       </div>
     </div>
   </article>

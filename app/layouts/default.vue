@@ -3,6 +3,8 @@ import { adresse, formularUrl, kontakt, markenhinweis, oeffnungszeiten, site } f
 import { behandlungen, kombiAnker } from '#shared/behandlungen'
 import { ratgeber } from '#shared/ratgeber'
 
+const buchungSichtbar = useBuchungSichtbar()
+
 const navigation = [
   ...behandlungen.map(b => ({ name: b.name, url: b.route })),
   // Der Kombitermin hat keine eigene Seite, deshalb zeigt er auf seinen Block in der Preisliste.
@@ -72,7 +74,7 @@ onScopeDispose(stopGuard)
             in die Wortmarke.
           -->
           <div class="hidden sm:flex">
-            <SfButton :href="kontakt.buchungUrl" external> Termin buchen </SfButton>
+            <SfTerminButton />
           </div>
 
           <details ref="menue" class="relative lg:hidden">
@@ -102,7 +104,12 @@ onScopeDispose(stopGuard)
               >
                 {{ eintrag.name }}
               </NuxtLink>
+              <!--
+                Nicht SfTerminButton: der Knopf im Menü ist über die ganze Breite gesetzt und nicht
+                inline, deshalb steht die Fallunterscheidung hier ein zweites Mal.
+              -->
               <a
+                v-if="buchungSichtbar"
                 :href="kontakt.buchungUrl"
                 target="_blank"
                 rel="noopener"
@@ -110,6 +117,13 @@ onScopeDispose(stopGuard)
               >
                 Termin buchen
               </a>
+              <NuxtLink
+                v-else
+                :to="formularUrl"
+                class="mt-1 block rounded-sf bg-primary px-3 py-2.5 text-center font-medium text-primary-contrast hover:bg-primary-hover"
+              >
+                Termin anfragen
+              </NuxtLink>
             </nav>
           </details>
         </div>
@@ -228,7 +242,7 @@ onScopeDispose(stopGuard)
               </p>
             </address>
 
-            <SfButton :href="kontakt.buchungUrl" class="mt-5" external> Termin buchen </SfButton>
+            <SfTerminButton class="mt-5" />
           </div>
         </div>
 
