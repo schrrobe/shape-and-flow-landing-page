@@ -12,6 +12,8 @@ import { adresse, disclaimer, markenhinweis } from '#shared/site'
  */
 const behandlung = behandlungBySlug('jeveauxeffect')!
 
+const buchungSichtbar = useBuchungSichtbar()
+
 useSeite({
   titel: mitOrt('Jeveauxeffect®: Lymphdrainage für den Körper'),
   ogTitel: 'Jeveauxeffect® für den Körper',
@@ -117,9 +119,10 @@ const nichtGeeignet = [
 
           <h2>Wie es weitergeht</h2>
           <p>
-            Schreiben Sie kurz, was Sie interessiert, oder buchen Sie direkt online. Vor der ersten
-            Behandlung besprechen wir im Studio, worauf wir achten müssen und wie kräftig gearbeitet
-            wird.
+            Schreiben Sie kurz, was Sie interessiert<template v-if="buchungSichtbar"
+              >, oder buchen Sie direkt online</template
+            >. Vor der ersten Behandlung besprechen wir im Studio, worauf wir achten müssen und wie
+            kräftig gearbeitet wird.
           </p>
         </div>
 

@@ -40,6 +40,11 @@ robots.txt, Structured Data, OG-Bilder und Link-Prüfung, `@nuxt/image` für Bil
 Gerendert wird hybrid: es läuft ein Node-Server, aber jede Seite wird beim Build vorgerendert. Siehe
 [docs/deploy.md](docs/deploy.md).
 
+Feature-Flags kommen zur Laufzeit aus Unleash: im Browser über `unleash-proxy-client`, im Nitro
+über das Server-SDK. Weil die Seiten vorgerendert sind, steht im ausgelieferten HTML immer der
+Fallback — das Flag greift erst nach der Hydration. Für `enable_booking_redirect` ist genau das
+gewollt, siehe [docs/deploy.md](docs/deploy.md).
+
 ## Branches
 
 `fusion` deployt nach dev, `main` nach stage. Produktion bewegt sich erst, wenn die Release-PR von
@@ -55,6 +60,7 @@ shared/          Alle Geschäftsdaten: Kontakt, Behandlungen, Preise, FAQ, Ratge
 app/pages/       Die 13 Seiten
 app/components/  Sf*-Komponenten
 app/composables/ useSeite() setzt Meta-Tags, OG-Bild und Brotkrümelpfad in einem Aufruf
+server/utils/    feature-flags.ts, die Unleash-Anbindung des Nitro
 app/assets/css/  tokens.css (die einzigen Farbwerte), theme.css (Tailwind-Anbindung), main.css
 public/images/   Logo und Studiofotos
 ```

@@ -72,6 +72,23 @@ Der Build geht ins Netz: `@nuxt/fonts` holt Playfair Display bei Google und legt
 `nuxt-link-checker` prüft die internen Links. Ohne Egress schlägt er fehl — ein toter interner
 Link fällt also beim Bauen auf.
 
+### Was das für Feature-Flags heißt
+
+Die Flags selbst kommen zur Laufzeit aus Unleash, siehe unten. Das Vorrendern hat dafür eine
+Folge, die man kennen muss: **im ausgelieferten HTML steht immer der Fallback**, denn beim Bauen
+gibt es noch kein Browser-SDK und niemanden, den man fragen könnte. Das Flag greift erst, wenn
+die Seite im Browser hydriert ist und `unleash-proxy-client` geantwortet hat.
+
+Für `enable_booking_redirect` ist genau das gewollt. Der Fallback ist `false`, also enthält das
+vorgerenderte HTML nie einen Verweis auf die Booking-App — auch dann nicht, wenn das Flag an ist.
+Crawler und KI-Agenten sehen also die Fassung ohne Buchungsstrecke, Besucher bekommen die
+Schaltfläche kurz nach dem Laden nachgereicht. Für ein Flag, das etwas _versteckt_, ist das die
+sichere Richtung; für eines, das etwas für Suchmaschinen sichtbar machen soll, wäre es die
+falsche — so eines gehört dann an den Build, nicht an den Browser.
+
+Der Playwright-Test `test/buchung-flag.spec.ts` hält das fest: keine vorgerenderte Seite darf die
+Booking-App erwähnen.
+
 Gebaut wird ausdrücklich für `linux/amd64`. `sharp` und der OG-Renderer legen native Binärdateien
 ins Image, und der VPS ist x86_64; ein auf einem Apple-Silicon-Mac gebautes Image startet dort
 nicht.
@@ -225,6 +242,16 @@ ab. Der Backend-Token wird als Secret behandelt und nicht einmal in der Schlüss
 ausgegeben. Frontend-Tokens sind absichtlich öffentlich, aber nur lesend sowie auf Projekt und
 Umgebung begrenzt. Bei fehlender Synchronisation oder einem Ausfall bleiben unbekannte Flags
 standardmäßig `false`; die Website und das Kontaktformular starten weiter.
+
+Angelegt sein muss außerdem das Flag selbst. Derzeit gibt es eines:
+
+| Flag                      | Wirkung                                                                                                       |
+| ------------------------- | ------------------------------------------------------------------------------------------------------------- |
+| `enable_booking_redirect` | An: die Website verweist auf die Booking-App. Aus: keine Schaltfläche, kein Hinweis, keine Erwähnung im Text. |
+
+Fehlt das Flag in einer Umgebung, ist es dort aus — Unleash antwortet für unbekannte Namen mit
+`false`, und der Fallback im Code ist derselbe. Es reicht also, das Flag dort anzulegen, wo es an
+sein soll.
 
 Token-Rotation erfolgt ohne Unterbrechung: zuerst in Unleash einen neuen Token mit demselben
 Projekt-/Umgebungs-Scope anlegen, dann das passende GitHub Environment aktualisieren und nur diese

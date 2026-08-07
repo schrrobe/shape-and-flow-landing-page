@@ -1,22 +1,46 @@
 <script setup lang="ts">
+import { computed } from 'vue'
 import { adresse, kartenUrl, kontakt, mailtoUrl, oeffnungszeiten, site } from '#shared/site'
+
+/*
+ * Diese Seite spricht an drei sichtbaren Stellen von der Online-Buchung: im Vorspann, im Absatz
+ * über dem Formular und in der zweiten Karte. Ist das Flag aus, gibt es keine Buchungsseite —
+ * dann darf hier auch nichts stehen, was auf eine hindeutet.
+ */
+const buchungSichtbar = useBuchungSichtbar()
 
 useSeite({
   titel: `Kontakt und Termin in ${adresse.ort}`,
   ogTitel: 'Kontakt und Termin',
   kurzTitel: 'Kontakt',
+  /*
+   * Die Beschreibung erwähnt die Online-Buchung bewusst in keinem Fall. Sie steht im
+   * vorgerenderten HTML und im Vorschaubild, beides entsteht beim Build — also lange bevor das
+   * Browser-SDK das Flag kennt. Eine Fassung "oder online buchen" käme deshalb nie zur
+   * Auslieferung, und ein Zweig, den niemand je zu sehen bekommt, ist toter Code.
+   */
   beschreibung:
     `Termin für brasilianische Lymphdrainage bei Shape & Flow, ${adresse.strasse}, ${adresse.plz} ` +
-    `${adresse.ort}. Per Kontaktformular, per E-Mail oder online buchen.`,
+    `${adresse.ort}. Per Kontaktformular oder per E-Mail.`,
   ogLabel: 'Kontakt',
 })
+
+// computed und nicht einmalig ausgewertet: das Flag steht erst fest, wenn das Browser-SDK
+// geantwortet hat, und das ist nach dem ersten Rendern. Gilt genauso für `wege` unten.
+const vorspann = computed(() =>
+  buchungSichtbar.value
+    ? `Schreiben Sie uns über das Formular oder per E-Mail. Wer schon weiß, was er möchte,
+      bucht den Termin direkt online.`
+    : `Schreiben Sie uns über das Formular oder per E-Mail. Wir melden uns mit freien Terminen
+      zurück.`,
+)
 
 /*
  * Kein Telefon und kein WhatsApp: das Studio ist während einer Behandlung nicht am Apparat, und
  * eine Anfrage, die im Postfach liegt, geht dabei seltener verloren als ein verpasster Anruf.
  * Warum die Nummer auch im Impressum fehlt, steht in shared/site.ts.
  */
-const wege = [
+const wege = computed(() => [
   {
     titel: 'E-Mail',
     text: 'Wenn Sie lieber aus Ihrem eigenen Postfach schreiben.',
@@ -24,38 +48,45 @@ const wege = [
     href: mailtoUrl,
     external: false,
   },
-  {
-    titel: 'Online buchen',
-    text: 'Freie Termine sehen und direkt verbindlich buchen.',
-    label: 'Zur Terminbuchung',
-    href: kontakt.buchungUrl,
-    external: true,
-  },
-]
+  ...(buchungSichtbar.value
+    ? [
+        {
+          titel: 'Online buchen',
+          text: 'Freie Termine sehen und direkt verbindlich buchen.',
+          label: 'Zur Terminbuchung',
+          href: kontakt.buchungUrl,
+          external: true,
+        },
+      ]
+    : []),
+])
 </script>
 
 <template>
   <article>
-    <SfSeitenkopf
-      titel="Kontakt"
-      label="Termin vereinbaren"
-      lead="Schreiben Sie uns über das Formular oder per E-Mail. Wer schon weiß, was er möchte,
-        bucht den Termin direkt online."
-    />
+    <SfSeitenkopf titel="Kontakt" label="Termin vereinbaren" :lead="vorspann" />
 
     <div class="sf-container">
       <!-- Das Formular steht vor den anderen Wegen, weil es ohne Mailprogramm funktioniert. -->
       <section id="formular" aria-labelledby="formular-titel">
         <h2 id="formular-titel" class="text-2xl sm:text-3xl">Anfrage schreiben</h2>
-        <p class="mt-3 max-w-prose text-text-secondary">
+        <p v-if="buchungSichtbar" class="mt-3 max-w-prose text-text-secondary">
           Das Formular ist für Fragen gedacht, etwa zur Behandlung, zum Ablauf oder zum Preis. Wir
           antworten in der Regel innerhalb eines Werktags.
+        </p>
+        <!--
+          Ohne Buchungsseite ist das Formular nicht die zweitbeste Wahl, sondern der Weg zum Termin.
+          Dann darf hier auch nicht stehen, es sei "für Fragen gedacht".
+        -->
+        <p v-else class="mt-3 max-w-prose text-text-secondary">
+          Über das Formular fragen Sie einen Termin an oder stellen eine Frage zur Behandlung, zum
+          Ablauf oder zum Preis. Wir antworten in der Regel innerhalb eines Werktags.
         </p>
         <!--
           Der Hinweis steht über dem Formular und nicht bei den Kontaktwegen darunter: wer hier
           anfängt zu tippen, hat die Buchung dann schon übersprungen.
         -->
-        <p class="mt-3 max-w-prose text-text-secondary">
+        <p v-if="buchungSichtbar" class="mt-3 max-w-prose text-text-secondary">
           Wenn Sie einen Termin möchten, nutzen Sie bitte den Knopf
           <a
             :href="kontakt.buchungUrl"
@@ -69,7 +100,8 @@ const wege = [
         <SfKontaktFormular class="mt-6" />
       </section>
 
-      <div class="mt-14 grid gap-6 sm:grid-cols-2">
+      <!-- Zwei Spalten nur, wenn es auch zwei Karten gibt: eine halbe Karte neben Leerraum nicht. -->
+      <div class="mt-14 grid gap-6" :class="{ 'sm:grid-cols-2': wege.length > 1 }">
         <SfCard v-for="weg in wege" :key="weg.titel">
           <h2 class="font-display text-xl">
             {{ weg.titel }}

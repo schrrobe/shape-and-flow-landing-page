@@ -6,8 +6,10 @@ import { adresse, formularUrl, kontakt, mailtoUrl, oeffnungszeiten } from '#shar
  *
  * Drei Wege, absichtlich in dieser Reihenfolge: das Kontaktformular zuerst, weil es ohne
  * Mailprogramm auskommt, dann die E-Mail für alle, die lieber aus ihrem eigenen Postfach
- * schreiben, dann die Online-Buchung für alle, die direkt verbindlich buchen wollen.
+ * schreiben, dann die Online-Buchung für alle, die direkt verbindlich buchen wollen. Ohne
+ * Booking-App fällt der dritte Weg ersatzlos weg — die beiden davor führen ans selbe Ziel.
  */
+const buchungSichtbar = useBuchungSichtbar()
 withDefaults(
   defineProps<{
     titel?: string
@@ -47,6 +49,7 @@ withDefaults(
         {{ kontakt.email }}
       </SfButton>
       <SfButton
+        v-if="buchungSichtbar"
         :href="kontakt.buchungUrl"
         :variant="inverse ? 'inverse' : 'secondary'"
         size="lg"
