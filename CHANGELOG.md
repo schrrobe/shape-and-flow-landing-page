@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.5.0](https://github.com/schrrobe/shape-and-flow-landing-page/compare/shape-and-flow-landing-page-v1.4.0...shape-and-flow-landing-page-v1.5.0) (2026-08-07)
+
+
+### Features
+
+* Booking-Verweise hinter Unleash-Flag enable_booking_redirect ([#18](https://github.com/schrrobe/shape-and-flow-landing-page/issues/18)) ([90fdd00](https://github.com/schrrobe/shape-and-flow-landing-page/commit/90fdd00f30032b15dfbe656b51e6922a6d27123d))
+* integrate self-hosted Unleash ([#16](https://github.com/schrrobe/shape-and-flow-landing-page/issues/16)) ([f2d659c](https://github.com/schrrobe/shape-and-flow-landing-page/commit/f2d659c541dd050cf141360d716c9dd7e8379151))
+
 ## [1.4.0](https://github.com/schrrobe/shape-and-flow-landing-page/compare/shape-and-flow-landing-page-v1.3.0...shape-and-flow-landing-page-v1.4.0) (2026-08-07)
 
 
