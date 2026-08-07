@@ -213,8 +213,8 @@ const startFaq = faqZuThema('allgemein').slice(0, 4)
           src="/images/studio-2.jpg"
           alt="Umkleideecke im Studio mit Rattan-Paravent, Rattansessel mit orangefarbenem Kissen und kleinem Beistelltisch"
           class="aspect-4/5 w-full rounded-sf border border-border object-cover shadow-card"
-          width="1200"
-          height="1500"
+          width="1536"
+          height="2048"
           sizes="100vw lg:44vw"
           loading="lazy"
         />

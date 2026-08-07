@@ -48,7 +48,23 @@ const wege = [
       <section id="formular" aria-labelledby="formular-titel">
         <h2 id="formular-titel" class="text-2xl sm:text-3xl">Anfrage schreiben</h2>
         <p class="mt-3 max-w-prose text-text-secondary">
-          Wir antworten in der Regel innerhalb eines Werktags mit freien Terminen.
+          Das Formular ist für Fragen gedacht, etwa zur Behandlung, zum Ablauf oder zum Preis. Wir
+          antworten in der Regel innerhalb eines Werktags.
+        </p>
+        <!--
+          Der Hinweis steht über dem Formular und nicht bei den Kontaktwegen darunter: wer hier
+          anfängt zu tippen, hat die Buchung dann schon übersprungen.
+        -->
+        <p class="mt-3 max-w-prose text-text-secondary">
+          Wenn Sie einen Termin möchten, nutzen Sie bitte den Knopf
+          <a
+            :href="kontakt.buchungUrl"
+            target="_blank"
+            rel="noopener"
+            class="text-primary underline underline-offset-2 hover:no-underline"
+            >Termin buchen</a
+          >. Dort stehen die freien Zeiten, und der Termin ist sofort verbindlich. Über das Formular
+          dauert dasselbe einen Mailwechsel länger.
         </p>
         <SfKontaktFormular class="mt-6" />
       </section>
