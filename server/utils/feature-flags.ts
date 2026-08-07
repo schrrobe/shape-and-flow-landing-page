@@ -97,10 +97,6 @@ export function createServerFeatureFlags(
 
 export const serverFeatureFlags = createServerFeatureFlags()
 
-export function isFeatureEnabled(
-  name: string,
-  context: Context = {},
-  fallback = false,
-): boolean {
+export function isFeatureEnabled(name: string, context: Context = {}, fallback = false): boolean {
   return serverFeatureFlags.isEnabled(name, context, fallback)
 }
