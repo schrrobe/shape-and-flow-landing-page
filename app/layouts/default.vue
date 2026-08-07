@@ -1,10 +1,12 @@
 <script setup lang="ts">
 import { adresse, formularUrl, kontakt, markenhinweis, oeffnungszeiten, site } from '#shared/site'
-import { behandlungen } from '#shared/behandlungen'
+import { behandlungen, kombiAnker } from '#shared/behandlungen'
 import { ratgeber } from '#shared/ratgeber'
 
 const navigation = [
   ...behandlungen.map(b => ({ name: b.name, url: b.route })),
+  // Der Kombitermin hat keine eigene Seite, deshalb zeigt er auf seinen Block in der Preisliste.
+  { name: 'Kombitermin', url: kombiAnker },
   { name: 'Methode', url: '/brasilianische-lymphdrainage' },
   { name: 'Preise', url: '/preise' },
   { name: 'Studio', url: '/studio' },
@@ -134,6 +136,14 @@ onScopeDispose(stopGuard)
                   class="text-text-secondary hover:text-primary hover:underline"
                 >
                   {{ behandlung.name }}
+                </NuxtLink>
+              </li>
+              <li>
+                <NuxtLink
+                  :to="kombiAnker"
+                  class="text-text-secondary hover:text-primary hover:underline"
+                >
+                  Kombitermin Körper und Gesicht
                 </NuxtLink>
               </li>
               <li>

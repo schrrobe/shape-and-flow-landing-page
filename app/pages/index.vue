@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { behandlungen, preis } from '#shared/behandlungen'
+import { behandlungen, kombiAnker, kombitermin, preis } from '#shared/behandlungen'
 import { faqZuThema } from '#shared/faq'
 import { adresse, disclaimer, kontakt, site } from '#shared/site'
 
@@ -120,6 +120,29 @@ const startFaq = faqZuThema('allgemein').slice(0, 4)
           </p>
           <SfButton :to="behandlung.route" variant="secondary" class="mt-6">
             Mehr zur Behandlung
+          </SfButton>
+        </SfCard>
+
+        <!--
+          Der Kombitermin über die ganze Breite: keine dritte Behandlung, sondern die beiden
+          darüber in einem Termin. Deshalb eine eigene Karte und kein gleichrangiges Drittel.
+        -->
+        <SfCard class="md:col-span-2">
+          <div class="flex items-baseline justify-between gap-4">
+            <h3 class="font-display text-2xl">Beides zusammen</h3>
+            <span class="font-display text-xl whitespace-nowrap text-primary">
+              {{ preis(kombitermin.preisEuro) }}
+            </span>
+          </div>
+          <p class="mt-1 text-sm tracking-wide text-text-secondary uppercase">
+            {{ kombitermin.hinweis }}
+          </p>
+          <p class="mt-4 text-text-secondary">
+            Körper und Gesicht in einem Termin, statt zweimal zu kommen. Für regelmäßige Termine
+            gibt es zusätzlich 5er- und 10er-Pakete.
+          </p>
+          <SfButton :to="kombiAnker" variant="secondary" class="mt-6">
+            Kombi- und Paketpreise
           </SfButton>
         </SfCard>
       </div>
