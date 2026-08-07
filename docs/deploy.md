@@ -197,6 +197,41 @@ E-Mail-Adresse, statt Anfragen still zu verschlucken. Das Kennwort steht im Klar
 env-Datei, die deshalb mit `umask 077` geschrieben wird — der Deploy protokolliert nur die
 Schlüsselnamen, nie den Inhalt.
 
+#### Unleash Feature Flags
+
+Unleash läuft unter `https://unleash.shapeandflow.de`. In jedem GitHub Environment müssen
+zusätzlich diese Werte liegen:
+
+| Ort          | Name                     | Wert/Scope                                    |
+| ------------ | ------------------------ | --------------------------------------------- |
+| Env-Variable | `UNLEASH_URL`            | `https://unleash.shapeandflow.de`             |
+| Env-Secret   | `UNLEASH_BACKEND_TOKEN`  | Backend-Token für `default` und die Umgebung  |
+| Env-Variable | `UNLEASH_FRONTEND_TOKEN` | Frontend-Token für `default` und die Umgebung |
+| Env-Variable | `UNLEASH_ENVIRONMENT`    | `development` oder `production`               |
+| Env-Variable | `UNLEASH_DEPLOYMENT`     | `dev`, `stage` oder `production`              |
+
+Die kostenfreie OSS-Ausgabe stellt nur die eingebauten Umgebungen `development` und
+`production` bereit. Dev und Stage bleiben trotzdem getrennt, weil sie eigene Tokens und einen
+unterschiedlichen `deployment`-Kontext verwenden:
+
+| Deployment   | Unleash-Umgebung | Kontext                 |
+| ------------ | ---------------- | ----------------------- |
+| `dev`        | `development`    | `deployment=dev`        |
+| `stage`      | `development`    | `deployment=stage`      |
+| `production` | `production`     | `deployment=production` |
+
+Der Deploy leitet aus `UNLEASH_URL` die Server-URL `/api/` und die Browser-URL `/api/frontend`
+ab. Der Backend-Token wird als Secret behandelt und nicht einmal in der Schlüsselnamen-Diagnose
+ausgegeben. Frontend-Tokens sind absichtlich öffentlich, aber nur lesend sowie auf Projekt und
+Umgebung begrenzt. Bei fehlender Synchronisation oder einem Ausfall bleiben unbekannte Flags
+standardmäßig `false`; die Website und das Kontaktformular starten weiter.
+
+Token-Rotation erfolgt ohne Unterbrechung: zuerst in Unleash einen neuen Token mit demselben
+Projekt-/Umgebungs-Scope anlegen, dann das passende GitHub Environment aktualisieren und nur diese
+Umgebung neu deployen. Nach erfolgreichem Smoke-Test und sichtbarem `seenAt` des neuen Tokens wird
+der alte Token in Unleash gelöscht. Backend-Token niemals in Issue, PR, Shell-Historie oder
+Workflow-Ausgabe kopieren.
+
 `SSH_KNOWN_HOSTS` ist absichtlich eine Variable und kein Secret: der Hostkey ist öffentliche
 Information, als Secret wäre er in genau den Logzeilen zu `***` maskiert, die man bei einem
 SSH-Fehler lesen muss.

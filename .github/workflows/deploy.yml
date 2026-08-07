@@ -245,8 +245,21 @@ jobs:
           SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
           SMTP_ABSENDER: ${{ vars.SMTP_ABSENDER }}
           SMTP_EMPFAENGER: ${{ vars.SMTP_EMPFAENGER }}
+          # Pro GitHub Environment getrennt. Nur der Backend-Token ist geheim; der
+          # Frontend-Token ist eine absichtlich öffentliche, rein lesende SDK-Berechtigung.
+          UNLEASH_BASE_URL: ${{ vars.UNLEASH_URL }}
+          UNLEASH_BACKEND_TOKEN: ${{ secrets.UNLEASH_BACKEND_TOKEN }}
+          UNLEASH_FRONTEND_TOKEN: ${{ vars.UNLEASH_FRONTEND_TOKEN }}
+          UNLEASH_ENVIRONMENT: ${{ vars.UNLEASH_ENVIRONMENT }}
+          UNLEASH_DEPLOYMENT: ${{ vars.UNLEASH_DEPLOYMENT }}
         run: |
           set -euo pipefail
+          : "${UNLEASH_BASE_URL:?UNLEASH_URL fehlt im GitHub Environment}"
+          : "${UNLEASH_BACKEND_TOKEN:?UNLEASH_BACKEND_TOKEN fehlt im GitHub Environment}"
+          : "${UNLEASH_FRONTEND_TOKEN:?UNLEASH_FRONTEND_TOKEN fehlt im GitHub Environment}"
+          : "${UNLEASH_ENVIRONMENT:?UNLEASH_ENVIRONMENT fehlt im GitHub Environment}"
+          : "${UNLEASH_DEPLOYMENT:?UNLEASH_DEPLOYMENT fehlt im GitHub Environment}"
+          unleash_base="${UNLEASH_BASE_URL%/}"
           # STACK_SUFFIX muss in der Datei stehen und nicht bloß exportiert sein: compose löst
           # ${…} im Projektnamen aus --env-file auf, nicht aus der Shell.
           #
@@ -265,13 +278,23 @@ jobs:
             # die Adressen aus shared/site.ts überschreiben, nicht offenlassen.
             [ -n "${SMTP_ABSENDER:-}" ]   && printf 'NUXT_SMTP_ABSENDER=%s\n'   "$SMTP_ABSENDER"
             [ -n "${SMTP_EMPFAENGER:-}" ] && printf 'NUXT_SMTP_EMPFAENGER=%s\n' "$SMTP_EMPFAENGER"
+            printf 'NUXT_UNLEASH_URL=%s/api/\n'                    "$unleash_base"
+            printf 'NUXT_UNLEASH_BACKEND_TOKEN=%s\n'              "$UNLEASH_BACKEND_TOKEN"
+            printf 'NUXT_UNLEASH_ENVIRONMENT=%s\n'                "$UNLEASH_ENVIRONMENT"
+            printf 'NUXT_UNLEASH_DEPLOYMENT=%s\n'                 "$UNLEASH_DEPLOYMENT"
+            printf 'NUXT_PUBLIC_UNLEASH_URL=%s/api/frontend\n'    "$unleash_base"
+            printf 'NUXT_PUBLIC_UNLEASH_FRONTEND_TOKEN=%s\n'      "$UNLEASH_FRONTEND_TOKEN"
+            printf 'NUXT_PUBLIC_UNLEASH_ENVIRONMENT=%s\n'         "$UNLEASH_ENVIRONMENT"
+            printf 'NUXT_PUBLIC_UNLEASH_DEPLOYMENT=%s\n'          "$UNLEASH_DEPLOYMENT"
             # Ohne das würde der Block mit dem Rückgabewert des letzten [ ] enden und `set -e`
             # bricht ab, sobald beide Variablen leer sind.
             true
           } | ssh -F /tmp/ssh_config landing "umask 077 && cat > '$DIR/.env.$ENV_NAME'"
           # Nur die Rechte und die Schlüsselnamen, nicht der Inhalt: sonst stünde das Kennwort im
           # Aktionsprotokoll.
-          ssh -F /tmp/ssh_config landing "ls -l '$DIR/.env.$ENV_NAME' && cut -d= -f1 '$DIR/.env.$ENV_NAME'"
+          ssh -F /tmp/ssh_config landing \
+            "ls -l '$DIR/.env.$ENV_NAME' && cut -d= -f1 '$DIR/.env.$ENV_NAME' \
+             | grep -v '^NUXT_UNLEASH_BACKEND_TOKEN$'"
 
       - name: Auf dem Server an GHCR anmelden
         env:

@@ -4,6 +4,8 @@ dist/
 .output/
 .DS_Store
 *.log
+.env
+.env.local
 .tokensave/
 .claude/settings.local.json
 

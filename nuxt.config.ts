@@ -128,6 +128,20 @@ export default defineNuxtConfig({
       absender: kontakt.absenderEmail,
       empfaenger: kontakt.email,
     },
+    unleash: {
+      url: '',
+      backendToken: '',
+      environment: '',
+      deployment: '',
+    },
+    public: {
+      unleash: {
+        url: '',
+        frontendToken: '',
+        environment: '',
+        deployment: '',
+      },
+    },
   },
 
   nitro: {
