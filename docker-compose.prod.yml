@@ -36,6 +36,17 @@ services:
       - NUXT_SMTP_PASSWORD
       - NUXT_SMTP_ABSENDER
       - NUXT_SMTP_EMPFAENGER
+      # Backend und Browser nutzen getrennte, auf genau ein Unleash-Environment begrenzte
+      # Tokens. Der Frontend-Token ist absichtlich browserlesbar; der Backend-Token bleibt
+      # ausschließlich in der mode-600-Env-Datei und im Container.
+      - NUXT_UNLEASH_URL
+      - NUXT_UNLEASH_BACKEND_TOKEN
+      - NUXT_UNLEASH_ENVIRONMENT
+      - NUXT_UNLEASH_DEPLOYMENT
+      - NUXT_PUBLIC_UNLEASH_URL
+      - NUXT_PUBLIC_UNLEASH_FRONTEND_TOKEN
+      - NUXT_PUBLIC_UNLEASH_ENVIRONMENT
+      - NUXT_PUBLIC_UNLEASH_DEPLOYMENT
     logging:
       # Ohne Grenze wächst die JSON-Logdatei bis die Platte voll ist.
       driver: json-file
