@@ -1,5 +1,6 @@
 import { createTransport, type Transporter } from 'nodemailer'
 import { kontakt, site } from '#shared/site'
+import { anfrageAus, fehlerZu, type Anfrage } from '../utils/kontakt-eingaben'
 
 /*
  * Nimmt das Kontaktformular an und schickt die Anfrage per SMTP an das Studio-Postfach.
@@ -8,30 +9,10 @@ import { kontakt, site } from '#shared/site'
  * die Anfrage wird zugestellt und danach vergessen, es gibt also keinen Datenbestand, für den
  * eine Löschfrist zu dokumentieren wäre. Die Zugangsdaten kommen aus der Umgebung, siehe
  * runtimeConfig in nuxt.config.ts und docs/deploy.md.
+ *
+ * Was eine gültige Eingabe ist, steht nebenan in utils/kontakt-eingaben.ts. Hier bleibt, was
+ * ohne Server nicht zu haben ist: Frequenzgrenze, SMTP und die Fehlerantworten.
  */
-
-/** Absichtlich locker: die Adresse wird nicht auf Existenz geprüft, nur auf Form. */
-const EMAIL_MUSTER = /^[^\s@]+@[^\s@]+\.[a-z]{2,}$/i
-
-const GRENZEN = {
-  name: 80,
-  email: 120,
-  behandlung: 60,
-  zeitfenster: 200,
-  nachricht: 3000,
-} as const
-
-type Feld = keyof typeof GRENZEN
-
-interface Anfrage {
-  name: string
-  email: string
-  behandlung: string
-  zeitfenster: string
-  nachricht: string
-  /** Honigtopf: für Menschen unsichtbar, deshalb füllen ihn nur Bots aus. */
-  webseite: string
-}
 
 /*
  * Ein Versuch pro Minute und höchstens fünf pro Stunde je IP-Adresse.
@@ -64,14 +45,6 @@ function zuSchnell(ip: string, jetzt: number): boolean {
   return false
 }
 
-function text(wert: unknown, feld: Feld): string {
-  // Zeilenumbrüche und Steuerzeichen fliegen aus allem, was später in einem Mail-Header landen
-  // könnte. Der Nachrichtentext darf Umbrüche behalten.
-  const roh = typeof wert === 'string' ? wert : ''
-  const bereinigt = feld === 'nachricht' ? roh : roh.replace(/[\r\n\t]+/g, ' ')
-  return bereinigt.trim().slice(0, GRENZEN[feld])
-}
-
 let transport: Transporter | null = null
 
 export default defineEventHandler(async event => {
@@ -89,26 +62,13 @@ export default defineEventHandler(async event => {
 
   const koerper = await readBody<Partial<Anfrage>>(event)
 
-  const anfrage = {
-    name: text(koerper?.name, 'name'),
-    email: text(koerper?.email, 'email'),
-    behandlung: text(koerper?.behandlung, 'behandlung'),
-    zeitfenster: text(koerper?.zeitfenster, 'zeitfenster'),
-    nachricht: text(koerper?.nachricht, 'nachricht'),
-    webseite: text(koerper?.webseite, 'name'),
-  }
+  const anfrage = anfrageAus(koerper)
 
   // Der Bot bekommt eine 200. Eine Fehlermeldung wäre eine Rückmeldung, an der sich ein Skript
   // ausrichten kann, und die Nachricht wird ohnehin nicht verschickt.
   if (anfrage.webseite) return { ok: true }
 
-  const fehler: Record<string, string> = {}
-  if (anfrage.name.length < 2) fehler.name = 'Bitte einen Namen angeben.'
-  if (!EMAIL_MUSTER.test(anfrage.email)) fehler.email = 'Bitte eine gültige E-Mail-Adresse angeben.'
-  // Kein Einwilligungsfeld: die Verarbeitung der Anfrage steht auf Art. 6 Abs. 1 lit. b bzw. f
-  // DSGVO. Eine Einwilligung, ohne die das Formular nichts tut, wäre nicht freiwillig und damit
-  // keine.
-  if (anfrage.nachricht.length < 10) fehler.nachricht = 'Bitte etwas mehr schreiben.'
+  const fehler = fehlerZu(anfrage)
 
   if (Object.keys(fehler).length) {
     throw createError({
@@ -135,8 +95,12 @@ export default defineEventHandler(async event => {
   })
 
   const zeilen = [
+    // Der Antwortweg steht ganz oben, weil er die erste Entscheidung beim Lesen ist: er sagt,
+    // welche der beiden Zeilen darunter die Adresse für die Antwort ist.
+    `Antwort bitte: ${anfrage.antwortweg === 'whatsapp' ? 'per WhatsApp' : 'per E-Mail'}`,
     `Name: ${anfrage.name}`,
     `E-Mail: ${anfrage.email}`,
+    `Handy: ${anfrage.handy || 'keine Angabe'}`,
     `Behandlung: ${anfrage.behandlung || 'keine Angabe'}`,
     `Zeitfenster: ${anfrage.zeitfenster || 'keine Angabe'}`,
     '',

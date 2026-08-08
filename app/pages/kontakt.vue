@@ -36,9 +36,12 @@ const vorspann = computed(() =>
 )
 
 /*
- * Kein Telefon und kein WhatsApp: das Studio ist während einer Behandlung nicht am Apparat, und
- * eine Anfrage, die im Postfach liegt, geht dabei seltener verloren als ein verpasster Anruf.
- * Warum die Nummer auch im Impressum fehlt, steht in shared/site.ts.
+ * Kein Telefon und kein WhatsApp als Weg zu uns: das Studio ist während einer Behandlung nicht am
+ * Apparat, und eine Anfrage, die im Postfach liegt, geht dabei seltener verloren als ein
+ * verpasster Anruf. Warum die Nummer auch im Impressum fehlt, steht in shared/site.ts.
+ *
+ * Für den Rückweg gilt das nicht: im Formular lässt sich die Antwort per WhatsApp wählen. Hier
+ * steht sie trotzdem nicht, weil diese Liste Wege zeigt, die man selbst öffnen kann.
  */
 const wege = computed(() => [
   {

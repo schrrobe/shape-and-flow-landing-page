@@ -16,9 +16,13 @@ import { adresse, kontakt, site } from '#shared/site'
  * ändern — die Angaben dort sind Art.-13-Pflichtangaben, keine Beschreibung.
  *
  * Ein Einwilligungshäkchen hat das Formular bewusst nicht, und dieser Text nennt deshalb auch
- * keine Einwilligung als Rechtsgrundlage. Eine Einwilligung, ohne die das Formular nichts tut,
- * wäre nach Art. 7 Abs. 4 DSGVO nicht freiwillig; Art. 6 Abs. 1 lit. b bzw. f trägt die Anfrage
- * allein. Wer das Häkchen wieder einbaut, muss beides zusammen ändern.
+ * keine Einwilligung als Rechtsgrundlage für die Anfrage selbst. Eine Einwilligung, ohne die das
+ * Formular nichts tut, wäre nach Art. 7 Abs. 4 DSGVO nicht freiwillig; Art. 6 Abs. 1 lit. b bzw.
+ * f trägt die Anfrage allein. Wer das Häkchen wieder einbaut, muss beides zusammen ändern.
+ *
+ * Die Wahl „Antwort per WhatsApp“ ist der eine Punkt, an dem doch eine Einwilligung steht, und
+ * dort trägt sie: E-Mail bleibt voreingestellt, wer nichts anfasst, gibt nichts an WhatsApp ab,
+ * und die Anfrage wird auch ohne die Wahl beantwortet. Genau das macht sie freiwillig.
  */
 useSeite({
   titel: 'Datenschutzerklärung',
@@ -90,17 +94,18 @@ const buchungSichtbar = useBuchungSichtbar()
         <h2>Kontaktformular</h2>
         <p>
           Über das Formular auf der Kontaktseite übermitteln Sie Ihren Namen, Ihre E-Mail-Adresse,
-          Ihre Nachricht und, falls Sie sie angeben, die gewünschte Behandlung und Ihr Zeitfenster.
-          Diese Angaben werden von unserem Server als E-Mail an unser Studiopostfach zugestellt und
-          dort wie eine E-Mail-Anfrage behandelt. Auf dem Webserver selbst werden sie nicht
-          gespeichert.
+          Ihre Nachricht und, falls Sie sie angeben, Ihre Handynummer, die gewünschte Behandlung und
+          Ihr Zeitfenster. Diese Angaben werden von unserem Server als E-Mail an unser
+          Studiopostfach zugestellt und dort wie eine E-Mail-Anfrage behandelt. Auf dem Webserver
+          selbst werden sie nicht gespeichert.
         </p>
         <p>
           Rechtsgrundlage ist Art. 6 Abs. 1 lit. b DSGVO, weil die Nachricht der Vorbereitung eines
           Behandlungstermins dient, sonst Art. 6 Abs. 1 lit. f DSGVO; das berechtigte Interesse
-          liegt darin, Anfragen zu beantworten. Eine Einwilligung holen wir dafür nicht ein und das
-          Formular verlangt auch keine: Wer eine Anfrage schickt, will eine Antwort, und die
-          Verarbeitung ist genau dafür nötig.
+          liegt darin, Anfragen zu beantworten. Eine Einwilligung holen wir für die Anfrage selbst
+          nicht ein und das Formular verlangt auch keine: Wer eine Anfrage schickt, will eine
+          Antwort, und die Verarbeitung ist genau dafür nötig. Nur für die Antwort per WhatsApp ist
+          das anders, siehe unten.
         </p>
         <p>
           Zum Schutz vor automatisierten Zusendungen enthält das Formular ein verstecktes Feld und
@@ -108,6 +113,18 @@ const buchungSichtbar = useBuchungSichtbar()
           IP-Adresse für höchstens eine Stunde im Arbeitsspeicher gehalten. Rechtsgrundlage ist Art.
           6 Abs. 1 lit. f DSGVO, das berechtigte Interesse liegt in der Abwehr von Missbrauch. Es
           wird kein Captcha und kein Dienst eines Drittanbieters eingebunden.
+        </p>
+        <p>
+          Im Formular können Sie wählen, ob wir per E-Mail oder per WhatsApp antworten.
+          Voreingestellt ist die E-Mail. Wählen Sie WhatsApp, verwenden wir Ihre Handynummer, um
+          Ihnen dort zu antworten; sie und der Inhalt unserer Nachricht werden dabei über die
+          WhatsApp Ireland Limited verarbeitet, die zum Meta-Konzern gehört, und können dabei auch
+          in die USA übermittelt werden. Für diese Übermittlung stützt sich WhatsApp auf den EU-US
+          Data Privacy Framework und auf Standardvertragsklauseln der EU-Kommission. Rechtsgrundlage
+          ist Ihre Einwilligung nach Art. 6 Abs. 1 lit. a und Art. 49 Abs. 1 lit. a DSGVO, die Sie
+          mit dieser Wahl erteilen. Sie ist freiwillig: Wir beantworten Ihre Anfrage ebenso per
+          E-Mail, und Sie können uns jederzeit formlos mitteilen, dass wir das tun sollen. Für den
+          Rest des Formulars ändert die Wahl nichts.
         </p>
         <p>
           Bitte senden Sie uns keine Angaben zu Ihrer Gesundheit per Nachricht. Was gesundheitlich

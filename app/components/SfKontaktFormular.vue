@@ -15,6 +15,12 @@ import { kontakt, mailtoUrl } from '#shared/site'
 const felder = reactive({
   name: '',
   email: '',
+  handy: '',
+  /**
+   * Auf welchem Weg die Antwort kommen soll. Radiogruppe und kein Häkchen: die beiden Wege
+   * schließen sich aus, und ein ungesetztes Häkchen sagt nicht, was stattdessen passiert.
+   */
+  antwortweg: 'email' as 'email' | 'whatsapp',
   behandlung: '',
   zeitfenster: '',
   nachricht: '',
@@ -22,9 +28,23 @@ const felder = reactive({
   webseite: '',
 })
 
+/*
+ * Ohne Nummer ist die Wahl WhatsApp folgenlos — dann bliebe nur die Antwort per Mail, die man
+ * gerade abgewählt hat. Deshalb wird das sonst freiwillige Feld an dieser Stelle zur Pflicht.
+ */
+const handyPflicht = computed(() => felder.antwortweg === 'whatsapp')
+
+const ANTWORTWEGE = [
+  { wert: 'email', beschriftung: 'Per E-Mail' },
+  { wert: 'whatsapp', beschriftung: 'Per WhatsApp' },
+] as const
+
 const zustand = ref<'bereit' | 'sendet' | 'gesendet'>('bereit')
 const feldFehler = ref<Record<string, string>>({})
 const fehlermeldung = ref('')
+
+/** Beim Absenden festgehalten, damit die Bestätigung nicht kippt, falls `felder` noch angefasst wird. */
+const gesendetPerWhatsapp = ref(false)
 
 const meldung = useTemplateRef<HTMLElement>('meldung')
 
@@ -48,6 +68,7 @@ async function absenden() {
 
   try {
     await $fetch('/api/kontakt', { method: 'POST', body: { ...felder } })
+    gesendetPerWhatsapp.value = felder.antwortweg === 'whatsapp'
     zustand.value = 'gesendet'
   } catch (ursache) {
     zustand.value = 'bereit'
@@ -77,7 +98,15 @@ async function absenden() {
   <div class="rounded-sf border border-border bg-surface p-6 shadow-card sm:p-8">
     <div v-if="zustand === 'gesendet'" ref="meldung" tabindex="-1" role="status" class="sf-prose">
       <h2 class="mt-0!">Danke, die Anfrage ist da</h2>
-      <p>
+      <!--
+        Der Hinweis auf den Spam-Ordner passt nur zur Antwort per Mail. Wer WhatsApp gewählt hat,
+        würde dort vergeblich nachsehen.
+      -->
+      <p v-if="gesendetPerWhatsapp">
+        Wir melden uns mit freien Terminen per WhatsApp zurück, in der Regel innerhalb eines
+        Werktags.
+      </p>
+      <p v-else>
         Wir melden uns mit freien Terminen zurück, in der Regel innerhalb eines Werktags. Falls
         nichts ankommt, schauen Sie bitte auch in den Spam-Ordner.
       </p>
@@ -130,6 +159,60 @@ async function absenden() {
             {{ feldFehler.email }}
           </p>
         </div>
+
+        <div>
+          <label class="sf-label" for="kf-handy">
+            Handynummer{{ handyPflicht ? '' : ' (optional)' }}
+          </label>
+          <input
+            id="kf-handy"
+            v-model="felder.handy"
+            class="sf-feld"
+            type="tel"
+            name="handy"
+            autocomplete="tel"
+            inputmode="tel"
+            :required="handyPflicht"
+            :aria-invalid="feldFehler.handy ? 'true' : undefined"
+            :aria-describedby="feldFehler.handy ? 'kf-handy-fehler' : undefined"
+          />
+          <p v-if="feldFehler.handy" id="kf-handy-fehler" class="sf-feldfehler">
+            {{ feldFehler.handy }}
+          </p>
+        </div>
+
+        <!--
+          fieldset statt einer Reihe loser Radiobuttons: Screenreader kündigen die legend als
+          Frage zu beiden Feldern an, sonst stünden dort zwei Wahlmöglichkeiten ohne Frage.
+        -->
+        <fieldset class="sm:col-span-2">
+          <legend class="sf-label">Wie sollen wir antworten?</legend>
+          <div class="flex flex-wrap gap-x-6 gap-y-2">
+            <label
+              v-for="weg in ANTWORTWEGE"
+              :key="weg.wert"
+              class="flex items-center gap-2 text-base"
+            >
+              <input
+                v-model="felder.antwortweg"
+                type="radio"
+                name="antwortweg"
+                :value="weg.wert"
+                class="size-4 accent-primary"
+              />
+              {{ weg.beschriftung }}
+            </label>
+          </div>
+          <p v-if="handyPflicht" class="mt-2 text-sm text-text-secondary">
+            Für die Antwort per WhatsApp geben wir Ihre Handynummer an WhatsApp Ireland weiter.
+            Näheres in der
+            <NuxtLink
+              to="/datenschutz"
+              class="text-primary underline underline-offset-2 hover:no-underline"
+              >Datenschutzerklärung</NuxtLink
+            >.
+          </p>
+        </fieldset>
 
         <div>
           <label class="sf-label" for="kf-behandlung">Behandlung (optional)</label>
