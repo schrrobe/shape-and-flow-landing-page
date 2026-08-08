@@ -2,15 +2,14 @@
 import { markenhinweis, site } from '#shared/site'
 
 /*
- * Die Hülle für /linktree, die einzige Seite ohne Kopfzeile und ohne großen Fuß.
+ * The shell for /linktree, the only page without a header and without the large footer.
  *
- * Sie wird aus den Social-Profilen heraus auf dem Telefon geöffnet, und dort ist die Navigation
- * der Website nur Ablenkung: wer hierher kommt, sucht genau einen der Knöpfe. Kein Sprunglink,
- * weil es nichts zu überspringen gibt — der Inhalt beginnt sofort.
+ * It is opened from the social profiles on a phone, and there the site navigation is nothing but
+ * a distraction: whoever arrives here is looking for exactly one of the buttons. No skip link,
+ * because there is nothing to skip — the content starts right away.
  *
- * Impressum und Datenschutz bleiben trotzdem stehen: beide müssen von jeder öffentlichen Seite
- * aus in einem Schritt erreichbar sein. Der Markenhinweis steht hier, weil die Seite den
- * Jeveauxeffect® nennt.
+ * Impressum and Datenschutz stay regardless: both have to be one step away from every public
+ * page. The trademark notice is here because the page names the Jeveauxeffect®.
  */
 </script>
 
@@ -35,7 +34,7 @@ import { markenhinweis, site } from '#shared/site'
               Datenschutz
             </NuxtLink>
           </li>
-          <!-- Ohne Jahreszahl: ein Copyright-Jahr im Markup ist ab dem 1. Januar falsch. -->
+          <!-- No year: a copyright year in the markup is wrong from January 1st onwards. -->
           <li>© {{ site.name }}</li>
         </ul>
         <p class="text-xs">{{ markenhinweis }}</p>

@@ -1,5 +1,13 @@
 <script setup lang="ts">
-import { adresse, formularUrl, kontakt, markenhinweis, oeffnungszeiten, site } from '#shared/site'
+import {
+  adresse,
+  formularUrl,
+  kontakt,
+  markenhinweis,
+  oeffnungszeiten,
+  site,
+  sozialeProfile,
+} from '#shared/site'
 import { behandlungen, kombiAnker } from '#shared/behandlungen'
 import { ratgeber } from '#shared/ratgeber'
 
@@ -230,15 +238,19 @@ onScopeDispose(stopGuard)
                 </NuxtLink>
               </p>
               <p>{{ oeffnungszeiten.hinweis }}</p>
-              <p v-if="kontakt.instagram">
-                <a
-                  :href="kontakt.instagram"
-                  target="_blank"
-                  rel="noopener"
-                  class="hover:text-primary hover:underline"
-                >
-                  Instagram
-                </a>
+              <p v-if="sozialeProfile.length > 0">
+                <!-- Every profile that shared/site.ts has an address for. -->
+                <template v-for="(profil, index) in sozialeProfile" :key="profil.name">
+                  <span v-if="index > 0" aria-hidden="true"> · </span>
+                  <a
+                    :href="profil.url"
+                    target="_blank"
+                    rel="noopener"
+                    class="hover:text-primary hover:underline"
+                  >
+                    {{ profil.name }}
+                  </a>
+                </template>
               </p>
             </address>
 

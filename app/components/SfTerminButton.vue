@@ -9,9 +9,9 @@ import { formularUrl, kontakt } from '#shared/site'
  * Variante und Größe kommen als Attribute durch: <SfTerminButton variant="inverse" size="lg" />
  * landet an SfButton, weil dieses Element sie nicht selbst als Prop deklariert.
  *
- * Der Slot "icon" steht in beiden Zuständen vor der Beschriftung. Er ist der Grund, warum die
- * Linkliste unter /linktree diese Komponente benutzt, statt die Fallunterscheidung ein drittes
- * Mal auszuschreiben — das Flag soll an möglichst wenigen Stellen abgefragt werden.
+ * The "icon" slot sits before the label in both states. It is the reason the link list under
+ * /linktree uses this component instead of spelling the distinction out a third time — the flag
+ * should be read in as few places as possible.
  */
 const buchungSichtbar = useBuchungSichtbar()
 </script>

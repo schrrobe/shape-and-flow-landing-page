@@ -15,7 +15,8 @@ grep -rn "TODO" shared/ app/ --include="*.ts" --include="*.vue"
 | -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `kontakt.email`      | Erledigt: `hallo@shapeandflow.de`. Steht im Impressum, in der Datenschutzerklärung, im Footer und im Structured Data und empfängt die Anfragen aus dem Kontaktformular.                                                         |
 | `kontakt.buchungUrl` | Steht fest auf `https://booking.shapeandflow.de`. Der Server bedient bislang `buchung.shapeandflow.de` — dort muss also ein Vhost oder eine Weiterleitung für `booking.` her, sonst laufen alle Termin-Schaltflächen ins Leere. |
-| `kontakt.instagram`  | Profiladresse oder auf `null` lassen.                                                                                                                                                                                           |
+| `kontakt.instagram`  | Erledigt: `https://www.instagram.com/shapeandflow.do`. Steht im Footer, auf `/linktree` und im `sameAs` des Structured Data. Auf `null` setzen blendet es überall aus.                                                          |
+| `kontakt.tiktok`     | Erledigt: `https://www.tiktok.com/@shapeandflow.do`. Dieselben drei Stellen wie Instagram.                                                                                                                                      |
 
 Diese Werte sind der Grund, warum die Seite noch nicht live gehen sollte: die
 Terminschaltflächen stehen auf jeder Seite und führen derzeit ins Leere.

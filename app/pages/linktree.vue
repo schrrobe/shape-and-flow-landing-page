@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import { kombiAnker } from '#shared/behandlungen'
-import { kontakt, site } from '#shared/site'
+import { site, sozialeProfile } from '#shared/site'
 
 /*
- * Die Seite hinter dem Link in den Social-Profilen: alle Ziele als Knöpfe, sonst nichts.
+ * The page behind the link in the social profiles: every destination as a button, nothing else.
  *
- * Bewusst nicht über useSeite(): das legt eine Brotkrümelspur ins Structured Data, die hier auf
- * nichts Sichtbares zeigt — die Seite hat keinen Seitenkopf und steht ohnehin auf noindex.
- * Das Vorschaubild bleibt, denn genau diese Adresse wird in Profilen und Nachrichten geteilt.
+ * Deliberately not built with useSeite(): that adds a breadcrumb trail to the structured data
+ * pointing at nothing visible — this page has no page header and is noindex anyway. The preview
+ * image stays, because this is the exact address shared in profiles and messages.
  */
 definePageMeta({ layout: 'linktree' })
 
@@ -32,21 +32,22 @@ defineOgImageComponent('SfOg', {
   eyebrow: 'Alle Links',
 })
 
-// Die Seite gehört nicht in den Suchindex — sie sagt nichts, was nicht schon woanders steht.
-// Das eine Meta hält sie zugleich aus der Sitemap heraus, wie auf /impressum und /datenschutz.
+// The page does not belong in the search index — it says nothing that is not said elsewhere.
+// The same meta keeps it out of the sitemap, as on /impressum and /datenschutz.
 useHead({ meta: [{ name: 'robots', content: 'noindex, follow' }] })
 
 /*
- * Die Liste steht hier und nicht in shared/: sie hat genau einen Leser. Die Adressen selbst
- * kommen aus shared/, damit sie nicht ein zweites Mal im Projekt stehen.
+ * The button list. It lives here and not in shared/ because it has exactly one reader; the
+ * addresses themselves come from shared/ so they are not written down a second time.
  *
- * `href` sind externe Ziele und öffnen im neuen Tab, `to` bleibt in der Website.
+ * `href` entries are external and open in a new tab, `to` entries stay inside the site.
  */
 const eintraege = [
-  ...(kontakt.instagram
-    ? [{ label: 'Instagram', icon: 'instagram', href: kontakt.instagram } as const]
-    : []),
-  ...(kontakt.tiktok ? [{ label: 'TikTok', icon: 'tiktok', href: kontakt.tiktok } as const] : []),
+  ...sozialeProfile.map(profil => ({
+    label: profil.name,
+    icon: profil.icon,
+    href: profil.url,
+  })),
   { label: 'Zur Website', icon: 'haus', to: '/' },
   { label: 'Der Jeveauxeffect® erklärt', icon: 'funke', to: '/jeveauxeffect' },
   { label: 'Preise und Kombitermin', icon: 'preisschild', to: kombiAnker },
@@ -86,8 +87,8 @@ const eintraege = [
       </li>
 
       <!--
-        Der letzte Knopf hängt am Flag enable_booking_redirect und wechselt erst nach der
-        Hydration auf die Booking-App. SfTerminButton hält diese Fallunterscheidung.
+        The last button hangs on the enable_booking_redirect flag and only switches to the
+        booking app after hydration. SfTerminButton owns that distinction.
       -->
       <li>
         <SfTerminButton size="lg" class="w-full justify-start">

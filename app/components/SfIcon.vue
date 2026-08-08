@@ -1,16 +1,16 @@
 <script setup lang="ts">
 /*
- * Die paar Symbole, die die Linkliste braucht, als Inline-SVG.
+ * The handful of symbols the link list needs, as inline SVG.
  *
- * Kein Icon-Paket: sechs Pfade wiegen weniger als ein Modul samt Collection, und die Symbole
- * erben so Farbe und Schriftgröße aus dem Text, in dem sie stehen. Vorbild ist der Hamburger
- * in app/layouts/default.vue, der aus demselben Grund von Hand gezeichnet ist.
+ * No icon package: six paths weigh less than a module plus its collection, and this way the
+ * symbols inherit colour and size from the text they sit in. The hamburger in
+ * app/layouts/default.vue is drawn by hand for the same reason.
  *
- * Zwei Bauarten: die Markenzeichen von Instagram und TikTok sind gefüllte Glyphen und dürfen
- * nicht nachgezeichnet werden, alles andere sind Striche in der Stärke der Schrift.
- * Die Markenpfade stammen aus Simple Icons (CC0).
+ * Two kinds: the Instagram and TikTok logos are filled glyphs and must not be redrawn, every
+ * other symbol is a stroke in the weight of the type. The brand paths come from Simple
+ * Icons (CC0).
  *
- * Immer aria-hidden: die Symbole stehen neben ihrer Beschriftung und hätten nichts zu ergänzen.
+ * Always aria-hidden: the symbols sit next to their own label and would add nothing.
  */
 const symbole = {
   instagram: {
@@ -40,7 +40,7 @@ const symbole = {
     gefuellt: false,
     pfade: [
       'M20.6 12.6 12.5 20.7a1.6 1.6 0 0 1-2.3 0l-6.9-6.9a1.6 1.6 0 0 1-.5-1.1V4.7c0-.9.7-1.6 1.6-1.6h8c.4 0 .8.2 1.1.5l7.1 7.1a1.6 1.6 0 0 1 0 2.3Z',
-      // Das Loch für die Schnur: ein Punkt, den die runde Strichkappe zum Kreis macht.
+      // The hole for the string: a dot the round line cap turns into a circle.
       'M7.4 7.4h.01',
     ],
   },

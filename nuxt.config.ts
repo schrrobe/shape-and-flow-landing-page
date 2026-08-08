@@ -1,7 +1,7 @@
 import tailwindcss from '@tailwindcss/vite'
 import { behandlungBySlug, behandlungen, preisSpanne } from './shared/behandlungen'
 import { ratgeber } from './shared/ratgeber'
-import { adresse, kontakt, oeffnungszeiten, site } from './shared/site'
+import { adresse, kontakt, oeffnungszeiten, site, sozialeProfile } from './shared/site'
 
 // Preise und Artikeltitel stehen auch hier nicht als Text: llms.txt und Structured Data sollen
 // nach einer Änderung in shared/ nicht als einzige Stelle veraltet zurückbleiben.
@@ -147,8 +147,8 @@ export default defineNuxtConfig({
   nitro: {
     prerender: {
       crawlLinks: true,
-      // Ohne Verlinkung im Markup nicht auffindbar, deshalb explizit. /linktree steht bewusst
-      // in keinem Menü — sie wird aus den Social-Profilen heraus aufgerufen.
+      // Not discoverable through links in the markup, hence listed explicitly. /linktree is
+      // deliberately in no menu — it is opened from the social profiles.
       routes: ['/', '/sitemap.xml', '/robots.txt', '/llms.txt', '/linktree'],
     },
     compressPublicAssets: { brotli: true, gzip: true },
@@ -185,9 +185,10 @@ export default defineNuxtConfig({
         addressCountry: adresse.land,
       },
       areaServed: [adresse.ort, 'Ruhrgebiet'],
-      // Solange kein Profil hinterlegt ist, steht hier nichts: ein leeres sameAs wäre ein
-      // Fehler im Structured Data.
-      ...(kontakt.instagram ? { sameAs: [kontakt.instagram] } : {}),
+      // Every social profile that is set, so Google can tie the entity to its accounts. Only
+      // emitted when at least one profile exists: an empty sameAs would be a structured data
+      // error.
+      ...(sozialeProfile.length > 0 ? { sameAs: sozialeProfile.map(profil => profil.url) } : {}),
       // Keine openingHoursSpecification: das Studio arbeitet auf Termin, und erfundene
       // Öffnungszeiten im Structured Data wären eine Falschangabe gegenüber Google.
       slogan: oeffnungszeiten.hinweis,
