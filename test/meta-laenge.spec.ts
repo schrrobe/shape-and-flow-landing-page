@@ -51,14 +51,16 @@ test.describe('Meta-Description', () => {
           const ctx = document.createElement('canvas').getContext('2d')
           if (!ctx) throw new Error('Kein 2D-Kontext für die Messung verfügbar.')
           ctx.font = font as string
-          return Math.round(ctx.measureText(inhalt as string).width)
+          return ctx.measureText(inhalt as string).width
         },
         [text as string, FONT],
       )
 
+      // Gemessen wird ungerundet, gerundet wird erst in der Meldung: sonst rutschte eine
+      // Description von 990,4px unter das Budget, obwohl sie darüber liegt.
       expect(
         breite,
-        `Die Description auf ${route} ist ${breite}px breit (Budget ${BUDGET_PX}px).`,
+        `Die Description auf ${route} ist ${Math.round(breite)}px breit (Budget ${BUDGET_PX}px).`,
       ).toBeLessThanOrEqual(BUDGET_PX)
     })
   }
