@@ -147,8 +147,9 @@ export default defineNuxtConfig({
   nitro: {
     prerender: {
       crawlLinks: true,
-      // Ohne Verlinkung im Markup nicht auffindbar, deshalb explizit.
-      routes: ['/', '/sitemap.xml', '/robots.txt', '/llms.txt'],
+      // Ohne Verlinkung im Markup nicht auffindbar, deshalb explizit. /linktree steht bewusst
+      // in keinem Menü — sie wird aus den Social-Profilen heraus aufgerufen.
+      routes: ['/', '/sitemap.xml', '/robots.txt', '/llms.txt', '/linktree'],
     },
     compressPublicAssets: { brotli: true, gzip: true },
   },

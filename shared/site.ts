@@ -55,8 +55,15 @@ export const kontakt = {
   absenderEmail: 'nicht-antworten@shapeandflow.de',
   /** Adresse der Booking-App. Alle Termin-Schaltflächen zeigen hierher. */
   buchungUrl: 'https://booking.shapeandflow.de',
-  /** TODO: Instagram-Profil eintragen oder auf null setzen, dann wird der Link ausgeblendet. */
-  instagram: null as string | null,
+  /*
+   * Die Social-Profile. Ohne die Freigabe-Parameter aus der App (?igsh=, ?_r=, ?_t=): die
+   * gehören zur Sitzung, aus der der Link kopiert wurde, und haben in einem festen Link nichts
+   * zu suchen.
+   *
+   * Beide auf null setzbar, dann fallen die Links weg — im Footer und auf /linktree.
+   */
+  instagram: 'https://www.instagram.com/shapeandflow.do' as string | null,
+  tiktok: 'https://www.tiktok.com/@shapeandflow.do' as string | null,
 } as const
 
 /**
