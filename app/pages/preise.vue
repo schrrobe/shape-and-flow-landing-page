@@ -69,9 +69,9 @@ useFaqSchema(preisFaq)
         <SfPreisTabelle />
 
         <p class="mt-6 text-sm text-text-secondary">
-          Alle Preise in Euro und inklusive Mehrwertsteuer. Beide Behandlungen lassen sich einzeln
-          oder zusammen buchen. Bei den Paketen gilt der genannte Preis pro Behandlung, das Paket
-          wird im Studio vereinbart.
+          Alle Preise sind Endpreise. Gemäß § 19 UStG wird keine Umsatzsteuer berechnet. Beide
+          Behandlungen lassen sich einzeln oder zusammen buchen. Bei den Paketen gilt der genannte
+          Preis pro Behandlung, das Paket wird im Studio vereinbart.
         </p>
       </div>
 
