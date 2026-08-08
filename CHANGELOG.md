@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.6.1](https://github.com/schrrobe/shape-and-flow-landing-page/compare/shape-and-flow-landing-page-v1.6.0...shape-and-flow-landing-page-v1.6.1) (2026-08-08)
+
+
+### Bug Fixes
+
+* Linktree-Preislink ohne Anker auf /preise ([#22](https://github.com/schrrobe/shape-and-flow-landing-page/issues/22)) ([02cd06d](https://github.com/schrrobe/shape-and-flow-landing-page/commit/02cd06de79a1c4d22018e94e492f905d6787d109))
+
 ## [1.6.0](https://github.com/schrrobe/shape-and-flow-landing-page/compare/shape-and-flow-landing-page-v1.5.0...shape-and-flow-landing-page-v1.6.0) (2026-08-08)
 
 
