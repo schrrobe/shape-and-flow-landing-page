@@ -133,7 +133,7 @@ const notSuitable = [
             class="aspect-4/5 w-full rounded-sf border border-border object-cover shadow-card"
             width="1301"
             height="1626"
-            sizes="100vw lg:22rem"
+            sizes="100vw lg:352px"
             loading="lazy"
           />
           <SfCard>
