@@ -1,47 +1,47 @@
 import { createTransport, type Transporter } from 'nodemailer'
-import { kontakt, site } from '#shared/site'
-import { anfrageAus, fehlerZu, type Anfrage } from '../utils/kontakt-eingaben'
+import { contact, site } from '#shared/site'
+import { requestFrom, errorsFor, type ContactRequest } from '../utils/kontakt-eingaben'
 
 /*
- * Nimmt das Kontaktformular an und schickt die Anfrage per SMTP an das Studio-Postfach.
+ * Accepts the contact form and sends the request to the studio mailbox over SMTP.
  *
- * Die einzige serverseitige Logik der Website. Bewusst ohne Datenbank und ohne Drittanbieter-API:
- * die Anfrage wird zugestellt und danach vergessen, es gibt also keinen Datenbestand, für den
- * eine Löschfrist zu dokumentieren wäre. Die Zugangsdaten kommen aus der Umgebung, siehe
- * runtimeConfig in nuxt.config.ts und docs/deploy.md.
+ * The only server-side logic of the site. Deliberately without a database and without a
+ * third-party API: the request is delivered and then forgotten, so there is no stored data for
+ * which a retention period would have to be documented. The credentials come from the
+ * environment, see runtimeConfig in nuxt.config.ts and docs/deploy.md.
  *
- * Was eine gültige Eingabe ist, steht nebenan in utils/kontakt-eingaben.ts. Hier bleibt, was
- * ohne Server nicht zu haben ist: Frequenzgrenze, SMTP und die Fehlerantworten.
+ * What counts as valid input lives next door in utils/kontakt-eingaben.ts. What stays here is
+ * what cannot be had without a server: rate limiting, SMTP and the error responses.
  */
 
 /*
- * Ein Versuch pro Minute und höchstens fünf pro Stunde je IP-Adresse.
+ * One attempt per minute and at most five per hour per IP address.
  *
- * Im Prozessspeicher, nicht in Redis: es läuft eine Instanz hinter dem Host-nginx, und ein
- * Neustart darf ruhig alles vergessen — das Fenster ist eine Stunde, nicht ein Tag. Bei mehreren
- * Instanzen zählt jede für sich, dann gehört die Grenze in den Reverse Proxy.
+ * In process memory, not in Redis: a single instance runs behind the host nginx, and a restart
+ * may well forget everything — the window is an hour, not a day. With several instances each
+ * would count for itself, and then the limit belongs in the reverse proxy.
  */
-const versuche = new Map<string, number[]>()
-const FENSTER_MS = 60 * 60 * 1000
-const MAX_PRO_FENSTER = 5
-const ABSTAND_MS = 60 * 1000
+const attempts = new Map<string, number[]>()
+const WINDOW_MS = 60 * 60 * 1000
+const MAX_PER_WINDOW = 5
+const MIN_GAP_MS = 60 * 1000
 
-function zuSchnell(ip: string, jetzt: number): boolean {
-  const bisher = (versuche.get(ip) ?? []).filter(zeit => jetzt - zeit < FENSTER_MS)
+function tooFast(ip: string, now: number): boolean {
+  const recent = (attempts.get(ip) ?? []).filter(time => now - time < WINDOW_MS)
 
-  // Die Map wächst sonst mit jeder IP, die je angefragt hat. Aufräumen beim Zugriff reicht,
-  // weil nur Einträge im Fenster überhaupt eine Rolle spielen.
-  for (const [andere, zeiten] of versuche) {
-    if (zeiten.every(zeit => jetzt - zeit >= FENSTER_MS)) versuche.delete(andere)
+  // Otherwise the map grows with every IP that ever made a request. Cleaning up on access is
+  // enough, because only entries inside the window matter at all.
+  for (const [otherIp, times] of attempts) {
+    if (times.every(time => now - time >= WINDOW_MS)) attempts.delete(otherIp)
   }
 
-  const letzter = bisher.at(-1)
-  if (bisher.length >= MAX_PRO_FENSTER || (letzter !== undefined && jetzt - letzter < ABSTAND_MS)) {
-    versuche.set(ip, bisher)
+  const last = recent.at(-1)
+  if (recent.length >= MAX_PER_WINDOW || (last !== undefined && now - last < MIN_GAP_MS)) {
+    attempts.set(ip, recent)
     return true
   }
 
-  versuche.set(ip, [...bisher, jetzt])
+  attempts.set(ip, [...recent, now])
   return false
 }
 
@@ -50,87 +50,89 @@ let transport: Transporter | null = null
 export default defineEventHandler(async event => {
   const { smtp } = useRuntimeConfig(event)
 
-  // Ohne Zugangsdaten gibt es keinen stillen Fehlschlag: das Formular sagt dann, dass die
-  // E-Mail-Adresse der Weg ist. Sonst wäre die Anfrage weg und niemand wüsste es.
+  // Without credentials there is no silent failure: the form then says the email address is the
+  // way to go. Otherwise the request would be gone and nobody would know.
   if (!smtp.host || !smtp.user || !smtp.password) {
     throw createError({
       statusCode: 503,
-      statusMessage: 'Mailversand nicht konfiguriert',
-      data: { grund: 'konfiguration' },
+      statusMessage: 'Mail delivery not configured',
+      data: { reason: 'config' },
     })
   }
 
-  const koerper = await readBody<Partial<Anfrage>>(event)
+  const body = await readBody<Partial<ContactRequest>>(event)
 
-  const anfrage = anfrageAus(koerper)
+  const request = requestFrom(body)
 
-  // Der Bot bekommt eine 200. Eine Fehlermeldung wäre eine Rückmeldung, an der sich ein Skript
-  // ausrichten kann, und die Nachricht wird ohnehin nicht verschickt.
-  if (anfrage.webseite) return { ok: true }
+  // The bot gets a 200. An error message would be feedback a script can calibrate against, and
+  // the message is not sent anyway.
+  if (request.website) return { ok: true }
 
-  const fehler = fehlerZu(anfrage)
+  const errors = errorsFor(request)
 
-  if (Object.keys(fehler).length) {
+  if (Object.keys(errors).length) {
     throw createError({
       statusCode: 400,
-      statusMessage: 'Eingaben unvollständig',
-      data: { fehler },
+      statusMessage: 'Incomplete input',
+      data: { errors },
     })
   }
 
-  if (zuSchnell(getRequestIP(event, { xForwardedFor: true }) ?? 'unbekannt', Date.now())) {
+  if (tooFast(getRequestIP(event, { xForwardedFor: true }) ?? 'unknown', Date.now())) {
     throw createError({
       statusCode: 429,
-      statusMessage: 'Zu viele Anfragen',
-      data: { grund: 'frequenz' },
+      statusMessage: 'Too many requests',
+      data: { reason: 'rate' },
     })
   }
 
   transport ??= createTransport({
     host: smtp.host,
     port: smtp.port,
-    // Port 465 spricht TLS von der ersten Verbindung an, 587 und 25 steigen per STARTTLS um.
+    // Port 465 speaks TLS from the first connection on, 587 and 25 upgrade via STARTTLS.
     secure: smtp.port === 465,
     auth: { user: smtp.user, pass: smtp.password },
   })
 
-  const zeilen = [
-    // Der Antwortweg steht ganz oben, weil er die erste Entscheidung beim Lesen ist: er sagt,
-    // welche der beiden Zeilen darunter die Adresse für die Antwort ist.
-    `Antwort bitte: ${anfrage.antwortweg === 'whatsapp' ? 'per WhatsApp' : 'per E-Mail'}`,
-    `Name: ${anfrage.name}`,
-    `E-Mail: ${anfrage.email}`,
-    `Handy: ${anfrage.handy || 'keine Angabe'}`,
-    `Behandlung: ${anfrage.behandlung || 'keine Angabe'}`,
-    `Zeitfenster: ${anfrage.zeitfenster || 'keine Angabe'}`,
+  const lines = [
+    // The reply channel goes at the very top, because it is the first decision when reading: it
+    // says which of the two lines below it is the address to reply to.
+    `Antwort bitte: ${request.replyChannel === 'whatsapp' ? 'per WhatsApp' : 'per E-Mail'}`,
+    `Name: ${request.name}`,
+    `E-Mail: ${request.email}`,
+    `Handy: ${request.mobile || 'keine Angabe'}`,
+    `Behandlung: ${request.treatment || 'keine Angabe'}`,
+    `Zeitfenster: ${request.timeSlot || 'keine Angabe'}`,
     '',
-    anfrage.nachricht,
+    request.message,
     '',
     `— gesendet über das Kontaktformular auf ${site.url}`,
   ]
 
   try {
     await transport.sendMail({
-      // Der Absender ist eine eigene Adresse der eigenen Domain und nicht die der Anfragenden:
-      // eine fremde Absenderadresse fällt bei SPF und DMARC durch und landet im Spam. Die
-      // Antwort geht trotzdem an die richtige Stelle, dafür ist replyTo da.
+      // The sender is a dedicated address on our own domain and not the enquirer's: a foreign
+      // sender address fails SPF and DMARC and lands in spam. The reply still goes to the right
+      // place, that is what replyTo is for.
       //
-      // Das `|| smtp.user` ist der Rückfall, wenn NUXT_SMTP_ABSENDER als leerer Wert in der
-      // env-Datei steht: ohne From-Adresse nimmt kein Mailserver die Nachricht an.
+      // The `|| smtp.user` is the fallback for when NUXT_SMTP_ABSENDER is set to an empty value
+      // in the env file: without a From address no mail server accepts the message.
+      //
+      // `absender` and `empfaenger` keep their German names: Nitro derives the environment
+      // variable from the key, see the note in runtimeConfig in nuxt.config.ts.
       from: { name: `${site.name} Kontaktformular`, address: smtp.absender || smtp.user },
-      to: smtp.empfaenger || kontakt.email,
-      replyTo: { name: anfrage.name, address: anfrage.email },
-      subject: `Anfrage über die Website von ${anfrage.name}`,
-      text: zeilen.join('\n'),
+      to: smtp.empfaenger || contact.email,
+      replyTo: { name: request.name, address: request.email },
+      subject: `Anfrage über die Website von ${request.name}`,
+      text: lines.join('\n'),
     })
-  } catch (ursache) {
-    // Der Grund gehört ins Serverlog, nicht in die Antwort: SMTP-Fehler nennen Host und
-    // Benutzernamen.
-    console.error('[kontakt] SMTP-Versand fehlgeschlagen', ursache)
+  } catch (cause) {
+    // The reason belongs in the server log, not in the response: SMTP errors name host and user.
+    console.error('[kontakt] SMTP delivery failed', cause)
     throw createError({
       statusCode: 502,
-      statusMessage: 'Versand fehlgeschlagen',
-      data: { grund: 'versand' },
+      statusMessage: 'Delivery failed',
+      data: { reason: 'delivery' },
     })
   }
 

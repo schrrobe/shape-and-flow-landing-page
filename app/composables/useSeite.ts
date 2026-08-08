@@ -1,52 +1,50 @@
-import type { Behandlung } from '#shared/behandlungen'
-import type { FaqEintrag } from '#shared/faq'
-import { faqAntwortText } from '#shared/faq'
-import { adresse, site } from '#shared/site'
+import type { Treatment } from '#shared/behandlungen'
+import type { FaqEntry } from '#shared/faq'
+import { faqAnswerText } from '#shared/faq'
+import { address, site } from '#shared/site'
 
 /*
- * Alles, was jede Seite an Metadaten braucht, in einem Aufruf.
+ * Everything every page needs in the way of metadata, in one call.
  *
- * Ohne das hier stünden auf zwölf Seiten je vier Blöcke Boilerplate, und beim dreizehnten würde
- * einer davon fehlen. Titel und Beschreibung wandern gleichzeitig in <title>, in die
- * Meta-Description, in die Open-Graph-Tags und in das Vorschaubild, sodass alle vier immer
- * dasselbe sagen.
+ * Without this there would be four blocks of boilerplate on twelve pages, and on the thirteenth
+ * one of them would be missing. Title and description travel into <title>, the meta description,
+ * the Open Graph tags and the preview image at the same time, so all four always say the same.
  */
 
-export interface SeiteOptions {
-  /** Der Titel für die Browserleiste und die Suchergebnisse, ohne Firmenname am Ende. */
-  titel: string
+export interface PageOptions {
+  /** The title for the browser bar and the search results, without the company name at the end. */
+  title: string
   /**
-   * Die letzte Stufe des Brotkrümelpfads. Muss wörtlich mit dem `titel` von SfSeitenkopf
-   * übereinstimmen: Google verlangt, dass die ausgezeichnete Krümelspur dieselbe ist wie die
-   * sichtbare. Ohne Angabe wird `ogTitel` genommen, das auf den meisten Seiten schon die kurze
-   * Fassung ist.
+   * The last step of the breadcrumb trail. Must match SfSeitenkopf's `title` word for word:
+   * Google requires the marked-up trail to be the same as the visible one. Without it, `ogTitle`
+   * is used, which on most pages is already the short version.
    */
-  kurzTitel?: string
+  shortTitle?: string
   /**
-   * Die Meta-Description. Google misst sie in Pixeln und nicht in Zeichen: rund 150 Zeichen
-   * passen, breite Wörter und Preise weniger. Die Grenze zieht test/meta-laenge.spec.ts, das die
-   * gebaute Zeile in Arial 14px nachmisst — das ist der Font des Suchergebnisses.
+   * The meta description. Google measures it in pixels, not characters: around 150 characters
+   * fit, fewer with wide words and prices. The limit is enforced by test/meta-laenge.spec.ts,
+   * which re-measures the built line in Arial 14px — the font of the search result.
    */
-  beschreibung: string
+  description: string
   /**
-   * Die Zwischenstufen des Brotkrümelpfads, also ohne Startseite und ohne die aktuelle Seite.
-   * Beide setzt die Funktion selbst.
+   * The intermediate steps of the breadcrumb trail, i.e. without the home page and without the
+   * current page. The function sets both itself.
    */
-  pfad?: { name: string; url: string }[]
-  /** Das Label im Vorschaubild. Ohne Angabe steht dort der Firmenname. */
+  trail?: { name: string; url: string }[]
+  /** The label in the preview image. Without it, the company name appears there. */
   ogLabel?: string
-  /** Kürzere Fassung des Titels für das Vorschaubild, wenn der echte Titel dort zu lang wird. */
-  ogTitel?: string
+  /** Shorter version of the title for the preview image, when the real title is too long there. */
+  ogTitle?: string
 }
 
-export function useSeite(options: SeiteOptions) {
+export function usePage(options: PageOptions) {
   const route = useRoute()
 
   useSeoMeta({
-    title: options.titel,
-    description: options.beschreibung,
-    ogTitle: `${options.titel} | ${site.name}`,
-    ogDescription: options.beschreibung,
+    title: options.title,
+    description: options.description,
+    ogTitle: `${options.title} | ${site.name}`,
+    ogDescription: options.description,
     ogType: 'website',
     ogSiteName: site.name,
     ogLocale: 'de_DE',
@@ -54,19 +52,19 @@ export function useSeite(options: SeiteOptions) {
   })
 
   defineOgImageComponent('SfOg', {
-    title: options.ogTitel ?? options.titel,
-    description: options.beschreibung,
+    title: options.ogTitle ?? options.title,
+    description: options.description,
     eyebrow: options.ogLabel ?? site.nameAscii,
   })
 
-  // Die Startseite braucht keinen Brotkrümelpfad, der nur auf sie selbst zeigt.
+  // The home page needs no breadcrumb trail that only points at itself.
   if (route.path !== '/') {
     useSchemaOrg([
       defineBreadcrumb({
         itemListElement: [
           { name: 'Startseite', item: '/' },
-          ...(options.pfad ?? []).map(stufe => ({ name: stufe.name, item: stufe.url })),
-          { name: options.kurzTitel ?? options.ogTitel ?? options.titel },
+          ...(options.trail ?? []).map(step => ({ name: step.name, item: step.url })),
+          { name: options.shortTitle ?? options.ogTitle ?? options.title },
         ],
       }),
     ])
@@ -76,49 +74,49 @@ export function useSeite(options: SeiteOptions) {
 }
 
 /**
- * Die Fragen einer Seite als FAQ-Structured-Data.
+ * The questions of a page as FAQ structured data.
  *
- * Die Seite muss dabei selbst als FAQPage ausgezeichnet werden, sonst hängt nuxt-schema-org die
- * Fragen nirgends ein: es verknüpft eine Question nur dann mit der Seite, wenn deren WebPage den
- * Typ FAQPage trägt — und den setzt es von allein nur unter /faq. Ohne diese Zeile stünden auf
- * einer Unterseite Question-Knoten im JSON-LD, auf die nichts zeigt.
+ * The page itself has to be marked up as a FAQPage, otherwise nuxt-schema-org attaches the
+ * questions nowhere: it only links a Question to the page when its WebPage carries the FAQPage
+ * type — and it sets that on its own only under /faq. Without this line a sub-page would end up
+ * with Question nodes in the JSON-LD that nothing points to.
  */
-export function useFaqSchema(eintraege: FaqEintrag[]) {
+export function useFaqSchema(entries: FaqEntry[]) {
   useSchemaOrg([
     defineWebPage({ '@type': 'FAQPage' }),
-    ...eintraege.map(eintrag =>
+    ...entries.map(entry =>
       defineQuestion({
-        name: eintrag.frage,
-        acceptedAnswer: faqAntwortText(eintrag),
+        name: entry.question,
+        acceptedAnswer: faqAnswerText(entry),
       }),
     ),
   ])
 }
 
 /**
- * Der Ortszusatz, den jeder Seitentitel braucht, damit die lokale Suche greift. Als Funktion,
- * damit "Dortmund" nur in shared/site.ts steht.
+ * The place suffix every page title needs so local search picks it up. As a function, so that
+ * "Dortmund" only lives in shared/site.ts.
  */
-export function mitOrt(titel: string): string {
-  return `${titel} ${adresse.ort}`
+export function withCity(title: string): string {
+  return `${title} ${address.city}`
 }
 
 /**
- * Das Service-Structured-Data einer Behandlung samt Preis.
+ * The Service structured data of a treatment, including its price.
  *
- * Der Preis gehört hier ins Angebot und nicht nur in den sichtbaren Text: nur so kann Google ihn
- * im Suchergebnis anzeigen, und nur so lesen ihn KI-Agenten verlässlich aus.
+ * The price belongs in the offer here and not only in the visible text: only then can Google
+ * show it in the search result, and only then do AI agents read it reliably.
  */
-export function useBehandlungSchema(behandlung: Behandlung) {
+export function useTreatmentSchema(treatment: Treatment) {
   useSchemaOrg([
     defineService({
-      name: behandlung.name,
-      description: behandlung.kurz,
-      serviceType: behandlung.titel,
+      name: treatment.name,
+      description: treatment.summary,
+      serviceType: treatment.title,
       category: 'Beauty',
-      areaServed: adresse.ort,
+      areaServed: address.city,
       offers: {
-        price: behandlung.preisEuro,
+        price: treatment.priceEuro,
         priceCurrency: 'EUR',
         availability: 'https://schema.org/InStock',
       },

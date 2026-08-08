@@ -2,16 +2,16 @@
 import { site } from '#shared/site'
 
 /*
- * Das Logo — Konturlinie, Schriftzug und Unterzeile — liegt als Bilddatei vor, wird aber als
- * Deckkraftmaske eingebunden und nicht als <img>. Grund: dasselbe Logo steht auf hellem Grund
- * dunkel und im orangen Panel cremefarben. Als Maske über `currentColor` genügt eine Datei pro
- * Zuschnitt, die Farbe kommt aus dem Textkontext und folgt damit auch dem Hover in der Kopfzeile.
+ * The logo — contour line, wordmark and subline — exists as an image file, but is embedded as an
+ * opacity mask and not as an <img>. Reason: the same logo appears dark on a light background and
+ * cream on the orange panel. As a mask over `currentColor` one file per crop is enough, the
+ * colour comes from the text context and so it follows the hover in the header as well.
  *
- * Zwei Zuschnitte, weil die Unterzeile in Kopfzeilengröße nur noch Grau wäre: "inline" zeigt
- * Konturlinie und Schriftzug, "stacked" zusätzlich Trennlinie und gesperrte Unterzeile.
+ * Two crops, because the subline at header size would be nothing but grey: "inline" shows contour
+ * line and wordmark, "stacked" additionally the divider and the letterspaced subline.
  *
- * Die Seitenverhältnisse stammen aus den Dateien selbst. Ohne sie müsste die Maske eine Höhe *und*
- * eine Breite bekommen, und jede Änderung am Zuschnitt würde das Logo verzerren.
+ * The aspect ratios come from the files themselves. Without them the mask would need both a
+ * height *and* a width, and any change to the crop would distort the logo.
  */
 const props = withDefaults(
   defineProps<{
@@ -22,27 +22,26 @@ const props = withDefaults(
   },
 )
 
-const zuschnitte = {
-  inline: { datei: '/images/logo-maske-wortmarke.webp', seitenverhaeltnis: 1.5328 },
-  stacked: { datei: '/images/logo-maske.webp', seitenverhaeltnis: 1.3115 },
+const crops = {
+  inline: { file: '/images/logo-maske-wortmarke.webp', aspectRatio: 1.5328 },
+  stacked: { file: '/images/logo-maske.webp', aspectRatio: 1.3115 },
 } as const
 
-const zuschnitt = computed(() => zuschnitte[props.variant])
+const crop = computed(() => crops[props.variant])
 </script>
 
 <template>
   <span class="inline-flex">
     <!--
-      Die Maske ist für Screenreader nichts, deshalb steht der Name daneben als Text. In der
-      Kopfzeile trägt der umgebende Link ein aria-label, das gewinnt — doppelt vorgelesen wird
-      also nichts.
+      The mask is nothing to screen readers, so the name sits next to it as text. In the header
+      the surrounding link carries an aria-label, which wins — so nothing gets read out twice.
     -->
     <span
       class="sf-logo"
       :class="variant === 'inline' ? 'h-9 sm:h-11' : 'w-48 sm:w-56'"
       :style="{
-        '--sf-logo-datei': `url('${zuschnitt.datei}')`,
-        '--sf-logo-seitenverhaeltnis': zuschnitt.seitenverhaeltnis,
+        '--sf-logo-file': `url('${crop.file}')`,
+        '--sf-logo-aspect-ratio': crop.aspectRatio,
       }"
       aria-hidden="true"
     />
@@ -52,10 +51,10 @@ const zuschnitt = computed(() => zuschnitte[props.variant])
 
 <style scoped>
 .sf-logo {
-  aspect-ratio: var(--sf-logo-seitenverhaeltnis);
+  aspect-ratio: var(--sf-logo-aspect-ratio);
   background-color: currentColor;
-  /* Safari unter 15.4 kennt die Kurzschreibweise nur mit Präfix. */
-  -webkit-mask: var(--sf-logo-datei) center / contain no-repeat;
-  mask: var(--sf-logo-datei) center / contain no-repeat;
+  /* Safari below 15.4 only knows the shorthand with a prefix. */
+  -webkit-mask: var(--sf-logo-file) center / contain no-repeat;
+  mask: var(--sf-logo-file) center / contain no-repeat;
 }
 </style>

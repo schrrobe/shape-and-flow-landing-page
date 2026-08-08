@@ -1,16 +1,16 @@
 <script setup lang="ts">
-import { adresse, site } from '#shared/site'
+import { address, site } from '#shared/site'
 
 /*
- * Das Vorschaubild für Social Media und Messenger, gerendert beim Build.
+ * The preview image for social media and messengers, rendered at build time.
  *
- * Bewusst nah am Logo: cremefarbene Serif auf dem Markenorange. Wer den Link in WhatsApp
- * geschickt bekommt, soll dasselbe Bild sehen wie an der Studiotür.
+ * Deliberately close to the logo: cream serif on the brand orange. Whoever gets the link sent in
+ * WhatsApp should see the same picture as on the studio door.
  *
- * Der Renderer versteht nur einen Teil von CSS (Flexbox, keine Grids, keine Pseudoelemente),
- * deshalb hier Inline-Styles statt Tailwind-Klassen. Als Schriftfamilie darf nur stehen, was der
- * Renderer als Datei laden kann: "Playfair Display" wird beim Build heruntergeladen, "sans-serif"
- * ist die eingebaute Reserve. Ein Systemfont wie Georgia würde hier nur eine Warnung erzeugen.
+ * The renderer understands only part of CSS (flexbox, no grids, no pseudo elements), hence inline
+ * styles here instead of Tailwind classes. Only font families the renderer can load as a file may
+ * be named: "Playfair Display" is downloaded at build time, "sans-serif" is the built-in reserve.
+ * A system font such as Georgia would only produce a warning here.
  */
 withDefaults(
   defineProps<{
@@ -25,10 +25,10 @@ withDefaults(
   },
 )
 
-const anschrift = `${adresse.strasse} · ${adresse.plz} ${adresse.ort}`
+const postalLine = `${address.street} · ${address.postalCode} ${address.city}`
 
-// Literale statt Tokens, weil der Takumi-Renderer keine CSS-Variablen auflöst. Muss
-// --sf-inverse-surface und --sf-inverse-text aus app/assets/css/tokens.css folgen.
+// Literals instead of tokens, because the Takumi renderer does not resolve CSS variables. Must
+// follow --sf-inverse-surface and --sf-inverse-text from app/assets/css/tokens.css.
 const orange = '#a04607'
 const cream = '#f5efe6'
 const line = 'rgba(245, 239, 230, 0.45)'
@@ -100,7 +100,7 @@ const line = 'rgba(245, 239, 230, 0.45)'
         color: 'rgba(245, 239, 230, 0.9)',
       }"
     >
-      {{ anschrift }}
+      {{ postalLine }}
     </div>
   </div>
 </template>

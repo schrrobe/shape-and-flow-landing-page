@@ -1,22 +1,22 @@
 <script setup lang="ts">
 import {
-  adresse,
-  formularUrl,
-  kontakt,
-  markenhinweis,
-  oeffnungszeiten,
+  address,
+  formUrl,
+  contact,
+  trademarkNotice,
+  openingHours,
   site,
-  sozialeProfile,
+  socialProfiles,
 } from '#shared/site'
-import { behandlungen, kombiAnker } from '#shared/behandlungen'
-import { ratgeber } from '#shared/ratgeber'
+import { treatments, comboAnchor } from '#shared/behandlungen'
+import { articles } from '#shared/ratgeber'
 
-const buchungSichtbar = useBuchungSichtbar()
+const bookingVisible = useBookingVisible()
 
 const navigation = [
-  ...behandlungen.map(b => ({ name: b.name, url: b.route })),
-  // Der Kombitermin hat keine eigene Seite, deshalb zeigt er auf seinen Block in der Preisliste.
-  { name: 'Kombitermin', url: kombiAnker },
+  ...treatments.map(t => ({ name: t.name, url: t.route })),
+  // The combo appointment has no page of its own, so it points at its block in the price list.
+  { name: 'Kombitermin', url: comboAnchor },
   { name: 'Methode', url: '/brasilianische-lymphdrainage' },
   { name: 'Preise', url: '/preise' },
   { name: 'Studio', url: '/studio' },
@@ -25,17 +25,17 @@ const navigation = [
 ]
 
 /*
- * Das Menü klappt über ein Detail-Element auf, damit es ohne JavaScript funktioniert. Beim
- * Seitenwechsel muss es wieder zugehen, sonst bleibt es über der neuen Seite stehen.
+ * The menu opens via a details element, so it works without JavaScript. On a page change it has
+ * to close again, otherwise it stays open over the new page.
  */
-const menue = useTemplateRef<HTMLDetailsElement>('menue')
+const menu = useTemplateRef<HTMLDetailsElement>('menu')
 const router = useRouter()
-// Der Rückgabewert meldet den Guard wieder ab. Ohne das bliebe er beim Neuaufbau des Layouts —
-// etwa nach einer Fehlerseite, die ein eigenes NuxtLayout rendert — ein zweites Mal registriert
-// und hielte das alte <details>-Element am Leben.
+// The return value unregisters the guard. Without it, it would stay registered a second time when
+// the layout is rebuilt — after an error page rendering its own NuxtLayout, for instance — and
+// keep the old <details> element alive.
 const stopGuard = router.afterEach(() => {
-  if (menue.value) {
-    menue.value.open = false
+  if (menu.value) {
+    menu.value.open = false
   }
 })
 onScopeDispose(stopGuard)
@@ -44,7 +44,7 @@ onScopeDispose(stopGuard)
 <template>
   <div class="flex min-h-dvh flex-col">
     <a
-      href="#inhalt"
+      href="#content"
       class="sr-only focus:not-sr-only focus:absolute focus:top-3 focus:left-3 focus:z-50 focus:rounded-sf focus:bg-surface focus:px-4 focus:py-2 focus:shadow-card"
     >
       Zum Inhalt springen
@@ -64,28 +64,28 @@ onScopeDispose(stopGuard)
 
         <nav aria-label="Hauptmenü" class="hidden items-center gap-6 lg:flex">
           <NuxtLink
-            v-for="eintrag in navigation"
-            :key="eintrag.url"
-            :to="eintrag.url"
+            v-for="entry in navigation"
+            :key="entry.url"
+            :to="entry.url"
             class="text-sm text-text-secondary hover:text-primary"
             active-class="text-primary"
           >
-            {{ eintrag.name }}
+            {{ entry.name }}
           </NuxtLink>
         </nav>
 
         <div class="flex items-center gap-2">
           <!--
-            Der Wrapper trägt das hidden, nicht der Button: SfButton bringt selbst inline-flex mit,
-            und zwei Display-Utilities auf demselben Element entscheidet die Reihenfolge im
-            Stylesheet, nicht die Absicht. Auf Mobil bleibt nur das Menü, sonst drängt der Button
-            in die Wortmarke.
+            The wrapper carries the hidden, not the button: SfButton brings its own inline-flex,
+            and two display utilities on the same element are resolved by the order in the
+            stylesheet, not by intent. On mobile only the menu remains, otherwise the button
+            crowds the wordmark.
           -->
           <div class="hidden sm:flex">
             <SfTerminButton />
           </div>
 
-          <details ref="menue" class="relative lg:hidden">
+          <details ref="menu" class="relative lg:hidden">
             <summary
               class="flex size-10 cursor-pointer items-center justify-center rounded-sf border border-border bg-surface marker:content-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"
               aria-label="Menü öffnen"
@@ -104,21 +104,21 @@ onScopeDispose(stopGuard)
               class="absolute right-0 z-50 mt-2 w-60 rounded-sf border border-border bg-surface p-2 shadow-card"
             >
               <NuxtLink
-                v-for="eintrag in navigation"
-                :key="eintrag.url"
-                :to="eintrag.url"
+                v-for="entry in navigation"
+                :key="entry.url"
+                :to="entry.url"
                 class="block rounded-sf px-3 py-2.5 text-text-secondary hover:bg-surface-muted hover:text-primary"
                 active-class="text-primary"
               >
-                {{ eintrag.name }}
+                {{ entry.name }}
               </NuxtLink>
               <!--
-                Nicht SfTerminButton: der Knopf im Menü ist über die ganze Breite gesetzt und nicht
-                inline, deshalb steht die Fallunterscheidung hier ein zweites Mal.
+                Not SfTerminButton: the button in the menu spans the full width and is not inline,
+                so the case distinction appears here a second time.
               -->
               <a
-                v-if="buchungSichtbar"
-                :href="kontakt.buchungUrl"
+                v-if="bookingVisible"
+                :href="contact.bookingUrl"
                 target="_blank"
                 rel="noopener"
                 class="mt-1 block rounded-sf bg-primary px-3 py-2.5 text-center font-medium text-primary-contrast hover:bg-primary-hover"
@@ -127,7 +127,7 @@ onScopeDispose(stopGuard)
               </a>
               <NuxtLink
                 v-else
-                :to="formularUrl"
+                :to="formUrl"
                 class="mt-1 block rounded-sf bg-primary px-3 py-2.5 text-center font-medium text-primary-contrast hover:bg-primary-hover"
               >
                 Termin anfragen
@@ -138,7 +138,7 @@ onScopeDispose(stopGuard)
       </div>
     </header>
 
-    <main id="inhalt" class="flex-1">
+    <main id="content" class="flex-1">
       <slot />
     </main>
 
@@ -152,17 +152,17 @@ onScopeDispose(stopGuard)
           <div>
             <h2 class="sf-eyebrow">Behandlungen</h2>
             <ul class="mt-4 space-y-2 text-sm">
-              <li v-for="behandlung in behandlungen" :key="behandlung.slug">
+              <li v-for="treatment in treatments" :key="treatment.slug">
                 <NuxtLink
-                  :to="behandlung.route"
+                  :to="treatment.route"
                   class="text-text-secondary hover:text-primary hover:underline"
                 >
-                  {{ behandlung.name }}
+                  {{ treatment.name }}
                 </NuxtLink>
               </li>
               <li>
                 <NuxtLink
-                  :to="kombiAnker"
+                  :to="comboAnchor"
                   class="text-text-secondary hover:text-primary hover:underline"
                 >
                   Kombitermin Körper und Gesicht
@@ -211,12 +211,12 @@ onScopeDispose(stopGuard)
                   Ratgeber
                 </NuxtLink>
               </li>
-              <li v-for="artikel in ratgeber" :key="artikel.route">
+              <li v-for="article in articles" :key="article.route">
                 <NuxtLink
-                  :to="artikel.route"
+                  :to="article.route"
                   class="text-text-secondary hover:text-primary hover:underline"
                 >
-                  {{ artikel.titel }}
+                  {{ article.title }}
                 </NuxtLink>
               </li>
             </ul>
@@ -226,29 +226,29 @@ onScopeDispose(stopGuard)
             <h2 class="sf-eyebrow">Kontakt</h2>
             <address class="mt-4 space-y-2 text-sm text-text-secondary not-italic">
               <p>
-                {{ adresse.strasse }}<br />
-                {{ adresse.plz }} {{ adresse.ort }}
+                {{ address.street }}<br />
+                {{ address.postalCode }} {{ address.city }}
               </p>
               <p>
-                <a :href="`mailto:${kontakt.email}`" class="hover:text-primary hover:underline">
-                  {{ kontakt.email }} </a
+                <a :href="`mailto:${contact.email}`" class="hover:text-primary hover:underline">
+                  {{ contact.email }} </a
                 ><br />
-                <NuxtLink :to="formularUrl" class="hover:text-primary hover:underline">
+                <NuxtLink :to="formUrl" class="hover:text-primary hover:underline">
                   Kontaktformular
                 </NuxtLink>
               </p>
-              <p>{{ oeffnungszeiten.hinweis }}</p>
-              <p v-if="sozialeProfile.length > 0">
+              <p>{{ openingHours.note }}</p>
+              <p v-if="socialProfiles.length > 0">
                 <!-- Every profile that shared/site.ts has an address for. -->
-                <template v-for="(profil, index) in sozialeProfile" :key="profil.name">
+                <template v-for="(profile, index) in socialProfiles" :key="profile.name">
                   <span v-if="index > 0" aria-hidden="true"> · </span>
                   <a
-                    :href="profil.url"
+                    :href="profile.url"
                     target="_blank"
                     rel="noopener"
                     class="hover:text-primary hover:underline"
                   >
-                    {{ profil.name }}
+                    {{ profile.name }}
                   </a>
                 </template>
               </p>
@@ -264,7 +264,7 @@ onScopeDispose(stopGuard)
           class="mt-6 flex flex-col gap-4 text-sm text-text-secondary sm:flex-row sm:items-start sm:justify-between"
         >
           <p class="max-w-xl">
-            {{ markenhinweis }}
+            {{ trademarkNotice }}
           </p>
           <ul class="flex shrink-0 flex-wrap gap-x-5 gap-y-2">
             <li>
@@ -277,7 +277,7 @@ onScopeDispose(stopGuard)
                 Datenschutz
               </NuxtLink>
             </li>
-            <!-- Ohne Jahreszahl: ein Copyright-Jahr im Markup ist ab dem 1. Januar falsch. -->
+            <!-- No year: a copyright year in the markup is wrong from January 1st onwards. -->
             <li>© {{ site.name }}</li>
           </ul>
         </div>

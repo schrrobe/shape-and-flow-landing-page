@@ -1,44 +1,43 @@
 <script setup lang="ts">
-import { adresse, kontakt, site } from '#shared/site'
+import { address, contact, site } from '#shared/site'
 
 /*
- * Datenschutzerklärung.
+ * Privacy policy.
  *
- * Sie ist kurz, weil die Website wenig tut: keine Cookies, kein Tracking, keine eingebetteten
- * Karten oder Videos, Schriften selbst gehostet. Genau das steht hier auch. Wenn später ein Pixel
- * oder eine eingebettete Karte dazukommt, muss dieser Text erweitert werden, und dann wird auch
- * eine Einwilligungslösung fällig.
+ * It is short because the site does little: no cookies, no tracking, no embedded maps or videos,
+ * fonts self-hosted. That is exactly what it says here. If a pixel or an embedded map is added
+ * later, this text has to be extended, and then a consent solution becomes due as well.
  *
- * Das Kontaktformular ist die einzige Verarbeitung, die von der Website selbst ausgeht. Es setzt
- * kein Cookie und lädt kein Captcha eines Drittanbieters, deshalb bleibt es beim Absatz weiter
- * unten und es kommt keine Einwilligung im Sinne des § 25 TDDDG dazu. Wer das Formular um ein
- * Captcha, ein Analysewerkzeug oder eine Speicherung der Anfragen erweitert, muss den Absatz
- * ändern — die Angaben dort sind Art.-13-Pflichtangaben, keine Beschreibung.
+ * The contact form is the only processing originating from the site itself. It sets no cookie and
+ * loads no third-party captcha, which is why the paragraph further down suffices and no consent
+ * under § 25 TDDDG is needed. Whoever extends the form with a captcha, an analytics tool or
+ * storage of the requests has to change that paragraph — the details there are Art. 13 mandatory
+ * information, not a description.
  *
- * Ein Einwilligungshäkchen hat das Formular bewusst nicht, und dieser Text nennt deshalb auch
- * keine Einwilligung als Rechtsgrundlage für die Anfrage selbst. Eine Einwilligung, ohne die das
- * Formular nichts tut, wäre nach Art. 7 Abs. 4 DSGVO nicht freiwillig; Art. 6 Abs. 1 lit. b bzw.
- * f trägt die Anfrage allein. Wer das Häkchen wieder einbaut, muss beides zusammen ändern.
+ * The form deliberately has no consent checkbox, and this text therefore names no consent as the
+ * legal basis for the request itself. A consent without which the form does nothing would not be
+ * freely given under Art. 7(4) GDPR; Art. 6(1)(b) resp. (f) carries the request on its own.
+ * Whoever puts the checkbox back has to change both together.
  *
- * Die Wahl „Antwort per WhatsApp“ ist der eine Punkt, an dem doch eine Einwilligung steht, und
- * dort trägt sie: E-Mail bleibt voreingestellt, wer nichts anfasst, gibt nichts an WhatsApp ab,
- * und die Anfrage wird auch ohne die Wahl beantwortet. Genau das macht sie freiwillig.
+ * The "reply via WhatsApp" choice is the one point where a consent does apply, and there it
+ * holds: email stays preselected, whoever touches nothing gives nothing to WhatsApp, and the
+ * request is answered without the choice too. That is exactly what makes it voluntary.
  */
-useSeite({
-  titel: 'Datenschutzerklärung',
-  beschreibung: `Wie ${site.name} mit personenbezogenen Daten umgeht. Ohne Tracking und ohne Cookies.`,
+usePage({
+  title: 'Datenschutzerklärung',
+  description: `Wie ${site.name} mit personenbezogenen Daten umgeht. Ohne Tracking und ohne Cookies.`,
   ogLabel: 'Rechtliches',
 })
 
 useHead({ meta: [{ name: 'robots', content: 'noindex, follow' }] })
 
-const buchungSichtbar = useBuchungSichtbar()
+const bookingVisible = useBookingVisible()
 </script>
 
 <template>
   <article>
     <SfSeitenkopf
-      titel="Datenschutzerklärung"
+      title="Datenschutzerklärung"
       label="Rechtliches"
       lead="Diese Website setzt keine Cookies, bindet keine Werbe- oder Analysedienste ein und lädt
         keine Inhalte von fremden Servern."
@@ -49,9 +48,9 @@ const buchungSichtbar = useBuchungSichtbar()
         <h2 class="mt-0!">Verantwortliche Stelle</h2>
         <p>
           {{ site.name }}<br />
-          {{ site.inhaberin }}<br />
-          {{ adresse.strasse }}, {{ adresse.plz }} {{ adresse.ort }}<br />
-          E-Mail: {{ kontakt.email }}
+          {{ site.owner }}<br />
+          {{ address.street }}, {{ address.postalCode }} {{ address.city }}<br />
+          E-Mail: {{ contact.email }}
         </p>
 
         <h2>Was beim Aufruf der Website passiert</h2>
@@ -137,10 +136,10 @@ const buchungSichtbar = useBuchungSichtbar()
         </p>
 
         <!--
-          Steht und fällt mit den Buchungslinks: ohne sie beschreibt der Abschnitt eine
-          Datenverarbeitung, zu der es auf dieser Website gar nicht kommen kann.
+          Stands and falls with the booking links: without them the section describes a processing
+          that cannot happen on this site at all.
         -->
-        <template v-if="buchungSichtbar">
+        <template v-if="bookingVisible">
           <h2>Online-Terminbuchung</h2>
           <p>
             Für die Terminbuchung verlinken wir auf ein eigenes Buchungssystem unter einer anderen
@@ -170,10 +169,10 @@ const buchungSichtbar = useBuchungSichtbar()
 
         <h2>Hosting</h2>
         <p>
-          <!-- Der Sitz der Vertragspartnerin steht bewusst nicht hier: er gehört in den
-               Auftragsverarbeitungsvertrag, und Art. 13 DSGVO verlangt an dieser Stelle den
-               Empfänger, nicht dessen Handelsregisteranschrift. Wer die vollständige Firmierung
-               ergänzen will, nimmt sie aus dem AVV und nicht aus der Hostinger-Website. -->
+          <!-- The registered seat of the contracting party deliberately does not appear here: it
+               belongs in the data processing agreement, and Art. 13 GDPR asks for the recipient
+               at this point, not for its commercial register address. Whoever wants to add the
+               full company name takes it from the DPA and not from the Hostinger website. -->
           Die Website wird auf einem Server in Deutschland betrieben, den wir bei Hostinger gemietet
           haben. Mit dem Anbieter besteht ein Vertrag zur Auftragsverarbeitung nach Art. 28 DSGVO.
         </p>

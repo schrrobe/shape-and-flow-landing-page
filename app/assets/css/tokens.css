@@ -35,8 +35,8 @@
 
   /* Action. */
   --sf-primary: #a04607;
-  /* Muss dunkler bleiben als --sf-primary, sonst wirkt der Hover wie ein Zurücksetzen.
-   * Weiß darauf: 7.34:1. */
+  /* Must stay darker than --sf-primary, otherwise the hover reads as a reset.
+   * White on it: 7.34:1. */
   --sf-primary-hover: #8f3e06;
   --sf-primary-contrast: #ffffff;
 
@@ -50,14 +50,13 @@
    * The focus ring is black rather than the brand orange: it has to be visible on the orange
    * button too, where an orange ring would disappear.
    *
-   * Schwarz und nicht das Fast-Schwarz von --sf-text-primary. WCAG 1.4.11 verlangt für den
-   * Fokusindikator 3:1 gegen die angrenzende Fläche, und die ist beim Primärbutton das Orange.
-   * #16130F kam darauf nur noch auf 2,97:1, seit --sf-primary abgedunkelt wurde — die beiden
-   * ziehen in entgegengesetzte Richtungen. Schwarz hat auf beiden Seiten Luft: 3,37:1 auf dem
-   * Orange, 18,37:1 auf dem Beige.
+   * Black and not the near-black of --sf-text-primary. WCAG 1.4.11 requires 3:1 for the focus
+   * indicator against the adjacent surface, and on the primary button that surface is the orange.
+   * #16130F only reached 2.97:1 on it once --sf-primary was darkened — the two pull in opposite
+   * directions. Black has room on both sides: 3.37:1 on the orange, 18.37:1 on the beige.
    *
-   * axe findet das nicht. Ein Fokusindikator existiert nur im :focus-visible-Zustand, und den
-   * nimmt kein Seitenscan ein.
+   * axe does not find this. A focus indicator only exists in the :focus-visible state, and no
+   * page scan enters it.
    */
   --sf-focus-ring: #000000;
 
@@ -70,21 +69,21 @@
    */
 
   /* The logo is cream on orange, so the inverted section is the logo enlarged. Same value as
-   * --sf-primary: ein Panel in einem anderen Orange als die Buttons darauf sieht nach Versehen
-   * aus. Die beiden gehören zusammen bewegt. */
+   * --sf-primary: a panel in a different orange than the buttons on it looks like an accident.
+   * The two have to be moved together. */
   --sf-inverse-surface: #a04607;
   --sf-inverse-text: #f5efe6;
   --sf-inverse-border: #d9723a;
 
   /*
-   * Fließtext auf dem orangen Panel. Mit dem abgedunkelten Orange erreicht das Creme selbst
-   * 5,45:1 und wäre für Lesegrösse ausreichend; dieses Weiss bleibt trotzdem, weil es die
-   * Abstufung zwischen Überschrift und Fließtext trägt.
+   * Body copy on the orange panel. With the darkened orange the cream itself reaches 5.45:1 and
+   * would be sufficient at reading size; this white stays anyway, because it carries the
+   * gradation between heading and body copy.
    *
-   * Was es hier weiterhin nicht gibt, ist eine abgeschwächte Variante über `opacity`. Der
-   * Browser rechnet die Deckkraft gegen den Untergrund, und was dabei herauskommt, steht in
-   * keinem Token: Creme bei 80 % ergibt #E4CDB9 und damit 4,07:1 — zu wenig, und niemand sieht
-   * es der Klasse an. Wer hier abstufen will, nimmt einen zweiten Farbwert, keine Deckkraft.
+   * What still does not exist here is a weakened variant via `opacity`. The browser computes the
+   * opacity against the background, and the result is in no token: cream at 80% gives #E4CDB9 and
+   * therefore 4.07:1 — too little, and nobody can tell from the class. Whoever wants a gradation
+   * here takes a second colour value, not an opacity.
    */
   --sf-inverse-text-body: #ffffff;
 

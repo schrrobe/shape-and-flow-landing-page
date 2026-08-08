@@ -196,11 +196,11 @@ beim Hoster des VPS:
 | Repo-Variable           | `SMTP_USER`       | `nicht-antworten@shapeandflow.de`                           |
 | Secret                  | `SMTP_PASSWORD`   | Kennwort dieses Postfachs                                   |
 | Env-Variable dev, stage | `SMTP_EMPFAENGER` | `test@shapeandflow.de`                                      |
-| optional                | `SMTP_ABSENDER`   | überschreibt `kontakt.absenderEmail` aus `shared/site.ts`   |
+| optional                | `SMTP_ABSENDER`   | überschreibt `contact.senderEmail` aus `shared/site.ts`     |
 
 Host, Postfach und Kennwort gelten für alle drei Umgebungen, nur der Empfänger weicht ab:
 Environment-Variablen gehen Repo-Variablen vor, also schreiben dev und stage an
-`test@shapeandflow.de`, während production keinen Eintrag hat und `kontakt.email` nimmt. Testläufe
+`test@shapeandflow.de`, während production keinen Eintrag hat und `contact.email` nimmt. Testläufe
 landen so nicht im Studiopostfach.
 
 `SMTP_ABSENDER` und `SMTP_EMPFAENGER` schreibt der Deploy nur, wenn sie gesetzt sind: eine leere

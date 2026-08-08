@@ -1,124 +1,125 @@
 /*
- * Was aus dem Kontaktformular ankommt: säubern, in Form bringen, prüfen.
+ * What arrives from the contact form: clean it, shape it, check it.
  *
- * Steht neben der Route und nicht in ihr, weil es der Teil ohne Umgebung ist — kein SMTP, kein
- * Request, keine Uhr. Was hier steht, lässt sich als Funktion aufrufen und damit auch prüfen;
- * die Route daneben besteht danach nur noch aus Zustellung und Fehlerantworten.
+ * Sits next to the route rather than inside it, because it is the part without an environment —
+ * no SMTP, no request, no clock. What is here can be called as a function and therefore tested;
+ * the route next door is then only delivery and error responses.
  *
- * Dieselben Regeln stehen ein zweites Mal im Browser, in app/components/SfKontaktFormular.vue.
- * Das ist Absicht: dort sind sie die Bequemlichkeit, hier sind sie die Prüfung. Wer eine Regel
- * ändert, muss beide Stellen anfassen.
+ * The same rules exist a second time in the browser, in app/components/SfKontaktFormular.vue.
+ * That is intentional: there they are the convenience, here they are the check. Whoever changes
+ * a rule has to touch both places.
  */
 
-/** Absichtlich locker: die Adresse wird nicht auf Existenz geprüft, nur auf Form. */
-const EMAIL_MUSTER = /^[^\s@]+@[^\s@]+\.[a-z]{2,}$/i
+/** Deliberately loose: the address is not checked for existence, only for shape. */
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[a-z]{2,}$/i
 
 /*
- * Ebenso locker wie beim E-Mail-Muster: alles, was Menschen beim Aufschreiben einer Rufnummer
- * einstreuen, darf drin stehen; geprüft wird nur, dass danach genug Ziffern übrig bleiben. Eine
- * echte Prüfung auf Vorwahl und Länge müsste Länderregeln kennen und würde vor allem gültige
- * Nummern abweisen — die Nummer wird ohnehin von einem Menschen gelesen, bevor sie gewählt wird.
+ * As loose as the email pattern: everything people sprinkle into a phone number when writing it
+ * down may be in there; the only check is that enough digits remain afterwards. A real check on
+ * area code and length would have to know country rules and would mostly reject valid numbers —
+ * the number is read by a human before it is dialled anyway.
  */
-const HANDY_ZIERRAT = /[\s+\-/().]/g
-const HANDY_MIN_ZIFFERN = 6
+const MOBILE_SEPARATORS = /[\s+\-/().]/g
+const MOBILE_MIN_DIGITS = 6
 
-export const GRENZEN = {
+export const LIMITS = {
   name: 80,
   email: 120,
-  handy: 30,
-  behandlung: 60,
-  zeitfenster: 200,
-  nachricht: 3000,
+  mobile: 30,
+  treatment: 60,
+  timeSlot: 200,
+  message: 3000,
 } as const
 
-export type Feld = keyof typeof GRENZEN
+export type Field = keyof typeof LIMITS
 
-/** Die Wege, auf denen geantwortet werden kann. Alles andere fällt auf 'email' zurück. */
-export const ANTWORTWEGE = ['email', 'whatsapp'] as const
+/** The channels a reply can take. Anything else falls back to 'email'. */
+export const REPLY_CHANNELS = ['email', 'whatsapp'] as const
 
-export type Antwortweg = (typeof ANTWORTWEGE)[number]
+export type ReplyChannel = (typeof REPLY_CHANNELS)[number]
 
-export interface Anfrage {
+export interface ContactRequest {
   name: string
   email: string
-  handy: string
-  antwortweg: Antwortweg
-  behandlung: string
-  zeitfenster: string
-  nachricht: string
-  /** Honigtopf: für Menschen unsichtbar, deshalb füllen ihn nur Bots aus. */
-  webseite: string
+  mobile: string
+  replyChannel: ReplyChannel
+  treatment: string
+  timeSlot: string
+  message: string
+  /** Honeypot: invisible to humans, so only bots fill it in. */
+  website: string
 }
 
-export function text(wert: unknown, feld: Feld): string {
-  // Zeilenumbrüche und Steuerzeichen fliegen aus allem, was später in einem Mail-Header landen
-  // könnte. Der Nachrichtentext darf Umbrüche behalten.
-  const roh = typeof wert === 'string' ? wert : ''
-  const bereinigt = feld === 'nachricht' ? roh : roh.replace(/[\r\n\t]+/g, ' ')
-  return bereinigt.trim().slice(0, GRENZEN[feld])
+export function text(value: unknown, field: Field): string {
+  // Line breaks and control characters are stripped from anything that could later end up in a
+  // mail header. The message body keeps its line breaks.
+  const raw = typeof value === 'string' ? value : ''
+  const cleaned = field === 'message' ? raw : raw.replace(/[\r\n\t]+/g, ' ')
+  return cleaned.trim().slice(0, LIMITS[field])
 }
 
 /*
- * Der Antwortweg geht nicht durch `text`: er ist keine Eingabe, sondern eine Wahl aus zwei
- * bekannten Werten. Was nicht in der Liste steht, wird zu 'email' — dem Weg, für den die
- * Adresse ohnehin schon geprüft ist, und damit dem Wert, bei dem nichts verloren geht.
+ * The reply channel does not go through `text`: it is not free input but a choice between two
+ * known values. Anything not on the list becomes 'email' — the channel whose address has already
+ * been validated, and therefore the value where nothing is lost.
  */
-export function antwortwegVon(wert: unknown): Antwortweg {
-  return ANTWORTWEGE.includes(wert as Antwortweg) ? (wert as Antwortweg) : 'email'
+export function replyChannelFrom(value: unknown): ReplyChannel {
+  return REPLY_CHANNELS.includes(value as ReplyChannel) ? (value as ReplyChannel) : 'email'
 }
 
 /**
- * Wahr, wenn nach Abzug von Leerzeichen, Klammern und Trennzeichen nur noch Ziffern übrig sind
- * und es genug davon gibt. Buchstaben fallen damit durch, „+49 (0)176 / 123-4567“ nicht.
+ * True when, after removing spaces, brackets and separators, only digits are left and there are
+ * enough of them. Letters fail this, „+49 (0)176 / 123-4567“ does not.
  */
-export function handyPlausibel(handy: string): boolean {
-  const nurZiffern = handy.replace(HANDY_ZIERRAT, '')
-  return nurZiffern.length >= HANDY_MIN_ZIFFERN && /^\d+$/.test(nurZiffern)
+export function mobileLooksValid(mobile: string): boolean {
+  const digitsOnly = mobile.replace(MOBILE_SEPARATORS, '')
+  return digitsOnly.length >= MOBILE_MIN_DIGITS && /^\d+$/.test(digitsOnly)
 }
 
-/** Baut aus dem rohen Anfragekörper die Anfrage, mit der die Route weiterarbeitet. */
-export function anfrageAus(koerper: Partial<Anfrage> | null | undefined): Anfrage {
+/** Builds the request the route works with from the raw request body. */
+export function requestFrom(body: Partial<ContactRequest> | null | undefined): ContactRequest {
   return {
-    name: text(koerper?.name, 'name'),
-    email: text(koerper?.email, 'email'),
-    handy: text(koerper?.handy, 'handy'),
-    antwortweg: antwortwegVon(koerper?.antwortweg),
-    behandlung: text(koerper?.behandlung, 'behandlung'),
-    zeitfenster: text(koerper?.zeitfenster, 'zeitfenster'),
-    nachricht: text(koerper?.nachricht, 'nachricht'),
-    // Der Honigtopf teilt sich die Längengrenze mit `name`: er hat keine eigene, weil sein Inhalt
-    // nie irgendwo landet — geprüft wird nur, ob überhaupt etwas drinsteht.
-    webseite: text(koerper?.webseite, 'name'),
+    name: text(body?.name, 'name'),
+    email: text(body?.email, 'email'),
+    mobile: text(body?.mobile, 'mobile'),
+    replyChannel: replyChannelFrom(body?.replyChannel),
+    treatment: text(body?.treatment, 'treatment'),
+    timeSlot: text(body?.timeSlot, 'timeSlot'),
+    message: text(body?.message, 'message'),
+    // The honeypot shares the length limit with `name`: it has none of its own, because its
+    // content never goes anywhere — the only check is whether there is anything in it at all.
+    website: text(body?.website, 'name'),
   }
 }
 
 /**
- * Die Feldfehler zu einer Anfrage, als Zuordnung Feldname → Meldung. Leer heißt: in Ordnung.
- * Die Meldungen stehen so, wie sie im Formular unter dem Feld erscheinen.
+ * The field errors for a request, as a mapping field name → message. Empty means: all good.
+ * The messages are worded the way they appear below the field in the form.
  */
-export function fehlerZu(anfrage: Anfrage): Record<string, string> {
-  const fehler: Record<string, string> = {}
+export function errorsFor(request: ContactRequest): Record<string, string> {
+  const errors: Record<string, string> = {}
 
-  if (anfrage.name.length < 2) fehler.name = 'Bitte einen Namen angeben.'
-  if (!EMAIL_MUSTER.test(anfrage.email)) fehler.email = 'Bitte eine gültige E-Mail-Adresse angeben.'
+  if (request.name.length < 2) errors.name = 'Bitte einen Namen angeben.'
+  if (!EMAIL_PATTERN.test(request.email))
+    errors.email = 'Bitte eine gültige E-Mail-Adresse angeben.'
 
   /*
-   * Die Nummer ist freiwillig, solange sie nur eine zusätzliche Angabe ist. Wer die Antwort per
-   * WhatsApp wählt, macht sie zum einzigen Rückweg — dann muss sie da sein und plausibel
-   * aussehen. Eine angegebene, aber unsinnige Nummer wird auch bei Antwort per Mail beanstandet:
-   * sie stumm zu übernehmen hieße, sie ungeprüft in die Studiomail zu schreiben.
+   * The number is optional as long as it is only an extra detail. Whoever picks WhatsApp as the
+   * reply channel makes it the only way back — then it has to be there and look plausible. A
+   * number that is given but nonsensical is flagged even when the reply goes by mail: accepting
+   * it silently would mean writing it into the studio mail unchecked.
    */
-  if (anfrage.antwortweg === 'whatsapp' && !anfrage.handy) {
-    fehler.handy = 'Für die Antwort per WhatsApp brauchen wir Ihre Handynummer.'
-  } else if (anfrage.handy && !handyPlausibel(anfrage.handy)) {
-    fehler.handy = 'Bitte eine gültige Handynummer angeben.'
+  if (request.replyChannel === 'whatsapp' && !request.mobile) {
+    errors.mobile = 'Für die Antwort per WhatsApp brauchen wir Ihre Handynummer.'
+  } else if (request.mobile && !mobileLooksValid(request.mobile)) {
+    errors.mobile = 'Bitte eine gültige Handynummer angeben.'
   }
 
-  // Kein Einwilligungsfeld für die Anfrage selbst: sie steht auf Art. 6 Abs. 1 lit. b bzw. f
-  // DSGVO. Eine Einwilligung, ohne die das Formular nichts tut, wäre nicht freiwillig und damit
-  // keine. Die Wahl des Antwortwegs ist der Sonderfall — dort trägt die Einwilligung, weil man
-  // sie abwählen kann und trotzdem eine Antwort bekommt.
-  if (anfrage.nachricht.length < 10) fehler.nachricht = 'Bitte etwas mehr schreiben.'
+  // No consent checkbox for the request itself: it rests on Art. 6(1)(b) resp. (f) GDPR. A
+  // consent without which the form does nothing would not be freely given and therefore not a
+  // consent. The choice of reply channel is the special case — there the consent holds, because
+  // it can be declined and you still get an answer.
+  if (request.message.length < 10) errors.message = 'Bitte etwas mehr schreiben.'
 
-  return fehler
+  return errors
 }

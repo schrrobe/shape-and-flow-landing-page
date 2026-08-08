@@ -1,28 +1,28 @@
 /*
- * Die Ratgeberartikel.
+ * The guide articles.
  *
- * Als Liste, damit Übersichtsseite, Fußzeile und llms.txt dieselbe Reihenfolge und dieselben Titel
- * verwenden. Ein neuer Artikel braucht einen Eintrag hier und eine Datei unter app/pages/ratgeber/.
+ * As a list, so the overview page, the footer and llms.txt use the same order and the same
+ * titles. A new article needs an entry here and a file under app/pages/ratgeber/.
  */
 
-export interface Artikel {
-  titel: string
-  /** Ein Satz für die Übersicht. */
-  anriss: string
+export interface Article {
+  title: string
+  /** One sentence for the overview. */
+  teaser: string
   route: string
 }
 
-export const ratgeber: Artikel[] = [
+export const articles: Article[] = [
   {
-    titel: 'Wassereinlagerungen: Ursachen und was hilft',
-    anriss:
+    title: 'Wassereinlagerungen: Ursachen und was hilft',
+    teaser:
       'Warum sich Flüssigkeit im Gewebe sammelt, was im Alltag dagegen hilft und wann eine ' +
       'Schwellung ärztlich abgeklärt werden sollte.',
     route: '/ratgeber/wassereinlagerungen',
   },
   {
-    titel: 'Brasilianische oder medizinische Lymphdrainage?',
-    anriss:
+    title: 'Brasilianische oder medizinische Lymphdrainage?',
+    teaser:
       'Ziel, Druck, Verordnung und Kosten im Vergleich. Der Unterschied entscheidet, wo Sie einen ' +
       'Termin brauchen.',
     route: '/ratgeber/brasilianische-vs-medizinische-lymphdrainage',
@@ -30,9 +30,9 @@ export const ratgeber: Artikel[] = [
 ]
 
 /**
- * Der Eintrag zu einer Route. Damit ein Artikel seinen eigenen Titel von hier liest, statt ihn
- * für Überschrift, Seitentitel und Structured Data drei Mal zu wiederholen.
+ * The entry for a route. Lets an article read its own title from here instead of repeating it
+ * three times for heading, page title and structured data.
  */
-export function artikelByRoute(route: string): Artikel | undefined {
-  return ratgeber.find(a => a.route === route)
+export function articleByRoute(route: string): Article | undefined {
+  return articles.find(a => a.route === route)
 }

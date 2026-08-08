@@ -1,24 +1,24 @@
 <script setup lang="ts">
-import { adresse, formularUrl, kontakt, mailtoUrl, oeffnungszeiten } from '#shared/site'
+import { address, formUrl, contact, mailtoUrl, openingHours } from '#shared/site'
 
 /*
- * Der Terminblock. Steht am Ende jeder inhaltlichen Seite.
+ * The appointment block. Sits at the end of every content page.
  *
- * Drei Wege, absichtlich in dieser Reihenfolge: das Kontaktformular zuerst, weil es ohne
- * Mailprogramm auskommt, dann die E-Mail für alle, die lieber aus ihrem eigenen Postfach
- * schreiben, dann die Online-Buchung für alle, die direkt verbindlich buchen wollen. Ohne
- * Booking-App fällt der dritte Weg ersatzlos weg — die beiden davor führen ans selbe Ziel.
+ * Three ways, deliberately in this order: the contact form first, because it works without a mail
+ * client, then the email address for everyone who prefers writing from their own mailbox, then
+ * online booking for everyone who wants to book bindingly right away. Without the booking app the
+ * third way simply falls away — the two before it lead to the same place.
  */
-const buchungSichtbar = useBuchungSichtbar()
+const bookingVisible = useBookingVisible()
 withDefaults(
   defineProps<{
-    titel?: string
+    title?: string
     text?: string
-    /** Auf dem orangen Panel invertieren sich Flächen und Text. */
+    /** On the orange panel, surfaces and text are inverted. */
     inverse?: boolean
   }>(),
   {
-    titel: 'Termin vereinbaren',
+    title: 'Termin vereinbaren',
     text: 'Schreiben Sie kurz, was Sie interessiert. Wir melden uns mit freien Terminen zurück.',
     inverse: false,
   },
@@ -35,22 +35,22 @@ withDefaults(
     "
   >
     <h2 class="text-2xl">
-      {{ titel }}
+      {{ title }}
     </h2>
     <p class="mt-3 max-w-prose" :class="inverse ? 'text-inverse-body' : 'text-text-secondary'">
       {{ text }}
     </p>
 
     <div class="mt-6 flex flex-wrap gap-3">
-      <SfButton :to="formularUrl" :variant="inverse ? 'inverse' : 'primary'" size="lg">
+      <SfButton :to="formUrl" :variant="inverse ? 'inverse' : 'primary'" size="lg">
         Nachricht schreiben
       </SfButton>
       <SfButton :href="mailtoUrl" :variant="inverse ? 'inverse' : 'secondary'" size="lg">
-        {{ kontakt.email }}
+        {{ contact.email }}
       </SfButton>
       <SfButton
-        v-if="buchungSichtbar"
-        :href="kontakt.buchungUrl"
+        v-if="bookingVisible"
+        :href="contact.bookingUrl"
         :variant="inverse ? 'inverse' : 'secondary'"
         size="lg"
         external
@@ -60,7 +60,7 @@ withDefaults(
     </div>
 
     <p class="mt-4 text-sm" :class="inverse ? 'text-inverse-body' : 'text-text-secondary'">
-      {{ oeffnungszeiten.hinweis }}. {{ adresse.strasse }}, {{ adresse.plz }} {{ adresse.ort }}.
+      {{ openingHours.note }}. {{ address.street }}, {{ address.postalCode }} {{ address.city }}.
     </p>
   </div>
 </template>

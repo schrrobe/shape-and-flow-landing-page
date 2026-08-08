@@ -2,34 +2,34 @@ import { globSync, readFileSync } from 'node:fs'
 import { expect, test } from '@playwright/test'
 
 /*
- * Keine Meta-Description darf im Suchergebnis abgeschnitten werden.
+ * No meta description may be cut off in the search result.
  *
- * Google misst diese Zeile nicht in Zeichen, sondern in Pixeln, und deshalb tut es dieser Test
- * auch: "Jeveauxeffect Face® 65 €" ist kürzer als "wann Schwellungen abgeklärt werden", obwohl es
- * mehr Zeichen hat. Eine Zeichengrenze würde mal zu früh und mal zu spät anschlagen.
+ * Google does not measure that line in characters but in pixels, and so does this test:
+ * "Jeveauxeffect Face® 65 €" is shorter than "wann Schwellungen abgeklärt werden" although it has
+ * more characters. A character limit would trigger sometimes too early and sometimes too late.
  *
- * Gemessen wird mit dem Font, in dem Google die Description auf dem Desktop setzt: Arial 14px.
- * Die Grenze von 1000px ist die von Seobility und anderen Audit-Werkzeugen gemeldete; das
- * Budget hier liegt darunter, damit eine Formulierung nicht schon beim nächsten Wort kippt.
+ * Measured with the font Google sets the description in on desktop: Arial 14px. The limit of
+ * 1000px is the one reported by Seobility and other audit tools; the budget here sits below that,
+ * so a wording does not tip over with the very next word.
  *
- * Der Test liest die gebaute Datei, weil erst dort steht, was Google zu sehen bekommt: die
- * Beschreibungen setzen sich aus Vorlagen mit Ort und Preis zusammen, und ein Preis von 150 €
- * ist breiter als einer von 65 €.
+ * The test reads the built file, because only there is what Google gets to see: the descriptions
+ * are assembled from templates with city and price, and a price of 150 € is wider than one of
+ * 65 €.
  */
 
 const BUDGET_PX = 990
 const FONT = '14px Arial'
 
-const seiten = globSync('.output/public/**/*.html')
+const pages = globSync('.output/public/**/*.html')
 
-if (!seiten.length)
-  throw new Error('Keine vorgerenderten Seiten in .output/public gefunden. Erst `npm run build`.')
+if (!pages.length)
+  throw new Error('No prerendered pages found in .output/public. Run `npm run build` first.')
 
 function description(html: string): string | null {
-  const treffer = html.match(/<meta name="description" content="([^"]*)"/)
-  if (!treffer?.[1]) return null
+  const match = html.match(/<meta name="description" content="([^"]*)"/)
+  if (!match?.[1]) return null
 
-  return treffer[1]
+  return match[1]
     .replaceAll('&amp;', '&')
     .replaceAll('&lt;', '<')
     .replaceAll('&gt;', '>')
@@ -38,29 +38,29 @@ function description(html: string): string | null {
 }
 
 test.describe('Meta-Description', () => {
-  for (const datei of seiten) {
-    const route = datei.replace(/^\.output\/public/, '').replace(/\/?index\.html$/, '') || '/'
+  for (const file of pages) {
+    const route = file.replace(/^\.output\/public/, '').replace(/\/?index\.html$/, '') || '/'
 
-    test(`${route} wird im Suchergebnis nicht abgeschnitten`, async ({ page }) => {
-      const text = description(readFileSync(datei, 'utf8'))
+    test(`${route} is not truncated in the search result`, async ({ page }) => {
+      const text = description(readFileSync(file, 'utf8'))
 
-      expect(text, `Auf ${route} fehlt die Meta-Description.`).not.toBeNull()
+      expect(text, `The meta description is missing on ${route}.`).not.toBeNull()
 
-      const breite = await page.evaluate(
-        ([inhalt, font]) => {
+      const width = await page.evaluate(
+        ([content, font]) => {
           const ctx = document.createElement('canvas').getContext('2d')
-          if (!ctx) throw new Error('Kein 2D-Kontext für die Messung verfügbar.')
+          if (!ctx) throw new Error('No 2D context available for the measurement.')
           ctx.font = font as string
-          return ctx.measureText(inhalt as string).width
+          return ctx.measureText(content as string).width
         },
         [text as string, FONT],
       )
 
-      // Gemessen wird ungerundet, gerundet wird erst in der Meldung: sonst rutschte eine
-      // Description von 990,4px unter das Budget, obwohl sie darüber liegt.
+      // Measured unrounded, rounded only in the message: otherwise a description of 990.4px would
+      // slip below the budget although it is above it.
       expect(
-        breite,
-        `Die Description auf ${route} ist ${Math.round(breite)}px breit (Budget ${BUDGET_PX}px).`,
+        width,
+        `The description on ${route} is ${Math.round(width)}px wide (budget ${BUDGET_PX}px).`,
       ).toBeLessThanOrEqual(BUDGET_PX)
     })
   }

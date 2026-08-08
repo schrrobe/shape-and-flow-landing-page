@@ -1,51 +1,50 @@
 import tailwindcss from '@tailwindcss/vite'
-import { behandlungBySlug, behandlungen, preisSpanne } from './shared/behandlungen'
-import { ratgeber } from './shared/ratgeber'
-import { adresse, kontakt, oeffnungszeiten, site, sozialeProfile } from './shared/site'
+import { treatmentBySlug, treatments, priceRange } from './shared/behandlungen'
+import { articles } from './shared/ratgeber'
+import { address, contact, openingHours, site, socialProfiles } from './shared/site'
 
-// Preise und Artikeltitel stehen auch hier nicht als Text: llms.txt und Structured Data sollen
-// nach einer Änderung in shared/ nicht als einzige Stelle veraltet zurückbleiben.
-const koerper = behandlungBySlug('jeveauxeffect')!
-const gesicht = behandlungBySlug('lymphdrainage-gesicht')!
+// Prices and article titles are not written out as text here either: after a change in shared/,
+// llms.txt and the structured data must not be the one place left behind out of date.
+const body = treatmentBySlug('jeveauxeffect')!
+const face = treatmentBySlug('lymphdrainage-gesicht')!
 
 /*
- * Die Site-URL ist eine Build-Eingabe, kein Laufzeitwert: jede Seite wird beim Build
- * vorgerendert, damit sind Canonicals, Sitemap, OG-Images und Structured Data zum Zeitpunkt
- * des Builds im HTML festgeschrieben. Deshalb baut die Pipeline pro Umgebung ein eigenes
- * Image, siehe docs/deploy.md.
+ * The site URL is a build input, not a runtime value: every page is prerendered at build time, so
+ * canonicals, sitemap, OG images and structured data are frozen into the HTML at that point. That
+ * is why the pipeline builds a separate image per environment, see docs/deploy.md.
  *
- * NUXT_SITE_URL erreicht von allein nur nuxt-site-config, also Canonicals, Sitemap und
- * robots.txt. schemaOrg und llms unten lesen den Literal aus shared/site.ts, und ohne diese
- * Zeile stünde in JSON-LD und llms.txt auf stage und dev weiterhin die Produktionsdomain.
+ * On its own, NUXT_SITE_URL only reaches nuxt-site-config, i.e. canonicals, sitemap and
+ * robots.txt. schemaOrg and llms below read the literal from shared/site.ts, and without this
+ * line the JSON-LD and llms.txt on stage and dev would still carry the production domain.
  */
-// Ohne den abschließenden Schrägstrich, weil unten `${siteUrl}/images/...` verkettet wird: ein
-// aus der Doku kopiertes NUXT_SITE_URL mit Schrägstrich am Ende ergäbe sonst doppelte in
-// JSON-LD und llms.txt.
+// Without the trailing slash, because `${siteUrl}/images/...` is concatenated below: a
+// NUXT_SITE_URL copied from the docs with a trailing slash would otherwise produce double
+// slashes in JSON-LD and llms.txt.
 const siteUrl = (process.env.NUXT_SITE_URL || site.url).replace(/\/+$/, '')
 
 export default defineNuxtConfig({
   compatibilityDate: '2026-08-05',
 
   modules: [
-    // Erzeugt .nuxt/eslint.config.mjs mit den Auto-Imports dieses Projekts. Ohne das Modul hielte
-    // ESLint useSeoMeta, defineOgImageComponent und den Rest für undefinierte Globals.
+    // Generates .nuxt/eslint.config.mjs with this project's auto-imports. Without the module
+    // ESLint would treat useSeoMeta, defineOgImageComponent and the rest as undefined globals.
     '@nuxt/eslint',
     /*
-     * axe-core als Panel in den Nuxt DevTools. `enabled` steht per Default auf `nuxt.options.dev`,
-     * im Produktionsbuild macht das Modul also nichts.
+     * axe-core as a panel in the Nuxt DevTools. `enabled` defaults to `nuxt.options.dev`, so in a
+     * production build the module does nothing.
      *
-     * Version 1.0.0-alpha.1 kann ausschließlich das. Der Build-Zeit-Report, den das README des
-     * Projekts beschreibt, ist unveröffentlichter Code: im Paket gibt es weder die Option noch
-     * den `prerender:generate`-Hook. Selbst wenn — er ließe axe in linkedom laufen, also ohne
-     * Layout und ohne Cascade. Über die 13 Seiten dieser Site gemessen ergibt das null Verstöße
-     * und 39 Regeln, die mangels Rendering unentschieden bleiben: Kontrast, `landmark-one-main`,
-     * `page-has-heading-one`. Genau die Fragen also, für die man axe überhaupt einsetzt.
+     * Version 1.0.0-alpha.1 can do that and nothing else. The build-time report described in the
+     * project's README is unreleased code: the package contains neither the option nor the
+     * `prerender:generate` hook. Even if it did — it would run axe in linkedom, i.e. without
+     * layout and without cascade. Measured across the 13 pages of this site that yields zero
+     * violations and 39 rules left undecided for lack of rendering: contrast,
+     * `landmark-one-main`, `page-has-heading-one`. Precisely the questions axe is used for.
      *
-     * Beantwortet werden sie vom Job "Barrierefreiheit" in ci.yml, der axe in einem echten
-     * Browser gegen die vorgerenderten Seiten laufen lässt.
+     * They are answered by the "Barrierefreiheit" job in ci.yml, which runs axe in a real browser
+     * against the prerendered pages.
      */
     '@nuxt/a11y',
-    // Sammelmodul: sitemap, robots, schema-org, og-image, link-checker, seo-utils, site-config.
+    // Umbrella module: sitemap, robots, schema-org, og-image, link-checker, seo-utils, site-config.
     '@nuxtjs/seo',
     '@nuxt/image',
     '@nuxt/fonts',
@@ -53,12 +52,11 @@ export default defineNuxtConfig({
   ],
 
   /*
-   * Drei Prüfungen, die Nuxt von sich aus nicht einschaltet. Sie gehören hierher und nicht in
-   * tsconfig.json: die vier Konfigurationen unter .nuxt/ schreibt jeder `nuxt prepare` neu.
+   * Three checks Nuxt does not enable by itself. They belong here and not in tsconfig.json: the
+   * four configurations under .nuxt/ are rewritten by every `nuxt prepare`.
    *
-   * noUncheckedIndexedAccess betrifft nur Zugriffe über Index-Signaturen und Arrays. Die
-   * Nachschlagetabellen in SfButton.vue laufen über `as const`-Objekte mit festen Schlüsseln und
-   * bleiben davon unberührt.
+   * noUncheckedIndexedAccess only affects access via index signatures and arrays. The lookup
+   * tables in SfButton.vue run over `as const` objects with fixed keys and are unaffected.
    */
   typescript: {
     tsConfig: {
@@ -72,7 +70,7 @@ export default defineNuxtConfig({
 
   css: ['~/assets/css/main.css'],
 
-  // Tailwind 4 hat keine JS-Config mehr und läuft als Vite-Plugin, nicht als Nuxt-Modul.
+  // Tailwind 4 no longer has a JS config and runs as a Vite plugin, not as a Nuxt module.
   vite: {
     plugins: [tailwindcss()],
   },
@@ -85,7 +83,7 @@ export default defineNuxtConfig({
         { rel: 'apple-touch-icon', href: '/apple-touch-icon.png' },
       ],
       meta: [
-        // Muss --sf-primary aus app/assets/css/tokens.css folgen.
+        // Must follow --sf-primary from app/assets/css/tokens.css.
         { name: 'theme-color', content: '#a04607' },
         { name: 'format-detection', content: 'telephone=no' },
       ],
@@ -93,40 +91,47 @@ export default defineNuxtConfig({
   },
 
   /*
-   * Hybrid: es läuft ein Node-Server, aber jede Seite wird beim Build gerendert. Crawler und
-   * KI-Agenten bekommen fertiges HTML ohne Wartezeit, und das Kontaktformular unter server/api/
-   * läuft daneben zur Laufzeit, ohne dass sich am Rendering der Seiten etwas ändert.
+   * Hybrid: a Node server runs, but every page is rendered at build time. Crawlers and AI agents
+   * get finished HTML with no wait, and the contact form under server/api/ runs alongside at
+   * runtime without changing anything about how the pages are rendered.
    */
   routeRules: {
     '/**': { prerender: true },
-    // Muss nach der Regel darüber stehen und sie für /api/ wieder aufheben: der Prerenderer würde
-    // sonst versuchen, die Handler beim Build als GET abzurufen und deren Antwort einzufrieren.
+    // Has to come after the rule above and undo it for /api/: otherwise the prerenderer would try
+    // to call the handlers as GET at build time and freeze their response.
     '/api/**': { prerender: false },
   },
 
   /*
-   * Der Postausgangsserver für das Kontaktformular. Die Werte hier sind nur die Form; gesetzt
-   * werden sie zur Laufzeit über NUXT_SMTP_HOST, NUXT_SMTP_PORT, NUXT_SMTP_USER,
-   * NUXT_SMTP_PASSWORD, NUXT_SMTP_ABSENDER und NUXT_SMTP_EMPFAENGER (siehe docs/deploy.md).
+   * The outgoing mail server for the contact form. The values here are only the shape; they are
+   * set at runtime via NUXT_SMTP_HOST, NUXT_SMTP_PORT, NUXT_SMTP_USER, NUXT_SMTP_PASSWORD,
+   * NUXT_SMTP_ABSENDER and NUXT_SMTP_EMPFAENGER (see docs/deploy.md).
    *
-   * Bewusst nicht unter `public`: was dort steht, liegt im Browser offen. Fehlen die Werte,
-   * antwortet server/api/kontakt.post.ts mit 503 und das Formular nennt die E-Mail-Adresse.
+   * Deliberately not under `public`: whatever is there lies open in the browser. If the values
+   * are missing, server/api/kontakt.post.ts answers with 503 and the form names the email
+   * address.
    */
   runtimeConfig: {
     smtp: {
       host: '',
-      // 587 mit STARTTLS. Für 465 stellt der Handler von sich aus auf implizites TLS um.
+      // 587 with STARTTLS. For 465 the handler switches to implicit TLS by itself.
       port: 587,
       user: '',
       password: '',
       /*
-       * Absender und Empfänger stehen in shared/site.ts und damit an derselben Stelle wie die
-       * übrigen Kontaktdaten. Hier sind sie nur der Default: NUXT_SMTP_ABSENDER und
-       * NUXT_SMTP_EMPFAENGER überschreiben sie, etwa um Anfragen von dev und stage in ein
-       * Testpostfach zu leiten.
+       * Sender and recipient live in shared/site.ts and therefore in the same place as the rest
+       * of the contact details. Here they are only the default: NUXT_SMTP_ABSENDER and
+       * NUXT_SMTP_EMPFAENGER override them, e.g. to route requests from dev and stage into a test
+       * mailbox.
+       *
+       * These two keys stay German while the rest of the code is English, and deliberately so:
+       * Nitro derives the environment variable name from the key, so renaming them would rename
+       * NUXT_SMTP_ABSENDER and NUXT_SMTP_EMPFAENGER on every server and in every GitHub
+       * environment. A silently unset NUXT_SMTP_EMPFAENGER would send the requests from dev and
+       * stage to the studio mailbox instead of the test one — a rename not worth that risk.
        */
-      absender: kontakt.absenderEmail,
-      empfaenger: kontakt.email,
+      absender: contact.senderEmail,
+      empfaenger: contact.email,
     },
     unleash: {
       url: '',
@@ -154,12 +159,12 @@ export default defineNuxtConfig({
     compressPublicAssets: { brotli: true, gzip: true },
   },
 
-  // Speist Canonicals, Sitemap, robots.txt, OG-Images und Structured Data.
+  // Feeds canonicals, sitemap, robots.txt, OG images and structured data.
   site: {
     url: siteUrl,
     name: site.name,
     description:
-      `Brasilianische Lymphdrainage in ${adresse.ort}: Jeveauxeffect® für Körper und ` +
+      `Brasilianische Lymphdrainage in ${address.city}: Jeveauxeffect® für Körper und ` +
       `Gesicht bei ${site.name}, lizenzierter Partner der Jeveaux Company®.`,
     defaultLocale: 'de',
     trailingSlash: false,
@@ -169,36 +174,35 @@ export default defineNuxtConfig({
     identity: {
       '@type': ['Organization', 'LocalBusiness', 'HealthAndBeautyBusiness'],
       name: site.name,
-      description: `Studio für brasilianische Lymphdrainage in ${adresse.ort}.`,
+      description: `Studio für brasilianische Lymphdrainage in ${address.city}.`,
       url: siteUrl,
       logo: `${siteUrl}/images/logo.jpg`,
       image: `${siteUrl}/images/studio-1.jpg`,
-      // Kein `telephone`: das Studio nimmt Anfragen per E-Mail und über das Kontaktformular an,
-      // und eine Rufnummer im Structured Data, die es nicht gibt, wäre eine Falschangabe.
-      email: kontakt.email,
-      priceRange: preisSpanne,
+      // No `telephone`: the studio takes requests by email and through the contact form, and a
+      // phone number in the structured data that does not exist would be a false statement.
+      email: contact.email,
+      priceRange,
       currenciesAccepted: 'EUR',
       address: {
-        streetAddress: adresse.strasse,
-        postalCode: adresse.plz,
-        addressLocality: adresse.ort,
-        addressCountry: adresse.land,
+        streetAddress: address.street,
+        postalCode: address.postalCode,
+        addressLocality: address.city,
+        addressCountry: address.country,
       },
-      areaServed: [adresse.ort, 'Ruhrgebiet'],
+      areaServed: [address.city, 'Ruhrgebiet'],
       // Every social profile that is set, so Google can tie the entity to its accounts. Only
       // emitted when at least one profile exists: an empty sameAs would be a structured data
       // error.
-      ...(sozialeProfile.length > 0 ? { sameAs: sozialeProfile.map(profil => profil.url) } : {}),
-      // Keine openingHoursSpecification: das Studio arbeitet auf Termin, und erfundene
-      // Öffnungszeiten im Structured Data wären eine Falschangabe gegenüber Google.
-      slogan: oeffnungszeiten.hinweis,
+      ...(socialProfiles.length > 0 ? { sameAs: socialProfiles.map(profile => profile.url) } : {}),
+      // No openingHoursSpecification: the studio works by appointment, and invented opening hours
+      // in the structured data would be a false statement towards Google.
+      slogan: openingHours.note,
     },
   },
 
   ogImage: {
-    // Die Komponente wird nicht hier gesetzt, sondern pro Seite über defineOgImageComponent in
-    // useSeite(). Als Default lässt die Modulversion sie nicht zu, und ein Wert hier wäre
-    // wirkungslos.
+    // The component is not set here but per page via defineOgImageComponent in usePage(). This
+    // module version does not allow it as a default, and a value here would have no effect.
     defaults: {
       width: 1200,
       height: 630,
@@ -212,7 +216,7 @@ export default defineNuxtConfig({
 
   fonts: {
     families: [
-      // Wird beim Build heruntergeladen und selbst gehostet, es geht also kein Request an Google.
+      // Downloaded at build time and self-hosted, so no request goes to Google.
       {
         name: 'Playfair Display',
         provider: 'google',
@@ -226,10 +230,10 @@ export default defineNuxtConfig({
     domain: siteUrl,
     title: `${site.name} – ${site.tagline}`,
     description:
-      `${site.name} ist ein Studio für brasilianische Lymphdrainage in ${adresse.strasse}, ` +
-      `${adresse.plz} ${adresse.ort}. Angeboten werden der ${koerper.name} als ästhetische ` +
-      `Ganzkörperbehandlung (${koerper.preisEuro} Euro) und der ${gesicht.name} als ` +
-      `Gesichtsbehandlung (${gesicht.preisEuro} Euro). ${site.name} ist lizenzierter Partner ` +
+      `${site.name} ist ein Studio für brasilianische Lymphdrainage in ${address.street}, ` +
+      `${address.postalCode} ${address.city}. Angeboten werden der ${body.name} als ästhetische ` +
+      `Ganzkörperbehandlung (${body.priceEuro} Euro) und der ${face.name} als ` +
+      `Gesichtsbehandlung (${face.priceEuro} Euro). ${site.name} ist lizenzierter Partner ` +
       `der Jeveaux Company®.`,
     notes: [
       'Der Jeveauxeffect® ist eine ästhetische Anwendung im Beauty-Bereich, keine medizinische ' +
@@ -243,9 +247,9 @@ export default defineNuxtConfig({
       {
         title: 'Behandlungen',
         links: [
-          ...behandlungen.map(b => ({
-            title: `${b.name} – ${b.titel} (${b.preisEuro} Euro)`,
-            href: b.route,
+          ...treatments.map(t => ({
+            title: `${t.name} – ${t.title} (${t.priceEuro} Euro)`,
+            href: t.route,
           })),
           { title: 'Preise im Überblick', href: '/preise' },
         ],
@@ -258,13 +262,13 @@ export default defineNuxtConfig({
             href: '/brasilianische-lymphdrainage',
           },
           { title: 'Ratgeber-Übersicht', href: '/ratgeber' },
-          ...ratgeber.map(a => ({ title: a.titel, href: a.route })),
+          ...articles.map(a => ({ title: a.title, href: a.route })),
         ],
       },
       {
         title: 'Studio und Kontakt',
         links: [
-          { title: `Über das Studio in ${adresse.ort}`, href: '/studio' },
+          { title: `Über das Studio in ${address.city}`, href: '/studio' },
           { title: 'Kontakt, Anfahrt und Terminvereinbarung', href: '/kontakt' },
           { title: 'Häufige Fragen', href: '/faq' },
         ],

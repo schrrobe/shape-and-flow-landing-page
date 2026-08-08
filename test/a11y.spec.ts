@@ -3,40 +3,40 @@ import AxeBuilder from '@axe-core/playwright'
 import { expect, test } from '@playwright/test'
 
 /*
- * Die Routenliste kommt aus dem gebauten Verzeichnis und nicht aus einer gepflegten Konstante:
- * eine neue Seite unter app/pages/ soll geprüft werden, ohne dass jemand daran denkt.
+ * The list of routes comes from the built directory and not from a maintained constant: a new
+ * page under app/pages/ should be checked without anyone having to remember it.
  */
-const routen = globSync('.output/public/**/*.html')
-  .map(datei => datei.replace(/^\.output\/public/, '').replace(/\/?index\.html$/, ''))
+const routes = globSync('.output/public/**/*.html')
+  .map(file => file.replace(/^\.output\/public/, '').replace(/\/?index\.html$/, ''))
   .map(route => route || '/')
   .sort()
 
-if (!routen.length)
-  throw new Error('Keine vorgerenderten Seiten in .output/public gefunden. Erst `npm run build`.')
+if (!routes.length)
+  throw new Error('No prerendered pages found in .output/public. Run `npm run build` first.')
 
 /*
- * wcag2a bis wcag21aa ist der Umfang, auf den sich die BITV und die EU-Richtlinie 2016/2102
- * beziehen. best-practice bleibt außen vor: die Regeln dort sind Empfehlungen ohne
- * Normbezug, und ein Gate soll nur das erzwingen, worauf man sich berufen kann.
+ * wcag2a through wcag21aa is the scope the BITV and EU directive 2016/2102 refer to.
+ * best-practice stays out: those rules are recommendations without a normative basis, and a gate
+ * should only enforce what one can point to.
  */
 const TAGS = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']
 
 test.describe('Barrierefreiheit', () => {
-  for (const route of routen) {
-    test(`${route} hat keine WCAG-Verstöße`, async ({ page }) => {
+  for (const route of routes) {
+    test(`${route} has no WCAG violations`, async ({ page }) => {
       await page.goto(route, { waitUntil: 'networkidle' })
 
       const { violations } = await new AxeBuilder({ page }).withTags(TAGS).analyze()
 
-      // Die Standardausgabe nennt nur die Anzahl. Ohne Regel-ID und Selektor müsste man den
-      // Lauf lokal wiederholen, um überhaupt zu sehen, was gemeint ist.
-      const befund = violations.map(
+      // The default output only gives the count. Without the rule ID and selector one would have
+      // to repeat the run locally just to see what is meant.
+      const findings = violations.map(
         v =>
           `[${v.impact}] ${v.id}: ${v.help}\n` +
           v.nodes.map(n => `    ${n.target.join(' ')}`).join('\n'),
       )
 
-      expect(befund, `Verstöße auf ${route}:\n${befund.join('\n')}`).toEqual([])
+      expect(findings, `Violations on ${route}:\n${findings.join('\n')}`).toEqual([])
     })
   }
 })

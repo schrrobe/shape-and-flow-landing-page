@@ -14,64 +14,64 @@ export const site = {
   /** Used where the ampersand would need escaping or reads badly, e.g. in URLs and alt text. */
   nameAscii: 'Shape and Flow',
   /**
-   * Die Inhaberin. Steht dreimal auf der Website — im Impressum als Inhaberin und als
-   * Verantwortliche für den Inhalt, in der Datenschutzerklärung als verantwortliche Stelle. Das
-   * DDG und die DSGVO verlangen an diesen Stellen denselben Namen; deshalb einer statt drei.
+   * The owner. Appears three times on the site — in the imprint as the owner and as the person
+   * responsible for the content, in the privacy policy as the controller. The DDG and the GDPR
+   * require the same name in all those places; hence one constant instead of three.
    */
-  inhaberin: 'Karin Pospelov',
+  owner: 'Karin Pospelov',
   tagline: 'Brasilianische Lymphdrainage in Dortmund',
   url: 'https://shapeandflow.de',
 } as const
 
-export const adresse = {
-  strasse: 'Preinstraße 61',
-  plz: '44265',
-  ort: 'Dortmund',
-  land: 'DE',
-  /** Dortmund-Wellinghofen/Hacheney, im Süden der Stadt — für Ortsbezug in Texten. */
-  stadtteil: 'Dortmund-Süd',
+export const address = {
+  street: 'Preinstraße 61',
+  postalCode: '44265',
+  city: 'Dortmund',
+  country: 'DE',
+  /** Dortmund-Wellinghofen/Hacheney, in the south of the city — for local references in copy. */
+  district: 'Dortmund-Süd',
 } as const
 
 /*
- * Bewusst ohne eigene Telefon- und WhatsApp-Nummer: der Kontakt läuft über E-Mail und das
- * Kontaktformular. § 5 DDG verlangt eine schnelle elektronische Kontaktaufnahme, keine
- * Rufnummer (EuGH C-298/07), und ein wa.me-Link würde Daten an WhatsApp Ireland tragen,
- * bevor jemand eine Nachricht abschickt.
+ * Deliberately without a phone or WhatsApp number of its own: contact runs through email and the
+ * contact form. § 5 DDG requires a quick electronic way to get in touch, not a phone number
+ * (ECJ C-298/07), and a wa.me link would hand data to WhatsApp Ireland before anyone has sent a
+ * message.
  *
- * Das Formular fragt nach einer Handynummer und lässt die Antwort per WhatsApp wählen. Das ist
- * kein Widerspruch dazu: die Übertragung an WhatsApp beginnt dort erst mit der
- * Antwort des Studios und nur, wenn jemand sie ausdrücklich gewählt hat. Eine Nummer hier
- * anzugeben hieße dagegen, sie auf jeder Seite zu zeigen, auf der der Footer steht.
+ * The form does ask for a mobile number and lets people pick WhatsApp as the reply channel. That
+ * is not a contradiction: there, the transfer to WhatsApp only starts with the studio's reply and
+ * only if someone explicitly chose it. Listing a number here, by contrast, would mean showing it
+ * on every page that carries the footer.
  */
-export const kontakt = {
+export const contact = {
   /**
-   * Die Adresse, die auf der Website steht — Impressum, Datenschutzerklärung, Footer, mailto-Link
-   * und Structured Data — und in der die Anfragen aus dem Kontaktformular landen.
+   * The address printed on the site — imprint, privacy policy, footer, mailto link and structured
+   * data — and where the contact form requests end up.
    */
   email: 'hallo@shapeandflow.de',
   /**
-   * Absender der Formularmails, nicht für Antworten gedacht: die Antwort geht über Reply-To an
-   * die anfragende Person, nicht an dieses Postfach.
+   * Sender of the form emails, not meant for replies: the reply goes to the enquiring person via
+   * Reply-To, not to this mailbox.
    *
-   * Eine eigene Adresse und nicht `email`, damit im Postfach auf einen Blick zu sehen ist, was
-   * vom eigenen Server kommt und was jemand von Hand geschrieben hat. Sie steht nirgends auf der
-   * Website — wer sie anschreibt, hat sie aus einem Mail-Header.
+   * A separate address rather than `email`, so the mailbox shows at a glance what comes from our
+   * own server and what someone wrote by hand. It appears nowhere on the site — anyone writing to
+   * it took it from a mail header.
    */
-  absenderEmail: 'nicht-antworten@shapeandflow.de',
-  /** Adresse der Booking-App. Alle Termin-Schaltflächen zeigen hierher. */
-  buchungUrl: 'https://booking.shapeandflow.de',
+  senderEmail: 'nicht-antworten@shapeandflow.de',
+  /** Address of the booking app. Every appointment button points here. */
+  bookingUrl: 'https://booking.shapeandflow.de',
   /*
    * The social profiles. Without the share parameters the apps append (?igsh=, ?_r=, ?_t=):
    * those belong to the session the link was copied from and have no place in a fixed link.
    *
-   * Either can be set to null, which removes it everywhere at once — see sozialeProfile below.
+   * Either can be set to null, which removes it everywhere at once — see socialProfiles below.
    */
   instagram: 'https://www.instagram.com/shapeandflow.do' as string | null,
   tiktok: 'https://www.tiktok.com/@shapeandflow.do' as string | null,
 } as const
 
 /** One social profile as the site renders it. `icon` is the symbol name in SfIcon. */
-export interface SozialesProfil {
+export interface SocialProfile {
   name: string
   icon: 'instagram' | 'tiktok'
   url: string
@@ -84,40 +84,40 @@ export interface SozialesProfil {
  * the sameAs entry in the structured data. Without it, adding a profile would mean touching
  * three files and forgetting one of them.
  */
-export const sozialeProfile: SozialesProfil[] = (
+export const socialProfiles: SocialProfile[] = (
   [
-    { name: 'Instagram', icon: 'instagram', url: kontakt.instagram },
-    { name: 'TikTok', icon: 'tiktok', url: kontakt.tiktok },
-  ] satisfies { name: string; icon: SozialesProfil['icon']; url: string | null }[]
-).filter((profil): profil is SozialesProfil => profil.url !== null)
+    { name: 'Instagram', icon: 'instagram', url: contact.instagram },
+    { name: 'TikTok', icon: 'tiktok', url: contact.tiktok },
+  ] satisfies { name: string; icon: SocialProfile['icon']; url: string | null }[]
+).filter((profile): profile is SocialProfile => profile.url !== null)
 
 /**
- * Keine erfundenen Öffnungszeiten: das Studio arbeitet auf Termin, und das ist auch die
- * Aussage, die in der Website und im Structured Data steht.
+ * No invented opening hours: the studio works by appointment, and that is also the statement
+ * printed on the site and in the structured data.
  */
-export const oeffnungszeiten = {
-  modus: 'termin' as const,
-  hinweis: 'Termine nach Vereinbarung',
+export const openingHours = {
+  mode: 'by-appointment' as const,
+  note: 'Termine nach Vereinbarung',
 }
 
-export const mailtoUrl = `mailto:${kontakt.email}`
+export const mailtoUrl = `mailto:${contact.email}`
 
-/** Sprungziel des Kontaktformulars. Steht hier, weil vier Seiten darauf verlinken. */
-export const formularUrl = '/kontakt#formular'
+/** Jump target of the contact form. Lives here because four pages link to it. */
+export const formUrl = '/kontakt#formular'
 
-/** Google-Maps-Suchlink statt Karten-Embed: kein Drittanbieter-Skript, keine Einwilligung nötig. */
-export const kartenUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
-  `${adresse.strasse}, ${adresse.plz} ${adresse.ort}`,
+/** A Google Maps search link instead of an embedded map: no third-party script, no consent needed. */
+export const mapUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+  `${address.street}, ${address.postalCode} ${address.city}`,
 )}`
 
-/** Der Lizenzhinweis, der auf jeder Seite mit Markennennung stehen muss. */
-export const markenhinweis =
+/** The licence notice that has to appear on every page mentioning the brand. */
+export const trademarkNotice =
   'Jeveauxeffect® und Jeveauxeffect Face® sind eingetragene Marken der Jeveaux Company®. ' +
   'Shape & Flow ist lizenzierter Partner der Jeveaux Company®.'
 
 /**
- * Der Pflicht-Disclaimer aus den Unterlagen des Lizenzgebers. Steht auf jeder Seite, die eine
- * Wirkung beschreibt — inhaltlich verlangt vom Heilmittelwerbegesetz, nicht nur vom Lizenzvertrag.
+ * The mandatory disclaimer from the licensor's documents. Appears on every page describing an
+ * effect — required in substance by the Heilmittelwerbegesetz, not just by the licence agreement.
  */
 export const disclaimer =
   'Der Jeveauxeffect® ist eine ästhetische Anwendung im Beauty-Bereich und keine medizinische ' +

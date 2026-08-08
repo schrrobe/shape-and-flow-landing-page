@@ -1,48 +1,48 @@
 <script setup lang="ts">
-import { behandlungBySlug, behandlungen, preis, preispositionen } from '#shared/behandlungen'
-import { faqZuThema } from '#shared/faq'
-import { adresse, disclaimer } from '#shared/site'
+import { treatmentBySlug, treatments, formatPrice, priceItems } from '#shared/behandlungen'
+import { faqByTopic } from '#shared/faq'
+import { address, disclaimer } from '#shared/site'
 
-// Die Preise kommen aus shared/behandlungen.ts, auch hier in der Beschreibung: sonst wirbt das
-// Suchergebnis nach der nächsten Preisänderung mit einem Betrag, den die Seite nicht mehr nennt.
-const koerper = behandlungBySlug('jeveauxeffect')!
-const gesicht = behandlungBySlug('lymphdrainage-gesicht')!
-const kombi = preispositionen.find(p => p.slug === 'kombi-koerper-gesicht')!
+// The prices come from shared/behandlungen.ts, here in the description too: otherwise the search
+// result would advertise an amount after the next price change that the page no longer names.
+const body = treatmentBySlug('jeveauxeffect')!
+const face = treatmentBySlug('lymphdrainage-gesicht')!
+const combo = priceItems.find(p => p.slug === 'kombi-koerper-gesicht')!
 
-// Ohne Booking-App gibt es keine Zahlung im Buchungssystem, also auch keinen Satz darüber.
-const buchungSichtbar = useBuchungSichtbar()
+// Without the booking app there is no payment in the booking system, hence no sentence about it.
+const bookingVisible = useBookingVisible()
 
-useSeite({
-  titel: mitOrt('Preise brasilianische Lymphdrainage'),
-  ogTitel: 'Preise',
-  beschreibung:
-    `Preise in ${adresse.ort}: ${gesicht.name} ${preis(gesicht.preisEuro)}, ` +
-    `${koerper.name} ${preis(koerper.preisEuro)}, zusammen ${preis(kombi.preisEuro)}. ` +
+usePage({
+  title: withCity('Preise brasilianische Lymphdrainage'),
+  ogTitle: 'Preise',
+  description:
+    `Preise in ${address.city}: ${face.name} ${formatPrice(face.priceEuro)}, ` +
+    `${body.name} ${formatPrice(body.priceEuro)}, zusammen ${formatPrice(combo.priceEuro)}. ` +
     `Pakete günstiger pro Behandlung, keine versteckten Kosten.`,
   ogLabel: 'Preise',
 })
 
-const preisFaq = faqZuThema('preise')
+const priceFaq = faqByTopic('prices')
 
 useSchemaOrg([
-  // Eine Angebotsliste, damit die Preise auch maschinenlesbar an einer Stelle stehen.
+  // An offer list, so the prices are also machine-readable in one place.
   defineItemList({
     name: 'Behandlungen und Preise',
     itemListElement: [
-      ...behandlungen.map(b =>
+      ...treatments.map(t =>
         defineOffer({
-          name: b.name,
-          description: b.titel,
-          price: b.preisEuro,
+          name: t.name,
+          description: t.title,
+          price: t.priceEuro,
           priceCurrency: 'EUR',
           availability: 'https://schema.org/InStock',
         }),
       ),
-      ...preispositionen.map(p =>
+      ...priceItems.map(p =>
         defineOffer({
           name: p.name,
-          description: p.hinweis,
-          price: p.preisEuro,
+          description: p.note,
+          price: p.priceEuro,
           priceCurrency: 'EUR',
           availability: 'https://schema.org/InStock',
         }),
@@ -51,13 +51,13 @@ useSchemaOrg([
   }),
 ])
 
-useFaqSchema(preisFaq)
+useFaqSchema(priceFaq)
 </script>
 
 <template>
   <article>
     <SfSeitenkopf
-      titel="Preise"
+      title="Preise"
       label="Was es kostet"
       lead="Zwei Behandlungen, einzeln oder zusammen, dazu Pakete für mehrere Termine. Bezahlt
         wird pro Termin, es gibt keine Mitgliedschaft und keine Grundgebühr."
@@ -78,7 +78,7 @@ useFaqSchema(preisFaq)
         <div class="sf-prose">
           <h2>Zahlung und Absage</h2>
           <p>
-            Bezahlt wird im Studio nach der Behandlung.<template v-if="buchungSichtbar">
+            Bezahlt wird im Studio nach der Behandlung.<template v-if="bookingVisible">
               Wer online über das Buchungssystem bucht, kann direkt dort bezahlen.</template
             >
           </p>
@@ -100,7 +100,7 @@ useFaqSchema(preisFaq)
         <div>
           <h2 class="text-2xl">Fragen zu den Preisen</h2>
           <div class="mt-6">
-            <SfFaqListe :eintraege="preisFaq" />
+            <SfFaqListe :entries="priceFaq" />
           </div>
         </div>
       </div>
@@ -110,9 +110,9 @@ useFaqSchema(preisFaq)
       </SfHinweis>
 
       <div class="mt-16">
-        <!-- Ohne Buchungsseite bleibt im Block nur Formular und E-Mail: "buchen" wäre dann zu viel
-             versprochen, und der Standardtitel des Blocks passt genauer. -->
-        <SfCtaBlock inverse :titel="buchungSichtbar ? 'Termin buchen' : 'Termin vereinbaren'" />
+        <!-- Without a booking page the block is left with the form and email only: "buchen" would
+             then be overpromising, and the block's default title fits more precisely. -->
+        <SfCtaBlock inverse :title="bookingVisible ? 'Termin buchen' : 'Termin vereinbaren'" />
       </div>
     </div>
   </article>

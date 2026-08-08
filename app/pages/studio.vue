@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import { adresse, kartenUrl, markenhinweis, oeffnungszeiten, site } from '#shared/site'
+import { address, mapUrl, trademarkNotice, openingHours, site } from '#shared/site'
 
-useSeite({
-  titel: `Studio in ${adresse.ort}`,
-  kurzTitel: 'Das Studio',
-  beschreibung:
-    `Shape & Flow ist ein kleines Studio für brasilianische Lymphdrainage in ${adresse.strasse}, ` +
-    `${adresse.plz} ${adresse.ort}. Ein Behandlungsraum, Termine nach Vereinbarung.`,
+usePage({
+  title: `Studio in ${address.city}`,
+  shortTitle: 'Das Studio',
+  description:
+    `Shape & Flow ist ein kleines Studio für brasilianische Lymphdrainage in ${address.street}, ` +
+    `${address.postalCode} ${address.city}. Ein Behandlungsraum, Termine nach Vereinbarung.`,
   ogLabel: 'Das Studio',
 })
 </script>
@@ -14,9 +14,9 @@ useSeite({
 <template>
   <article>
     <SfSeitenkopf
-      titel="Das Studio"
+      title="Das Studio"
       :label="site.nameAscii"
-      :lead="`Ein Raum in ${adresse.stadtteil}, eine Behandlung zur Zeit. Kein Großbetrieb, keine
+      :lead="`Ein Raum in ${address.district}, eine Behandlung zur Zeit. Kein Großbetrieb, keine
         Parallelbetreuung.`"
     />
 
@@ -45,7 +45,7 @@ useSeite({
         <div class="sf-prose">
           <h2>Wie hier gearbeitet wird</h2>
           <p>
-            {{ site.name }} ist ein kleines Studio in {{ adresse.stadtteil }}. Es gibt einen
+            {{ site.name }} ist ein kleines Studio in {{ address.district }}. Es gibt einen
             Behandlungsraum, und in dem sind während Ihres Termins nur Sie. Neben dem
             Behandlungsraum gibt es eine Ecke zum Umziehen und Ankommen.
           </p>
@@ -70,9 +70,9 @@ useSeite({
 
           <h2>Anfahrt</h2>
           <p>
-            Das Studio liegt in der {{ adresse.strasse }} in {{ adresse.plz }} {{ adresse.ort }}, im
-            Süden der Stadt. Die genaue Wegbeschreibung und die Kontaktwege stehen auf der
-            <NuxtLink to="/kontakt">Kontaktseite</NuxtLink>.
+            Das Studio liegt in der {{ address.street }} in {{ address.postalCode }}
+            {{ address.city }}, im Süden der Stadt. Die genaue Wegbeschreibung und die Kontaktwege
+            stehen auf der <NuxtLink to="/kontakt">Kontaktseite</NuxtLink>.
           </p>
         </div>
 
@@ -83,22 +83,22 @@ useSeite({
               <p>
                 <span class="font-medium">{{ site.name }}</span
                 ><br />
-                {{ adresse.strasse }}<br />
-                {{ adresse.plz }} {{ adresse.ort }}
+                {{ address.street }}<br />
+                {{ address.postalCode }} {{ address.city }}
               </p>
               <p class="text-text-secondary">
-                {{ oeffnungszeiten.hinweis }}
+                {{ openingHours.note }}
               </p>
             </address>
             <div class="mt-5 flex flex-col gap-3">
               <SfButton to="/kontakt"> Kontakt und Anfahrt </SfButton>
-              <SfButton :href="kartenUrl" variant="secondary" external>
+              <SfButton :href="mapUrl" variant="secondary" external>
                 In Google Maps ansehen
               </SfButton>
             </div>
             <SfRule class="my-5 text-border" />
             <p class="text-sm text-text-secondary">
-              {{ markenhinweis }}
+              {{ trademarkNotice }}
             </p>
           </SfCard>
         </aside>

@@ -1,17 +1,16 @@
 <script setup lang="ts">
 /*
- * Die Hinweisbox für den Pflichttext.
+ * The notice box for the mandatory text.
  *
- * Steht auf jeder Seite, die eine Wirkung beschreibt. Sie ist absichtlich ruhig gestaltet und
- * nicht als Warnung: der Text gehört zur Aufklärung und soll gelesen werden, nicht abschrecken.
- * Als <aside> ausgezeichnet, damit Screenreader und Suchmaschinen ihn als Nebeninformation
- * einordnen können.
+ * Appears on every page describing an effect. It is deliberately styled quietly and not as a
+ * warning: the text is part of the information and should be read, not scare people off. Marked
+ * up as an <aside> so screen readers and search engines can class it as secondary information.
  */
 withDefaults(
   defineProps<{
-    titel?: string
+    title?: string
   }>(),
-  { titel: 'Wichtiger Hinweis' },
+  { title: 'Wichtiger Hinweis' },
 )
 </script>
 
@@ -20,7 +19,7 @@ withDefaults(
     class="rounded-sf border border-border bg-surface-muted p-5 text-sm leading-relaxed sm:p-6"
   >
     <p class="font-medium text-text-primary">
-      {{ titel }}
+      {{ title }}
     </p>
     <div class="mt-2 space-y-2 text-text-secondary">
       <slot />

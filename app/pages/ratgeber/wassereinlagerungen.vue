@@ -1,30 +1,30 @@
 <script setup lang="ts">
-import { artikelByRoute } from '#shared/ratgeber'
+import { articleByRoute } from '#shared/ratgeber'
 import { disclaimer } from '#shared/site'
 
 /*
- * Ratgeberartikel zu einem Problem, nach dem gesucht wird, bevor jemand die Behandlung kennt.
+ * A guide article on a problem people search for before they know the treatment.
  *
- * Der Artikel verkauft nicht, er erklärt. Der Verweis auf die Behandlung steht am Ende und nicht
- * in jedem zweiten Absatz: wer zuerst wissen will, warum die Beine abends dick sind, springt bei
- * einem Werbetext wieder ab.
+ * The article does not sell, it explains. The pointer to the treatment sits at the end and not in
+ * every second paragraph: whoever first wants to know why their legs are swollen in the evening
+ * bounces off a piece of advertising.
  */
-const artikel = artikelByRoute('/ratgeber/wassereinlagerungen')!
+const article = articleByRoute('/ratgeber/wassereinlagerungen')!
 
-useSeite({
-  titel: artikel.titel,
-  kurzTitel: artikel.titel,
-  ogTitel: 'Wassereinlagerungen im Körper',
-  beschreibung:
+usePage({
+  title: article.title,
+  shortTitle: article.title,
+  ogTitle: 'Wassereinlagerungen im Körper',
+  description:
     'Warum sich Wasser im Gewebe sammelt, was im Alltag hilft, wann Schwellungen ärztlich ' +
     'abzuklären sind und was eine Lymphdrainage dabei leisten kann.',
   ogLabel: 'Ratgeber',
-  pfad: [{ name: 'Ratgeber', url: '/ratgeber' }],
+  trail: [{ name: 'Ratgeber', url: '/ratgeber' }],
 })
 
 useSchemaOrg([
   defineArticle({
-    headline: artikel.titel,
+    headline: article.title,
     description:
       'Ursachen von Wassereinlagerungen, Maßnahmen im Alltag und die Grenze zur ärztlichen ' +
       'Abklärung.',
@@ -35,11 +35,11 @@ useSchemaOrg([
 <template>
   <article>
     <SfSeitenkopf
-      :titel="artikel.titel"
+      :title="article.title"
       label="Ratgeber"
       lead="Abends spannen die Beine, morgens ist das Gesicht verquollen. Meist ist das harmlos.
         Manchmal gehört es abgeklärt."
-      :pfad="[{ name: 'Ratgeber', url: '/ratgeber' }]"
+      :trail="[{ name: 'Ratgeber', url: '/ratgeber' }]"
     />
 
     <div class="sf-container">

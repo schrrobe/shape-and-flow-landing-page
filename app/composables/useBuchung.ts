@@ -1,20 +1,20 @@
 import type { ComputedRef } from 'vue'
 
 /**
- * Darf die Website auf die Booking-App verweisen?
+ * May the site point at the booking app?
  *
- * Hinter der Frage steht das Unleash-Flag `enable_booking_redirect`. Solange es aus ist, gibt es
- * auf der ganzen Website keine Schaltfläche, die dorthin führt, und auch keinen Text, der eine
- * getrennte Buchungsseite erwähnt: wer nichts von ihr weiß, sucht auch nicht danach.
+ * Behind the question sits the Unleash flag `enable_booking_redirect`. While it is off there is
+ * no button anywhere on the site that leads there, and no copy mentioning a separate booking
+ * page either: whoever does not know about it will not look for it.
  *
- * Der Fallback ist bewusst `false` und nicht bloß der Vorgabewert von useFeatureFlag: bis das
- * Browser-SDK bereit ist — und beim Prerendering für immer, dort gibt es kein $featureFlags —
- * gilt der Zustand ohne Booking-App. Ein Verweis auf eine Buchungsstrecke, die vielleicht noch
- * gar nicht steht, wäre der teurere Fehler als eine Schaltfläche, die kurz fehlt.
+ * The fallback is deliberately `false` and not merely the default of useFeatureFlag: until the
+ * browser SDK is ready — and during prerendering forever, since there is no $featureFlags there
+ * — the state without a booking app applies. A pointer to a booking flow that may not even exist
+ * yet would be the more expensive mistake than a button that is briefly missing.
  *
- * Eigenes Composable und nicht useFeatureFlag an zwölf Stellen direkt: der Flag-Name steht damit
- * genau einmal im Code, und die Seiten fragen nach der Sache statt nach dem Schalter.
+ * Its own composable instead of calling useFeatureFlag in twelve places: this way the flag name
+ * appears exactly once in the code, and the pages ask about the thing rather than the switch.
  */
-export function useBuchungSichtbar(): ComputedRef<boolean> {
+export function useBookingVisible(): ComputedRef<boolean> {
   return useFeatureFlag('enable_booking_redirect', false)
 }

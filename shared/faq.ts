@@ -1,35 +1,35 @@
 /*
- * Die Fragen, die Kundinnen vor einem Termin stellen.
+ * The questions customers ask before an appointment.
  *
- * Eine Quelle für zwei Ausgaben: die sichtbare FAQ-Seite und das FAQPage-Structured-Data. Deshalb
- * sind Antworten Absatz-Arrays und kein HTML, denn Google will im JSON-LD reinen Text.
+ * One source for two outputs: the visible FAQ page and the FAQPage structured data. That is why
+ * answers are arrays of paragraphs and not HTML, because Google wants plain text in the JSON-LD.
  *
- * Inhaltlich beruhen die Antworten auf den Unterlagen der Jeveaux Company® als Lizenzgeberin.
- * Grundregel für Änderungen: keine Heilversprechen, keine Wirkungsgarantien, keine Zahlen ohne
- * Quelle. Formulierungen wie "kann unterstützen" und "viele Kundinnen berichten" sind bewusst
- * gewählt und rechtlich relevant.
+ * In substance the answers are based on the documents of the Jeveaux Company® as the licensor.
+ * Ground rule for changes: no promises of healing, no guaranteed effects, no figures without a
+ * source. Wordings such as "kann unterstützen" and "viele Kundinnen berichten" are chosen
+ * deliberately and are legally relevant.
  */
 
-import { behandlungBySlug, preispositionBySlug } from './behandlungen'
+import { treatmentBySlug, priceItemBySlug } from './behandlungen'
 
-export type FaqThema = 'allgemein' | 'ablauf' | 'gesundheit' | 'preise' | 'koerper' | 'gesicht'
+export type FaqTopic = 'general' | 'procedure' | 'health' | 'prices' | 'body' | 'face'
 
-export interface FaqEintrag {
-  frage: string
-  /** Absätze der Antwort. */
-  antwort: string[]
-  /** Aufzählung, die nach den Absätzen erscheint. */
-  liste?: string[]
-  /** Nachsatz unter der Liste. */
-  nachsatz?: string
-  themen: FaqThema[]
+export interface FaqEntry {
+  question: string
+  /** Paragraphs of the answer. */
+  answer: string[]
+  /** Bullet list shown after the paragraphs. */
+  list?: string[]
+  /** Closing note below the list. */
+  closing?: string
+  topics: FaqTopic[]
 }
 
 /**
- * Situationen, in denen nicht behandelt wird. Steht wörtlich so in den Unterlagen des
- * Lizenzgebers und wird auf der Themenseite und in der FAQ ausgegeben.
+ * Situations in which no treatment takes place. Worded exactly like this in the licensor's
+ * documents and rendered on the method page and in the FAQ.
  */
-export const kontraindikationen: string[] = [
+export const contraindications: string[] = [
   'akute oder chronische Entzündungen im Körper',
   'aktive Krebserkrankungen oder eine laufende Krebstherapie',
   'Fieber oder ein starkes Krankheitsgefühl',
@@ -41,22 +41,22 @@ export const kontraindikationen: string[] = [
 ]
 
 /*
- * Die Preise für die Preis-FAQ, aus behandlungen.ts abgeleitet und nicht getippt: sonst nennt die
- * FAQ — und mit ihr das FAQPage-Structured-Data — nach der nächsten Preisänderung Beträge, die die
- * Preistabelle nicht mehr führt.
+ * The prices for the price FAQ, derived from behandlungen.ts rather than typed out: otherwise the
+ * FAQ — and with it the FAQPage structured data — would name amounts after the next price change
+ * that the price table no longer lists.
  */
-const koerper = behandlungBySlug('jeveauxeffect')!
-const gesicht = behandlungBySlug('lymphdrainage-gesicht')!
-const kombi = preispositionBySlug('kombi-koerper-gesicht')!
-const koerper5er = preispositionBySlug('jeveauxeffect-5er')!
-const koerper10er = preispositionBySlug('jeveauxeffect-10er')!
-const gesicht5er = preispositionBySlug('jeveauxeffect-face-5er')!
-const gesicht10er = preispositionBySlug('jeveauxeffect-face-10er')!
+const body = treatmentBySlug('jeveauxeffect')!
+const face = treatmentBySlug('lymphdrainage-gesicht')!
+const combo = priceItemBySlug('kombi-koerper-gesicht')!
+const bodyPack5 = priceItemBySlug('jeveauxeffect-5er')!
+const bodyPack10 = priceItemBySlug('jeveauxeffect-10er')!
+const facePack5 = priceItemBySlug('jeveauxeffect-face-5er')!
+const facePack10 = priceItemBySlug('jeveauxeffect-face-10er')!
 
-export const faq: FaqEintrag[] = [
+export const faq: FaqEntry[] = [
   {
-    frage: 'Was ist der Jeveauxeffect® genau?',
-    antwort: [
+    question: 'Was ist der Jeveauxeffect® genau?',
+    answer: [
       'Der Jeveauxeffect® ist eine ästhetische Ganzkörpermassage, die die Jeveaux Company® ' +
         'entwickelt hat. Sie verbindet manuelle Lymphdrainage, Faszienarbeit und Körpermodellierung ' +
         'in einem festen Ablauf.',
@@ -64,148 +64,148 @@ export const faq: FaqEintrag[] = [
         'kräftiger gearbeitet und modelliert. Mit einer Wellnessmassage hat das wenig zu tun: die ' +
         'Behandlung ist deutlich spürbar und folgt einer festen Abfolge von Griffen.',
     ],
-    themen: ['allgemein', 'koerper'],
+    topics: ['general', 'body'],
   },
   {
-    frage: 'Ist der Jeveauxeffect® eine medizinische Behandlung?',
-    antwort: [
+    question: 'Ist der Jeveauxeffect® eine medizinische Behandlung?',
+    answer: [
       'Nein. Der Jeveauxeffect® ist eine ästhetische Anwendung im Beauty-Bereich. Er ist keine ' +
         'medizinische oder therapeutische Behandlung und ersetzt keine ärztliche Maßnahme.',
       'Die medizinische Lymphdrainage ist etwas anderes: sie wird bei einem diagnostizierten ' +
         'Lymphödem verordnet und von Physiotherapeutinnen und Physiotherapeuten durchgeführt. Wenn ' +
         'Sie eine solche Behandlung brauchen, ist Ihre Ärztin oder Ihr Arzt die richtige Adresse.',
     ],
-    themen: ['allgemein', 'gesundheit'],
+    topics: ['general', 'health'],
   },
   {
-    frage: 'Für wen ist die Behandlung geeignet?',
-    antwort: [
+    question: 'Für wen ist die Behandlung geeignet?',
+    answer: [
       'Für alle, die sich leichter und wohler im eigenen Körper fühlen möchten und eine aktive, ' +
         'spürbare Behandlung suchen statt einer klassischen Entspannungsmassage.',
       'Wer vor allem abschalten und dösen will, ist mit einer Wellnessmassage besser beraten. Der ' +
         'Jeveauxeffect® arbeitet mit Druck und Rhythmus, und das merkt man.',
     ],
-    themen: ['allgemein'],
+    topics: ['general'],
   },
   {
-    frage: 'Was kann ich nach der Behandlung erwarten?',
-    antwort: [
+    question: 'Was kann ich nach der Behandlung erwarten?',
+    answer: [
       'Viele Kundinnen beschreiben ihr Körpergefühl danach als verändert. Am häufigsten genannt ' +
         'werden:',
     ],
-    liste: [
+    list: [
       'ein leichteres, freieres Gefühl im Körper',
       'weniger Spannung oder Druckgefühl',
       'mehr Kontur und Definition',
       'ein Effekt, der sich direkt nach der Behandlung zeigt',
     ],
-    nachsatz:
+    closing:
       'Weil die Lymphe angeregt wird, kann die Behandlung dabei unterstützen, dass sich der Körper ' +
       'weniger aufgeschwemmt anfühlt. Wie deutlich das ausfällt, ist von Person zu Person ' +
       'verschieden und hängt auch von Alltag und Lebensstil ab.',
-    themen: ['allgemein', 'ablauf'],
+    topics: ['general', 'procedure'],
   },
   {
-    frage: 'Hilft die Behandlung bei Wassereinlagerungen?',
-    antwort: [
+    question: 'Hilft die Behandlung bei Wassereinlagerungen?',
+    answer: [
       'Der Jeveauxeffect® kann den Körper dabei unterstützen, sich leichter und weniger gespannt ' +
         'anzufühlen, weil die Lymphe sanft angeregt wird.',
       'Ein Heilversprechen ist damit nicht verbunden. Wenn Schwellungen immer wiederkehren, stark ' +
         'sind oder nur an einer Körperstelle auftreten, lassen Sie die Ursache bitte ärztlich ' +
         'abklären, bevor Sie einen Termin buchen.',
     ],
-    themen: ['allgemein', 'gesundheit', 'koerper'],
+    topics: ['general', 'health', 'body'],
   },
   {
-    frage: 'Ist die Behandlung schmerzhaft?',
-    antwort: [
+    question: 'Ist die Behandlung schmerzhaft?',
+    answer: [
       'Sie ist intensiv und deutlich spürbar, für die meisten Kundinnen aber gut auszuhalten. Der ' +
         'Druck lässt sich jederzeit anpassen, sagen Sie also einfach etwas, wenn es zu viel wird.',
     ],
-    themen: ['ablauf'],
+    topics: ['procedure'],
   },
   {
-    frage: 'Gibt es Gegenanzeigen?',
-    antwort: ['Ja. Auch eine ästhetische Behandlung hat Grenzen. Nicht behandelt wird bei:'],
-    liste: kontraindikationen,
-    nachsatz:
+    question: 'Gibt es Gegenanzeigen?',
+    answer: ['Ja. Auch eine ästhetische Behandlung hat Grenzen. Nicht behandelt wird bei:'],
+    list: contraindications,
+    closing:
       'Im Zweifel gilt immer: vorher ärztlich abklären. Sagen Sie uns außerdem vor dem Termin, ' +
       'wenn Sie schwanger sind, Medikamente nehmen oder eine Vorerkrankung haben.',
-    themen: ['gesundheit', 'ablauf'],
+    topics: ['health', 'procedure'],
   },
   {
-    frage: 'Kann ich die Behandlung in der Schwangerschaft machen?',
-    antwort: [
+    question: 'Kann ich die Behandlung in der Schwangerschaft machen?',
+    answer: [
       'Das lässt sich nicht pauschal beantworten. Sprechen Sie vorher mit Ihrer Ärztin oder Ihrem ' +
         'Arzt und sagen Sie uns bei der Terminvereinbarung Bescheid, damit wir gemeinsam entscheiden ' +
         'können.',
     ],
-    themen: ['gesundheit'],
+    topics: ['health'],
   },
   {
-    frage: 'Wie lange hält der Effekt an?',
-    antwort: [
+    question: 'Wie lange hält der Effekt an?',
+    answer: [
       'Das ist individuell verschieden. Körperliche Voraussetzungen, Bewegung, Ernährung, ' +
         'Trinkmenge und allgemeines Wohlbefinden spielen alle eine Rolle.',
       'Der Jeveauxeffect® kann eine bewusste Körperpflege unterstützen, ersetzt aber keine gesunde ' +
         'Lebensweise. Was für Sie sinnvoll ist, klären wir am besten direkt im Termin.',
     ],
-    themen: ['ablauf', 'allgemein'],
+    topics: ['procedure', 'general'],
   },
   {
-    frage: 'Was kostet die Behandlung?',
-    antwort: [
-      `Die Gesichtsbehandlung ${gesicht.name} kostet ${gesicht.preisEuro} Euro, die ` +
-        `Körperbehandlung ${koerper.name} kostet ${koerper.preisEuro} Euro. Beide zusammen in ` +
-        `einem Termin kosten ${kombi.preisEuro} Euro.`,
+    question: 'Was kostet die Behandlung?',
+    answer: [
+      `Die Gesichtsbehandlung ${face.name} kostet ${face.priceEuro} Euro, die ` +
+        `Körperbehandlung ${body.name} kostet ${body.priceEuro} Euro. Beide zusammen in ` +
+        `einem Termin kosten ${combo.priceEuro} Euro.`,
       `Für mehrere Termine gibt es Pakete: die Körperbehandlung kostet im 5er Paket ` +
-        `${koerper5er.preisEuro} Euro und im 10er Paket ${koerper10er.preisEuro} Euro pro ` +
-        `Behandlung, die Gesichtsbehandlung ${gesicht5er.preisEuro} Euro im 5er Paket und ` +
-        `${gesicht10er.preisEuro} Euro im 10er Paket pro Behandlung.`,
+        `${bodyPack5.priceEuro} Euro und im 10er Paket ${bodyPack10.priceEuro} Euro pro ` +
+        `Behandlung, die Gesichtsbehandlung ${facePack5.priceEuro} Euro im 5er Paket und ` +
+        `${facePack10.priceEuro} Euro im 10er Paket pro Behandlung.`,
     ],
-    themen: ['preise'],
+    topics: ['prices'],
   },
   {
-    frage: 'Übernimmt die Krankenkasse die Kosten?',
-    antwort: [
+    question: 'Übernimmt die Krankenkasse die Kosten?',
+    answer: [
       'Nein. Es handelt sich um eine ästhetische Behandlung im Beauty-Bereich und nicht um eine ' +
         'medizinische Leistung, deshalb gibt es keine Kassenerstattung und kein Rezept.',
     ],
-    themen: ['preise', 'gesundheit'],
+    topics: ['prices', 'health'],
   },
   {
-    frage: 'Worauf sollte ich vor dem Termin achten?',
-    antwort: [
+    question: 'Worauf sollte ich vor dem Termin achten?',
+    answer: [
       'Planen Sie genug Zeit ein und kommen Sie in bequemer Kleidung. Alles Weitere, auch Fragen ' +
         'zu Ihrer Gesundheit, besprechen wir vor der ersten Behandlung im Studio.',
     ],
-    themen: ['ablauf'],
+    topics: ['procedure'],
   },
   {
-    frage: 'Was ist der Unterschied zwischen der Körper- und der Gesichtsbehandlung?',
-    antwort: [
+    question: 'Was ist der Unterschied zwischen der Körper- und der Gesichtsbehandlung?',
+    answer: [
       'Der Jeveauxeffect® ist die Ganzkörperbehandlung. Der Jeveauxeffect Face® ist die eigens ' +
         'entwickelte Gesichtsbehandlung mit Fokus auf Entstauung, Konturierung und ein frisches ' +
         'Aussehen.',
       'Beide folgen derselben Methode und lassen sich einzeln oder nacheinander buchen.',
     ],
-    themen: ['gesicht', 'koerper', 'allgemein'],
+    topics: ['face', 'body', 'general'],
   },
 ]
 
-/** Einträge zu einem Thema, für die themenspezifischen FAQ-Blöcke auf den Unterseiten. */
-export function faqZuThema(thema: FaqThema): FaqEintrag[] {
-  return faq.filter(e => e.themen.includes(thema))
+/** Entries on a topic, for the topic-specific FAQ blocks on the sub-pages. */
+export function faqByTopic(topic: FaqTopic): FaqEntry[] {
+  return faq.filter(e => e.topics.includes(topic))
 }
 
-/** Antwort als ein Fließtext, wie es das FAQPage-Structured-Data braucht. */
-export function faqAntwortText(eintrag: FaqEintrag): string {
-  const teile = [...eintrag.antwort]
-  if (eintrag.liste?.length) {
-    teile.push(`${eintrag.liste.join('; ')}.`)
+/** The answer as a single body of text, the way the FAQPage structured data needs it. */
+export function faqAnswerText(entry: FaqEntry): string {
+  const parts = [...entry.answer]
+  if (entry.list?.length) {
+    parts.push(`${entry.list.join('; ')}.`)
   }
-  if (eintrag.nachsatz) {
-    teile.push(eintrag.nachsatz)
+  if (entry.closing) {
+    parts.push(entry.closing)
   }
-  return teile.join(' ')
+  return parts.join(' ')
 }

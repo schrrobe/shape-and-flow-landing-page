@@ -1,76 +1,83 @@
 import { describe, expect, it } from 'vitest'
 
-import { anfrageAus, fehlerZu, type Anfrage } from './kontakt-eingaben'
+import { requestFrom, errorsFor, type ContactRequest } from './kontakt-eingaben'
 
 /*
- * Geprüft wird nur, was eine Entscheidung trifft: was durchkommt, was beanstandet wird und was
- * beim Säubern übrig bleibt. Die Meldungstexte selbst sind nicht Gegenstand der Tests — sie
- * dürfen sich ändern, ohne dass hier etwas rot wird.
+ * Only what makes a decision is tested: what gets through, what is flagged and what is left after
+ * cleaning. The message texts themselves are not the subject of the tests — they may change
+ * without turning anything red here.
  */
 
-/** Eine Anfrage, die durchgeht. Die Tests verändern jeweils das eine Feld, um das es geht. */
-function gueltig(abweichung: Partial<Anfrage> = {}): Anfrage {
-  return anfrageAus({
+/** A request that passes. Each test changes the one field it is about. */
+function valid(overrides: Partial<ContactRequest> = {}): ContactRequest {
+  return requestFrom({
     name: 'Karin Beispiel',
     email: 'karin@example.org',
-    nachricht: 'Ich hätte gern einen Termin für nächste Woche.',
-    ...abweichung,
+    message: 'Ich hätte gern einen Termin für nächste Woche.',
+    ...overrides,
   })
 }
 
-describe('anfrageAus', () => {
-  it('nimmt nur die beiden bekannten Antwortwege und fällt sonst auf E-Mail zurück', () => {
-    expect(anfrageAus({ antwortweg: 'whatsapp' }).antwortweg).toBe('whatsapp')
-    expect(anfrageAus({ antwortweg: 'email' }).antwortweg).toBe('email')
-    expect(anfrageAus({}).antwortweg).toBe('email')
-    // Was ein Skript sonst noch schicken kann. Der Cast steht hier, weil genau das geprüft wird:
-    // dass ein Wert außerhalb des Typs nicht durchkommt.
-    expect(anfrageAus({ antwortweg: 'sms' as Anfrage['antwortweg'] }).antwortweg).toBe('email')
-    expect(anfrageAus({ antwortweg: 42 as unknown as Anfrage['antwortweg'] }).antwortweg).toBe(
-      'email',
-    )
+describe('requestFrom', () => {
+  it('accepts only the two known reply channels and falls back to email otherwise', () => {
+    expect(requestFrom({ replyChannel: 'whatsapp' }).replyChannel).toBe('whatsapp')
+    expect(requestFrom({ replyChannel: 'email' }).replyChannel).toBe('email')
+    expect(requestFrom({}).replyChannel).toBe('email')
+    // What a script might send instead. The cast is here because that is exactly what is being
+    // tested: that a value outside the type does not get through.
+    expect(
+      requestFrom({ replyChannel: 'sms' as ContactRequest['replyChannel'] }).replyChannel,
+    ).toBe('email')
+    expect(
+      requestFrom({ replyChannel: 42 as unknown as ContactRequest['replyChannel'] }).replyChannel,
+    ).toBe('email')
   })
 
-  it('wirft Zeilenumbrüche aus der Handynummer, damit nichts in einen Mail-Header rutscht', () => {
-    expect(anfrageAus({ handy: '0176 1234567\r\nBcc: wer@anders.example' }).handy).not.toContain(
+  it('strips line breaks from the mobile number so nothing slips into a mail header', () => {
+    expect(requestFrom({ mobile: '0176 1234567\r\nBcc: wer@anders.example' }).mobile).not.toContain(
       '\n',
     )
   })
 
-  it('kürzt die Handynummer auf die Feldgrenze', () => {
-    expect(anfrageAus({ handy: '0'.repeat(60) }).handy).toHaveLength(30)
+  it('truncates the mobile number to the field limit', () => {
+    expect(requestFrom({ mobile: '0'.repeat(60) }).mobile).toHaveLength(30)
   })
 })
 
-describe('fehlerZu', () => {
-  it('lässt eine vollständige Anfrage ohne Handynummer durch', () => {
-    expect(fehlerZu(gueltig())).toEqual({})
+describe('errorsFor', () => {
+  it('lets a complete request without a mobile number through', () => {
+    expect(errorsFor(valid())).toEqual({})
   })
 
-  it('nimmt übliche Schreibweisen einer Rufnummer an', () => {
-    for (const handy of ['0176 1234567', '+49 176 1234567', '+49 (0)176 / 123-4567', '017612345']) {
-      expect(fehlerZu(gueltig({ handy })), handy).toEqual({})
+  it('accepts the usual ways of writing a phone number', () => {
+    for (const mobile of [
+      '0176 1234567',
+      '+49 176 1234567',
+      '+49 (0)176 / 123-4567',
+      '017612345',
+    ]) {
+      expect(errorsFor(valid({ mobile })), mobile).toEqual({})
     }
   })
 
-  it('beanstandet eine Nummer, die keine ist — auch bei Antwort per Mail', () => {
-    for (const handy of ['ruf mich an', '0176-ABCDEFG', '12345']) {
-      expect(fehlerZu(gueltig({ handy })), handy).toHaveProperty('handy')
+  it('flags a number that is not one — even when replying by mail', () => {
+    for (const mobile of ['ruf mich an', '0176-ABCDEFG', '12345']) {
+      expect(errorsFor(valid({ mobile })), mobile).toHaveProperty('mobile')
     }
   })
 
-  it('verlangt eine Handynummer, sobald WhatsApp der Antwortweg ist', () => {
-    expect(fehlerZu(gueltig({ antwortweg: 'whatsapp' }))).toHaveProperty('handy')
-    expect(fehlerZu(gueltig({ antwortweg: 'whatsapp', handy: '0176 1234567' }))).toEqual({})
+  it('requires a mobile number as soon as WhatsApp is the reply channel', () => {
+    expect(errorsFor(valid({ replyChannel: 'whatsapp' }))).toHaveProperty('mobile')
+    expect(errorsFor(valid({ replyChannel: 'whatsapp', mobile: '0176 1234567' }))).toEqual({})
   })
 
-  it('verlangt die Handynummer nicht, wenn per Mail geantwortet wird', () => {
-    expect(fehlerZu(gueltig({ antwortweg: 'email', handy: '' }))).toEqual({})
+  it('does not require the mobile number when replying by mail', () => {
+    expect(errorsFor(valid({ replyChannel: 'email', mobile: '' }))).toEqual({})
   })
 
-  it('prüft Name, E-Mail und Nachricht weiterhin', () => {
-    expect(fehlerZu(gueltig({ name: 'K' }))).toHaveProperty('name')
-    expect(fehlerZu(gueltig({ email: 'karin@example' }))).toHaveProperty('email')
-    expect(fehlerZu(gueltig({ nachricht: 'Hallo' }))).toHaveProperty('nachricht')
+  it('still checks name, email and message', () => {
+    expect(errorsFor(valid({ name: 'K' }))).toHaveProperty('name')
+    expect(errorsFor(valid({ email: 'karin@example' }))).toHaveProperty('email')
+    expect(errorsFor(valid({ message: 'Hallo' }))).toHaveProperty('message')
   })
 })

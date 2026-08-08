@@ -1,36 +1,36 @@
 <script setup lang="ts">
-import { behandlungBySlug, preis } from '#shared/behandlungen'
-import { faqZuThema } from '#shared/faq'
-import { adresse, disclaimer, markenhinweis } from '#shared/site'
+import { treatmentBySlug, formatPrice } from '#shared/behandlungen'
+import { faqByTopic } from '#shared/faq'
+import { address, disclaimer, trademarkNotice } from '#shared/site'
 
 /*
- * Die Gesichtsbehandlung.
+ * The face treatment.
  *
- * Der Seitentitel setzt auf "Lymphdrainage Gesicht" und nicht auf den Markennamen: nach der Marke
- * sucht nur, wer sie schon kennt, nach der Behandlung suchen alle anderen.
+ * The page title bets on "Lymphdrainage Gesicht" and not on the brand name: only those who
+ * already know the brand search for it, everyone else searches for the treatment.
  */
-const behandlung = behandlungBySlug('lymphdrainage-gesicht')!
+const treatment = treatmentBySlug('lymphdrainage-gesicht')!
 
-useSeite({
-  titel: mitOrt('Lymphdrainage Gesicht'),
-  ogTitel: 'Lymphdrainage für das Gesicht',
-  beschreibung:
-    `Jeveauxeffect Face® in ${adresse.ort}: brasilianische Lymphdrainage für das Gesicht, Fokus ` +
-    `auf Entstauung und Kontur. ${preis(behandlung.preisEuro)}, Termine nach Vereinbarung.`,
+usePage({
+  title: withCity('Lymphdrainage Gesicht'),
+  ogTitle: 'Lymphdrainage für das Gesicht',
+  description:
+    `Jeveauxeffect Face® in ${address.city}: brasilianische Lymphdrainage für das Gesicht, Fokus ` +
+    `auf Entstauung und Kontur. ${formatPrice(treatment.priceEuro)}, Termine nach Vereinbarung.`,
   ogLabel: 'Gesichtsbehandlung',
 })
 
-useBehandlungSchema(behandlung)
+useTreatmentSchema(treatment)
 
-const gesichtFaq = faqZuThema('gesicht')
+const faceFaq = faqByTopic('face')
 
-useFaqSchema(gesichtFaq)
+useFaqSchema(faceFaq)
 </script>
 
 <template>
   <article>
     <SfSeitenkopf
-      titel="Lymphdrainage für das Gesicht"
+      title="Lymphdrainage für das Gesicht"
       label="Gesichtsbehandlung"
       lead="Der Jeveauxeffect Face® ist die Gesichtsbehandlung der Jeveaux Company®. Sie arbeitet
         auf Entstauung, klarere Konturen und ein waches Aussehen."
@@ -42,7 +42,7 @@ useFaqSchema(gesichtFaq)
           <div>
             <p class="sf-eyebrow">Jeveauxeffect Face®</p>
             <p class="mt-1 font-display text-3xl">
-              {{ preis(behandlung.preisEuro) }}
+              {{ formatPrice(treatment.priceEuro) }}
             </p>
           </div>
           <SfButton to="/preise" variant="secondary"> Alle Preise </SfButton>
@@ -112,17 +112,17 @@ useFaqSchema(gesichtFaq)
               <div class="flex justify-between gap-4">
                 <dt class="text-text-secondary">Preis</dt>
                 <dd class="text-right font-medium">
-                  {{ preis(behandlung.preisEuro) }}
+                  {{ formatPrice(treatment.priceEuro) }}
                 </dd>
               </div>
               <div class="flex justify-between gap-4">
                 <dt class="text-text-secondary">Ort</dt>
-                <dd class="text-right">{{ adresse.strasse }}, {{ adresse.ort }}</dd>
+                <dd class="text-right">{{ address.street }}, {{ address.city }}</dd>
               </div>
             </dl>
             <SfRule class="my-5 text-border" />
             <p class="text-sm text-text-secondary">
-              {{ markenhinweis }}
+              {{ trademarkNotice }}
             </p>
           </SfCard>
         </aside>
@@ -135,7 +135,7 @@ useFaqSchema(gesichtFaq)
       <section class="mt-16 max-w-3xl">
         <h2 class="text-2xl sm:text-3xl">Fragen zur Gesichtsbehandlung</h2>
         <div class="mt-6">
-          <SfFaqListe :eintraege="gesichtFaq" />
+          <SfFaqListe :entries="faceFaq" />
         </div>
       </section>
 
