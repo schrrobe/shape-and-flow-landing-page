@@ -33,10 +33,15 @@ export const adresse = {
 } as const
 
 /*
- * Bewusst ohne Telefon- und WhatsApp-Nummer: der Kontakt läuft über E-Mail und das
+ * Bewusst ohne eigene Telefon- und WhatsApp-Nummer: der Kontakt läuft über E-Mail und das
  * Kontaktformular. § 5 DDG verlangt eine schnelle elektronische Kontaktaufnahme, keine
  * Rufnummer (EuGH C-298/07), und ein wa.me-Link würde Daten an WhatsApp Ireland tragen,
  * bevor jemand eine Nachricht abschickt.
+ *
+ * Das Formular fragt nach einer Handynummer und lässt die Antwort per WhatsApp wählen. Das ist
+ * kein Widerspruch dazu: die Übertragung an WhatsApp beginnt dort erst mit der
+ * Antwort des Studios und nur, wenn jemand sie ausdrücklich gewählt hat. Eine Nummer hier
+ * anzugeben hieße dagegen, sie auf jeder Seite zu zeigen, auf der der Footer steht.
  */
 export const kontakt = {
   /**
