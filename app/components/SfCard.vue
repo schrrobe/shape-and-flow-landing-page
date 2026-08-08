@@ -1,8 +1,8 @@
 <script setup lang="ts">
-/* Die Kartenfläche der Booking-App: weiß auf Beige, ein Rahmen, ein flacher Schatten. */
+/* The card surface of the booking app: white on beige, a border, a flat shadow. */
 withDefaults(
   defineProps<{
-    /** Weglassen, wenn die Karte selbst schon Innenabstand mitbringt (etwa bei Bildern). */
+    /** Leave out when the card already brings its own padding (with images, for instance). */
     padded?: boolean
   }>(),
   { padded: true },

@@ -1,19 +1,19 @@
 <script setup lang="ts">
 import { faq } from '#shared/faq'
-import { adresse, disclaimer } from '#shared/site'
+import { address, disclaimer } from '#shared/site'
 
 /*
- * Alle Fragen an einem Ort.
+ * All questions in one place.
  *
- * Die Unterseiten zeigen jeweils nur den zu ihrem Thema passenden Ausschnitt. Diese Seite ist die
- * vollständige Fassung und trägt deshalb das FAQPage-Structured-Data für den gesamten Bestand.
+ * The sub-pages each show only the excerpt matching their topic. This page is the complete
+ * version and therefore carries the FAQPage structured data for the whole set.
  */
-useSeite({
-  titel: 'Häufige Fragen zur brasilianischen Lymphdrainage',
-  ogTitel: 'Häufige Fragen',
-  beschreibung:
+usePage({
+  title: 'Häufige Fragen zur brasilianischen Lymphdrainage',
+  ogTitle: 'Häufige Fragen',
+  description:
     'Antworten zu Ablauf, Wirkung, Gegenanzeigen, Schwangerschaft, Preisen und Krankenkasse rund ' +
-    `um die brasilianische Lymphdrainage in ${adresse.ort}.`,
+    `um die brasilianische Lymphdrainage in ${address.city}.`,
   ogLabel: 'Fragen und Antworten',
 })
 
@@ -23,7 +23,7 @@ useFaqSchema(faq)
 <template>
   <article>
     <SfSeitenkopf
-      titel="Häufige Fragen"
+      title="Häufige Fragen"
       label="Fragen und Antworten"
       lead="Was Kundinnen vor dem ersten Termin wissen wollen. Wenn Ihre Frage fehlt, schreiben Sie
         uns kurz über das Kontaktformular."
@@ -31,7 +31,7 @@ useFaqSchema(faq)
 
     <div class="sf-container">
       <div class="max-w-3xl">
-        <SfFaqListe :eintraege="faq" />
+        <SfFaqListe :entries="faq" />
       </div>
 
       <SfHinweis class="mt-14 max-w-3xl">
@@ -47,7 +47,7 @@ useFaqSchema(faq)
       <div class="mt-16">
         <SfCtaBlock
           inverse
-          titel="Frage nicht dabei?"
+          title="Frage nicht dabei?"
           text="Schreiben Sie einfach. Wir antworten auch auf Fragen, bei denen es am Ende nicht zu
             einem Termin kommt."
         />

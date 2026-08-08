@@ -1,29 +1,28 @@
 <script setup lang="ts">
-import type { FaqEintrag } from '#shared/faq'
+import type { FaqEntry } from '#shared/faq'
 
 /*
- * Die FAQ als <details>/<summary>.
+ * The FAQ as <details>/<summary>.
  *
- * Ohne JavaScript: das Aufklappen macht der Browser, Tastatursteuerung und Vorlesen funktionieren
- * dadurch von selbst. Wichtig fürs Ranking ist außerdem, dass der Antworttext im HTML steht und
- * nicht erst beim Klick nachgeladen wird, denn nur dann liest ihn ein Crawler mit.
+ * Without JavaScript: the browser does the expanding, so keyboard control and screen reader
+ * output work by themselves. What also matters for ranking is that the answer text is in the HTML
+ * and not loaded on click, because only then does a crawler read it.
  *
- * Das FAQPage-Structured-Data setzt die Seite, die diese Komponente einbindet, nicht die
- * Komponente selbst: sonst gäbe es bei zwei FAQ-Blöcken auf einer Seite zwei konkurrierende
- * Graphen.
+ * The FAQPage structured data is set by the page embedding this component, not by the component
+ * itself: otherwise two FAQ blocks on one page would produce two competing graphs.
  */
 defineProps<{
-  eintraege: FaqEintrag[]
+  entries: FaqEntry[]
 }>()
 </script>
 
 <template>
   <div class="divide-y divide-border border-y border-border">
-    <details v-for="eintrag in eintraege" :key="eintrag.frage" class="group">
+    <details v-for="entry in entries" :key="entry.question" class="group">
       <summary
         class="flex cursor-pointer items-start justify-between gap-4 py-4 font-display text-lg marker:content-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"
       >
-        {{ eintrag.frage }}
+        {{ entry.question }}
         <span
           class="mt-1.5 shrink-0 text-primary transition-transform group-open:rotate-45"
           aria-hidden="true"
@@ -40,16 +39,16 @@ defineProps<{
       </summary>
 
       <div class="sf-prose pb-5">
-        <p v-for="(absatz, i) in eintrag.antwort" :key="i">
-          {{ absatz }}
+        <p v-for="(paragraph, i) in entry.answer" :key="i">
+          {{ paragraph }}
         </p>
-        <ul v-if="eintrag.liste">
-          <li v-for="punkt in eintrag.liste" :key="punkt">
-            {{ punkt }}
+        <ul v-if="entry.list">
+          <li v-for="item in entry.list" :key="item">
+            {{ item }}
           </li>
         </ul>
-        <p v-if="eintrag.nachsatz">
-          {{ eintrag.nachsatz }}
+        <p v-if="entry.closing">
+          {{ entry.closing }}
         </p>
       </div>
     </details>
@@ -57,7 +56,7 @@ defineProps<{
 </template>
 
 <style scoped>
-/* Safari zeigt sonst das eigene Dreieck neben unserem Plus. */
+/* Otherwise Safari shows its own triangle next to our plus sign. */
 summary::-webkit-details-marker {
   display: none;
 }

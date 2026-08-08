@@ -1,16 +1,16 @@
 <script setup lang="ts">
-import { behandlungen, preis, preispositionen } from '#shared/behandlungen'
+import { treatments, formatPrice, priceItems } from '#shared/behandlungen'
 import { site } from '#shared/site'
 
 /*
- * Die Preise als echte Tabelle.
+ * The prices as a real table.
  *
- * Eine Liste aus <div>s würde genauso aussehen, aber eine Tabelle sagt Screenreadern und
- * Suchmaschinen, dass Behandlung und Preis zusammengehören. Die Preise selbst stehen in
- * shared/behandlungen.ts und damit an derselben Stelle wie im Structured Data.
+ * A list of <div>s would look the same, but a table tells screen readers and search engines that
+ * treatment and price belong together. The prices themselves live in shared/behandlungen.ts and
+ * therefore in the same place as in the structured data.
  *
- * Zwei Gruppen in einer Tabelle: die Einzelbehandlungen mit Link auf ihre Seite, darunter
- * Kombitermin und Pakete, die keine eigene Seite haben.
+ * Two groups in one table: the individual treatments with a link to their page, below them the
+ * combo appointment and the packages, which have no pages of their own.
  */
 </script>
 
@@ -39,23 +39,23 @@ import { site } from '#shared/site'
       </tr>
     </thead>
     <tbody>
-      <tr v-for="behandlung in behandlungen" :key="behandlung.slug" class="border-b border-border">
+      <tr v-for="treatment in treatments" :key="treatment.slug" class="border-b border-border">
         <th scope="row" class="py-5 pr-4 align-top font-normal">
           <NuxtLink
-            :to="behandlung.route"
+            :to="treatment.route"
             class="font-display text-xl text-text-primary underline decoration-1 underline-offset-4 hover:text-primary"
           >
-            {{ behandlung.name }}
+            {{ treatment.name }}
           </NuxtLink>
           <span class="mt-1 block text-sm text-text-secondary">
-            {{ behandlung.titel }}
-            <template v-if="behandlung.dauerMinuten">
-              · {{ behandlung.dauerMinuten }} Minuten
+            {{ treatment.title }}
+            <template v-if="treatment.durationMinutes">
+              · {{ treatment.durationMinutes }} Minuten
             </template>
           </span>
         </th>
         <td class="py-5 text-right align-top font-display text-xl whitespace-nowrap">
-          {{ preis(behandlung.preisEuro) }}
+          {{ formatPrice(treatment.priceEuro) }}
         </td>
       </tr>
     </tbody>
@@ -71,16 +71,16 @@ import { site } from '#shared/site'
         </th>
       </tr>
       <tr
-        v-for="position in preispositionen"
-        :key="position.slug"
+        v-for="item in priceItems"
+        :key="item.slug"
         class="border-b border-border last:border-b-0"
       >
         <th scope="row" class="py-5 pr-4 align-top font-normal">
-          <span class="font-display text-xl text-text-primary">{{ position.name }}</span>
-          <span class="mt-1 block text-sm text-text-secondary">{{ position.hinweis }}</span>
+          <span class="font-display text-xl text-text-primary">{{ item.name }}</span>
+          <span class="mt-1 block text-sm text-text-secondary">{{ item.note }}</span>
         </th>
         <td class="py-5 text-right align-top font-display text-xl whitespace-nowrap">
-          {{ preis(position.preisEuro) }}
+          {{ formatPrice(item.priceEuro) }}
         </td>
       </tr>
     </tbody>

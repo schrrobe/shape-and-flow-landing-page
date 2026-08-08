@@ -1,24 +1,24 @@
 <script setup lang="ts">
-import { site, sozialeProfile } from '#shared/site'
+import { site, socialProfiles } from '#shared/site'
 
 /*
  * The page behind the link in the social profiles: every destination as a button, nothing else.
  *
- * Deliberately not built with useSeite(): that adds a breadcrumb trail to the structured data
+ * Deliberately not built with usePage(): that adds a breadcrumb trail to the structured data
  * pointing at nothing visible — this page has no page header and is noindex anyway. The preview
  * image stays, because this is the exact address shared in profiles and messages.
  */
 definePageMeta({ layout: 'linktree' })
 
-const beschreibung =
+const description =
   `Alle Links von ${site.name}: Instagram, TikTok, Website, der Jeveauxeffect® erklärt, ` +
   `Preise und Termine.`
 
 useSeoMeta({
   title: 'Alle Links',
-  description: beschreibung,
+  description,
   ogTitle: `Alle Links | ${site.name}`,
-  ogDescription: beschreibung,
+  ogDescription: description,
   ogType: 'website',
   ogSiteName: site.name,
   ogLocale: 'de_DE',
@@ -41,15 +41,15 @@ useHead({ meta: [{ name: 'robots', content: 'noindex, follow' }] })
  *
  * `href` entries are external and open in a new tab, `to` entries stay inside the site.
  */
-const eintraege = [
-  ...sozialeProfile.map(profil => ({
-    label: profil.name,
-    icon: profil.icon,
-    href: profil.url,
+const entries = [
+  ...socialProfiles.map(profile => ({
+    label: profile.name,
+    icon: profile.icon,
+    href: profile.url,
   })),
-  { label: 'Zur Website', icon: 'haus', to: '/' },
-  { label: 'Der Jeveauxeffect® erklärt', icon: 'funke', to: '/jeveauxeffect' },
-  { label: 'Preise und Kombitermin', icon: 'preisschild', to: '/preise' },
+  { label: 'Zur Website', icon: 'home', to: '/' },
+  { label: 'Der Jeveauxeffect® erklärt', icon: 'sparkle', to: '/jeveauxeffect' },
+  { label: 'Preise und Kombitermin', icon: 'price-tag', to: '/preise' },
 ] as const
 </script>
 
@@ -61,27 +61,21 @@ const eintraege = [
     <p class="sf-lead mt-2 text-text-secondary">{{ site.tagline }}</p>
 
     <ul class="mt-10 space-y-3">
-      <li v-for="eintrag in eintraege" :key="eintrag.label">
+      <li v-for="entry in entries" :key="entry.label">
         <SfButton
-          v-if="'href' in eintrag"
-          :href="eintrag.href"
+          v-if="'href' in entry"
+          :href="entry.href"
           external
           variant="secondary"
           size="lg"
           class="w-full justify-start"
         >
-          <SfIcon :name="eintrag.icon" />
-          {{ eintrag.label }}
+          <SfIcon :name="entry.icon" />
+          {{ entry.label }}
         </SfButton>
-        <SfButton
-          v-else
-          :to="eintrag.to"
-          variant="secondary"
-          size="lg"
-          class="w-full justify-start"
-        >
-          <SfIcon :name="eintrag.icon" />
-          {{ eintrag.label }}
+        <SfButton v-else :to="entry.to" variant="secondary" size="lg" class="w-full justify-start">
+          <SfIcon :name="entry.icon" />
+          {{ entry.label }}
         </SfButton>
       </li>
 
@@ -92,7 +86,7 @@ const eintraege = [
       <li>
         <SfTerminButton size="lg" class="w-full justify-start">
           <template #icon>
-            <SfIcon name="kalender" />
+            <SfIcon name="calendar" />
           </template>
         </SfTerminButton>
       </li>

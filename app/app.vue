@@ -5,7 +5,7 @@ useHead({
   titleTemplate: (title?: string | null) => (title ? `${title} | ${site.name}` : site.name),
 })
 
-// Ein WebSite-Knoten pro Seite, damit Google Seitenname und Sprache sicher zuordnen kann.
+// One WebSite node per page, so Google can reliably tie site name and language together.
 useSchemaOrg([defineWebSite({ name: site.name, inLanguage: 'de-DE' }), defineWebPage()])
 </script>
 

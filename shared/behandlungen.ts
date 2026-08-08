@@ -1,130 +1,130 @@
 /*
- * Die Behandlungen mit Preis und Zielseite.
+ * The treatments with price and target page.
  *
- * Speist die Teaser auf der Startseite, die Preistabelle, die Navigation und das
- * Service-/Offer-Structured-Data. Eine Behandlung hier ergänzen heißt: sie erscheint überall.
+ * Feeds the teasers on the home page, the price table, the navigation and the Service/Offer
+ * structured data. Adding a treatment here means: it shows up everywhere.
  */
 
-export interface Behandlung {
+export interface Treatment {
   slug: string
-  /** Markenname mit ®, so wie er rechtlich geschrieben werden muss. */
+  /** Brand name with ®, spelled the way it legally has to be. */
   name: string
-  /** Beschreibender Titel ohne Marke — für Überschriften und Suchmaschinen. */
-  titel: string
-  /** Ein Satz für Teaser und Structured Data. */
-  kurz: string
-  preisEuro: number
-  /** TODO: Behandlungsdauer in Minuten eintragen; null blendet die Angabe aus. */
-  dauerMinuten: number | null
+  /** Descriptive title without the brand — for headings and search engines. */
+  title: string
+  /** One sentence for teasers and structured data. */
+  summary: string
+  priceEuro: number
+  /** TODO: fill in the treatment duration in minutes; null hides the figure. */
+  durationMinutes: number | null
   route: string
 }
 
-export const behandlungen: Behandlung[] = [
+export const treatments: Treatment[] = [
   {
     slug: 'jeveauxeffect',
     name: 'Jeveauxeffect®',
-    titel: 'Brasilianische Lymphdrainage für den Körper',
-    kurz:
+    title: 'Brasilianische Lymphdrainage für den Körper',
+    summary:
       'Ästhetische Ganzkörperbehandlung, die Lymphdrainage, Faszienarbeit und Körpermodellierung ' +
       'in einem festen Ablauf verbindet.',
-    preisEuro: 150,
-    dauerMinuten: null,
+    priceEuro: 150,
+    durationMinutes: null,
     route: '/jeveauxeffect',
   },
   {
     slug: 'lymphdrainage-gesicht',
     name: 'Jeveauxeffect Face®',
-    titel: 'Brasilianische Lymphdrainage für das Gesicht',
-    kurz:
+    title: 'Brasilianische Lymphdrainage für das Gesicht',
+    summary:
       'Gesichtsbehandlung mit Fokus auf Entstauung, klarere Konturen und ein frisches, ' +
       'waches Aussehen.',
-    preisEuro: 65,
-    dauerMinuten: null,
+    priceEuro: 65,
+    durationMinutes: null,
     route: '/lymphdrainage-gesicht',
   },
 ]
 
-export function behandlungBySlug(slug: string): Behandlung | undefined {
-  return behandlungen.find(b => b.slug === slug)
+export function treatmentBySlug(slug: string): Treatment | undefined {
+  return treatments.find(t => t.slug === slug)
 }
 
-export interface Preisposition {
+export interface PriceItem {
   slug: string
-  /** Name der Position, wie er in der Preistabelle steht. */
+  /** Name of the item as it appears in the price table. */
   name: string
-  /** Ein Satz darunter: was in der Position enthalten ist. */
-  hinweis: string
-  preisEuro: number
+  /** One sentence below it: what the item covers. */
+  note: string
+  priceEuro: number
 }
 
 /**
- * Kombitermin und Paketpreise.
+ * Combo appointment and package prices.
  *
- * Bewusst getrennt von den Behandlungen: es sind andere Preise für dieselben zwei Behandlungen
- * und deshalb keine eigenen Seiten. Sie erscheinen in der Preistabelle und im Structured Data,
- * der Kombitermin zusätzlich auf der Startseite und in der Navigation. Paketpreise gelten pro
- * Behandlung.
+ * Deliberately kept apart from the treatments: they are different prices for the same two
+ * treatments and therefore have no pages of their own. They appear in the price table and in the
+ * structured data, the combo appointment additionally on the home page and in the navigation.
+ * Package prices are per treatment.
  */
-export const preispositionen: Preisposition[] = [
+export const priceItems: PriceItem[] = [
   {
     slug: 'kombi-koerper-gesicht',
     name: 'Jeveauxeffect® und Jeveauxeffect Face®',
-    hinweis: 'Körper- und Gesichtsbehandlung zusammen in einem Termin',
-    preisEuro: 215,
+    note: 'Körper- und Gesichtsbehandlung zusammen in einem Termin',
+    priceEuro: 215,
   },
   {
     slug: 'jeveauxeffect-5er',
     name: 'Jeveauxeffect® 5er Paket',
-    hinweis: 'Preis pro Körperbehandlung bei fünf Terminen',
-    preisEuro: 130,
+    note: 'Preis pro Körperbehandlung bei fünf Terminen',
+    priceEuro: 130,
   },
   {
     slug: 'jeveauxeffect-10er',
     name: 'Jeveauxeffect® 10er Paket',
-    hinweis: 'Preis pro Körperbehandlung bei zehn Terminen',
-    preisEuro: 120,
+    note: 'Preis pro Körperbehandlung bei zehn Terminen',
+    priceEuro: 120,
   },
   {
     slug: 'jeveauxeffect-face-5er',
     name: 'Jeveauxeffect Face® 5er Paket',
-    hinweis: 'Preis pro Gesichtsbehandlung bei fünf Terminen',
-    preisEuro: 59,
+    note: 'Preis pro Gesichtsbehandlung bei fünf Terminen',
+    priceEuro: 59,
   },
   {
     slug: 'jeveauxeffect-face-10er',
     name: 'Jeveauxeffect Face® 10er Paket',
-    hinweis: 'Preis pro Gesichtsbehandlung bei zehn Terminen',
-    preisEuro: 45,
+    note: 'Preis pro Gesichtsbehandlung bei zehn Terminen',
+    priceEuro: 45,
   },
 ]
 
-export function preispositionBySlug(slug: string): Preisposition | undefined {
-  return preispositionen.find(p => p.slug === slug)
+export function priceItemBySlug(slug: string): PriceItem | undefined {
+  return priceItems.find(p => p.slug === slug)
 }
 
 /**
- * Der Kombitermin, der auch außerhalb der Preistabelle auftaucht.
+ * The combo appointment, which also shows up outside the price table.
  *
- * Als eigene Konstante, damit Startseite, Navigation und Kontaktformular nicht jede für sich in
- * der Liste suchen — und der Anker der Preistabelle nur an einer Stelle steht.
+ * As its own constant so that home page, navigation and contact form do not each search the list
+ * for themselves — and so the price table's anchor is written down in one place only.
  */
-export const kombitermin = preispositionen.find(p => p.slug === 'kombi-koerper-gesicht')!
+export const comboAppointment = priceItems.find(p => p.slug === 'kombi-koerper-gesicht')!
 
-/** Anker auf der Preisseite, an dem die Kombi- und Paketpreise stehen. */
-export const kombiAnker = '/preise#kombitermin'
+/** Anchor on the price page where the combo and package prices sit. */
+export const comboAnchor = '/preise#kombitermin'
 
-/** Alle Preise auf der Seite, Einzelbehandlungen und Pakete. */
-const allePreise = [...behandlungen.map(b => b.preisEuro), ...preispositionen.map(p => p.preisEuro)]
+/** Every price on the site, single treatments and packages. */
+const allPrices = [...treatments.map(t => t.priceEuro), ...priceItems.map(p => p.priceEuro)]
 
 /**
- * Die Preisspanne für das LocalBusiness-Structured-Data, im Format "45 - 215 EUR".
+ * The price range for the LocalBusiness structured data, formatted as "45 - 215 EUR".
  *
- * Abgeleitet und nicht getippt: sonst steht in der Konfiguration eine Spanne, die nach der
- * nächsten Preisänderung hier nicht mehr stimmt.
+ * Derived rather than typed out: otherwise the configuration would state a range that no longer
+ * holds after the next price change here.
  */
-export const preisSpanne = `${Math.min(...allePreise)} - ${Math.max(...allePreise)} EUR`
+export const priceRange = `${Math.min(...allPrices)} - ${Math.max(...allPrices)} EUR`
 
-/** Formatiert einen Preis deutsch: 150 → "150 €". Ganze Beträge ohne Nachkommastellen. */
-export function preis(euro: number): string {
+/** Formats a price the German way: 150 → "150 €". Whole amounts without decimals. */
+export function formatPrice(euro: number): string {
   return `${euro.toLocaleString('de-DE')} €`
 }

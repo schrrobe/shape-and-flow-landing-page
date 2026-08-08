@@ -1,47 +1,48 @@
 import { globSync, readFileSync } from 'node:fs'
 import { expect, test } from '@playwright/test'
-import { kontakt } from '../shared/site'
+import { contact } from '../shared/site'
 
 /*
- * Keine vorgerenderte Seite darf die Booking-App erwähnen — weder als Link noch als Nebensatz.
+ * No prerendered page may mention the booking app — neither as a link nor in passing.
  *
- * Das gilt hier unbedingt und nicht nur bei ausgeschaltetem Flag: `enable_booking_redirect` wird
- * im Browser ausgewertet, beim Bauen weiß niemand davon, und der Fallback ist aus. Im HTML steht
- * deshalb immer die Fassung ohne Buchungsstrecke. Genau das prüft der Test — er hält fest, dass
- * niemand versehentlich einen Verweis einbaut, der am Flag vorbei ins Markup gerät.
+ * That holds unconditionally and not only while the flag is off: `enable_booking_redirect` is
+ * evaluated in the browser, at build time nobody knows about it, and the fallback is off. So the
+ * HTML always contains the version without a booking flow. That is exactly what this test checks
+ * — it records that nobody accidentally adds a reference that slips past the flag into the
+ * markup.
  *
- * Geprüft wird die gebaute Datei und nicht die Seite im Browser: die Frage ist, was ausgeliefert
- * wird, und die beantwortet die Datei besser als das gerenderte DOM. Playwright startet trotzdem
- * seinen Vorschauserver — der Aufwand ist geschenkt gegenüber einer zweiten Testkonfiguration.
+ * The built file is checked and not the page in the browser: the question is what gets delivered,
+ * and the file answers that better than the rendered DOM. Playwright still starts its preview
+ * server — the cost is negligible compared to a second test configuration.
  */
 
-const seiten = globSync('.output/public/**/*.html')
+const pages = globSync('.output/public/**/*.html')
 
-if (!seiten.length)
-  throw new Error('Keine vorgerenderten Seiten in .output/public gefunden. Erst `npm run build`.')
+if (!pages.length)
+  throw new Error('No prerendered pages found in .output/public. Run `npm run build` first.')
 
 /*
- * Absichtlich enge Begriffe. Ein bloßes "buchen" käme auch in Sätzen vor, die nichts mit der
- * Booking-App zu tun haben ("beides lässt sich einzeln buchen"), und ein Test, der bei jedem
- * zweiten Textwechsel grundlos ausschlägt, wird abgeschaltet statt gelesen.
+ * Deliberately narrow terms. A bare "buchen" would also appear in sentences that have nothing to
+ * do with the booking app ("beides lässt sich einzeln buchen"), and a test that fires for no
+ * reason on every other copy change gets switched off rather than read.
  */
-const verboten = [
-  new URL(kontakt.buchungUrl).host,
+const forbidden = [
+  new URL(contact.bookingUrl).host,
   'Buchungssystem',
   'Terminbuchung',
   'Online buchen',
   'direkt online',
 ]
 
-test.describe('Vorgerendertes HTML', () => {
-  for (const datei of seiten) {
-    const route = datei.replace(/^\.output\/public/, '').replace(/\/?index\.html$/, '') || '/'
+test.describe('Prerendered HTML', () => {
+  for (const file of pages) {
+    const route = file.replace(/^\.output\/public/, '').replace(/\/?index\.html$/, '') || '/'
 
-    test(`${route} erwähnt die Booking-App nicht`, () => {
-      const html = readFileSync(datei, 'utf8')
-      const treffer = verboten.filter(begriff => html.includes(begriff))
+    test(`${route} does not mention the booking app`, () => {
+      const html = readFileSync(file, 'utf8')
+      const hits = forbidden.filter(term => html.includes(term))
 
-      expect(treffer, `Auf ${route} steht noch: ${treffer.join(', ')}`).toEqual([])
+      expect(hits, `${route} still contains: ${hits.join(', ')}`).toEqual([])
     })
   }
 })

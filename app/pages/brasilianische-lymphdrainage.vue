@@ -1,34 +1,33 @@
 <script setup lang="ts">
-import { behandlungen, preis } from '#shared/behandlungen'
-import { faqZuThema, kontraindikationen } from '#shared/faq'
-import { adresse, disclaimer, markenhinweis } from '#shared/site'
+import { treatments, formatPrice } from '#shared/behandlungen'
+import { faqByTopic, contraindications } from '#shared/faq'
+import { address, disclaimer, trademarkNotice } from '#shared/site'
 
 /*
- * Die Themenseite zur Methode.
+ * The topic page about the method.
  *
- * Sie beantwortet die Frage "was ist das eigentlich" vollständig, damit die beiden
- * Behandlungsseiten sich auf ihr jeweiliges Angebot beschränken können und nicht dieselbe
- * Erklärung dreimal auf der Website steht. Von hier gehen die Links zu den Behandlungen ab,
- * nicht umgekehrt.
+ * It answers the question "what is this actually" in full, so the two treatment pages can stick to
+ * their own offer and the same explanation does not appear three times on the site. The links to
+ * the treatments run from here, not the other way round.
  */
-useSeite({
-  titel: 'Brasilianische Lymphdrainage: Methode und Ablauf',
-  ogTitel: 'Brasilianische Lymphdrainage',
-  beschreibung:
+usePage({
+  title: 'Brasilianische Lymphdrainage: Methode und Ablauf',
+  ogTitle: 'Brasilianische Lymphdrainage',
+  description:
     'Was die brasilianische Lymphdrainage ist, wie der Jeveauxeffect® abläuft, wie er sich von ' +
     'der medizinischen unterscheidet und wann nicht behandelt wird.',
   ogLabel: 'Die Methode',
 })
 
-const methodeFaq = faqZuThema('gesundheit')
+const methodFaq = faqByTopic('health')
 
-useFaqSchema(methodeFaq)
+useFaqSchema(methodFaq)
 </script>
 
 <template>
   <article>
     <SfSeitenkopf
-      titel="Brasilianische Lymphdrainage"
+      title="Brasilianische Lymphdrainage"
       label="Die Methode"
       lead="Eine ästhetische Massage, die den Lymphfluss anregt und danach kräftig modelliert. Hier
         steht, wie sie arbeitet, was sie kann und wo ihre Grenzen liegen."
@@ -47,7 +46,7 @@ useFaqSchema(methodeFaq)
             Der Jeveauxeffect® ist die Ausprägung dieser Methode, die die Jeveaux Company®
             entwickelt hat. Er verbindet drei Handschriften in einem festen Ablauf: Lymphdrainage,
             Faszienarbeit und Körpermodellierung. Shape &amp; Flow arbeitet in
-            {{ adresse.ort }} als lizenzierter Partner mit dieser Methode.
+            {{ address.city }} als lizenzierter Partner mit dieser Methode.
           </p>
 
           <h2 id="ablauf">Wie eine Behandlung abläuft</h2>
@@ -108,8 +107,8 @@ useFaqSchema(methodeFaq)
             Behandlung statt:
           </p>
           <ul>
-            <li v-for="punkt in kontraindikationen" :key="punkt">
-              {{ punkt }}
+            <li v-for="item in contraindications" :key="item">
+              {{ item }}
             </li>
           </ul>
           <p>
@@ -119,30 +118,30 @@ useFaqSchema(methodeFaq)
           </p>
         </div>
 
-        <!-- Seitenspalte mit den beiden Angeboten, damit die Themenseite auch verkauft. -->
+        <!-- Sidebar with both offers, so the topic page sells as well. -->
         <aside class="lg:sticky lg:top-28 lg:self-start">
           <SfCard>
             <h2 class="sf-eyebrow">Behandlungen</h2>
             <ul class="mt-4 space-y-4">
-              <li v-for="behandlung in behandlungen" :key="behandlung.slug">
-                <NuxtLink :to="behandlung.route" class="group block">
+              <li v-for="treatment in treatments" :key="treatment.slug">
+                <NuxtLink :to="treatment.route" class="group block">
                   <span class="flex items-baseline justify-between gap-3">
                     <span class="font-display text-lg group-hover:text-primary">
-                      {{ behandlung.name }}
+                      {{ treatment.name }}
                     </span>
                     <span class="font-display whitespace-nowrap text-primary">
-                      {{ preis(behandlung.preisEuro) }}
+                      {{ formatPrice(treatment.priceEuro) }}
                     </span>
                   </span>
                   <span class="mt-0.5 block text-sm text-text-secondary">
-                    {{ behandlung.titel }}
+                    {{ treatment.title }}
                   </span>
                 </NuxtLink>
               </li>
             </ul>
             <SfRule class="my-5 text-border" />
             <p class="text-sm text-text-secondary">
-              {{ markenhinweis }}
+              {{ trademarkNotice }}
             </p>
           </SfCard>
         </aside>
@@ -159,7 +158,7 @@ useFaqSchema(methodeFaq)
       <section class="mt-16 max-w-3xl">
         <h2 class="text-2xl sm:text-3xl">Fragen zu Gesundheit und Eignung</h2>
         <div class="mt-6">
-          <SfFaqListe :eintraege="methodeFaq" />
+          <SfFaqListe :entries="methodFaq" />
         </div>
         <NuxtLink
           to="/faq"

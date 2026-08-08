@@ -1,10 +1,10 @@
 <script setup lang="ts">
 /*
- * Die Button-Rezeptur der Booking-App, ergänzt um eine Variante für das orange Panel.
+ * The button recipe of the booking app, extended by a variant for the orange panel.
  *
- * Rendert je nach Prop das richtige Element: NuxtLink für interne Ziele, <a> für tel:, mailto: und
- * externe Adressen, <button> wenn kein Ziel angegeben ist. Ein Link, der wie ein Button aussieht,
- * soll trotzdem ein Link sein, damit Öffnen im neuen Tab und Kopieren der Adresse funktionieren.
+ * Renders the right element depending on the props: NuxtLink for internal targets, <a> for tel:,
+ * mailto: and external addresses, <button> when no target is given. A link that looks like a
+ * button should still be a link, so that opening in a new tab and copying the address work.
  */
 const props = withDefaults(
   defineProps<{
@@ -12,9 +12,9 @@ const props = withDefaults(
     href?: string
     variant?: 'primary' | 'secondary' | 'ghost' | 'inverse'
     size?: 'md' | 'lg'
-    /** Externe Links bekommen rel="noopener" und öffnen in einem neuen Tab. */
+    /** External links get rel="noopener" and open in a new tab. */
     external?: boolean
-    /** Nur ohne Ziel: `submit` für den Absenden-Knopf eines Formulars. */
+    /** Only without a target: `submit` for the send button of a form. */
     type?: 'button' | 'submit'
   }>(),
   {
@@ -36,7 +36,7 @@ const variants = {
     'bg-surface text-text-primary border border-border hover:bg-surface-muted ' +
     'focus-visible:outline-focus-ring',
   ghost: 'bg-transparent text-text-primary hover:bg-surface-muted focus-visible:outline-focus-ring',
-  // Auf Orange: cremefarbene Fläche, dunkler Text. Ein oranger Button wäre dort unsichtbar.
+  // On orange: cream surface, dark text. An orange button would be invisible there.
   inverse:
     'bg-inverse-text text-text-primary hover:bg-surface-muted focus-visible:outline-inverse-text',
 } as const

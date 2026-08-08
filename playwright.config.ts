@@ -1,13 +1,13 @@
 import { defineConfig, devices } from '@playwright/test'
 
 /*
- * Nur für die Barrierefreiheitsprüfung. Sie läuft gegen `nuxt preview`, also gegen dasselbe
- * Artefakt, das auch ausgeliefert wird — die Seiten sind vorgerendert, ein Dev-Server würde
- * anderes HTML zeigen.
+ * For the accessibility check only. It runs against `nuxt preview`, i.e. against the same
+ * artifact that gets delivered — the pages are prerendered, a dev server would show different
+ * HTML.
  *
- * Ein echter Browser ist der Punkt der Übung: Kontrastverhältnisse, Sichtbarkeit und
- * Fokusreihenfolge lassen sich ohne Layout und Cascade nicht beurteilen, und genau die Regeln
- * bleiben bei einer Prüfung im simulierten DOM unentschieden.
+ * A real browser is the point of the exercise: contrast ratios, visibility and focus order cannot
+ * be judged without layout and cascade, and those are exactly the rules that stay undecided when
+ * checking in a simulated DOM.
  */
 export default defineConfig({
   testDir: './test',
@@ -23,8 +23,8 @@ export default defineConfig({
   projects: [{ name: 'chromium', use: { ...devices['Desktop Chrome'] } }],
 
   webServer: {
-    // Kein Build hier: im CI baut ein eigener Schritt davor, lokal reicht ein vorhandenes
-    // .output. Der Server würde sonst bei jedem Lauf zwei Minuten warten.
+    // No build here: in CI a separate step builds beforehand, locally an existing .output is
+    // enough. Otherwise the server would wait two minutes on every run.
     command: 'npm run preview',
     url: 'http://127.0.0.1:3000',
     reuseExistingServer: !process.env.CI,

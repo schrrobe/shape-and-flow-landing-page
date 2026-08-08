@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { markenhinweis, site } from '#shared/site'
+import { trademarkNotice, site } from '#shared/site'
 
 /*
  * The shell for /linktree, the only page without a header and without the large footer.
@@ -15,7 +15,7 @@ import { markenhinweis, site } from '#shared/site'
 
 <template>
   <div class="flex min-h-dvh flex-col bg-background">
-    <main id="inhalt" class="flex flex-1 flex-col items-center justify-center px-5 py-12 sm:py-16">
+    <main id="content" class="flex flex-1 flex-col items-center justify-center px-5 py-12 sm:py-16">
       <div class="w-full max-w-md">
         <slot />
       </div>
@@ -37,7 +37,7 @@ import { markenhinweis, site } from '#shared/site'
           <!-- No year: a copyright year in the markup is wrong from January 1st onwards. -->
           <li>© {{ site.name }}</li>
         </ul>
-        <p class="text-xs">{{ markenhinweis }}</p>
+        <p class="text-xs">{{ trademarkNotice }}</p>
       </div>
     </footer>
   </div>

@@ -1,17 +1,16 @@
 <script setup lang="ts">
 /*
- * Die Trennlinie mit Punkt in der Mitte.
+ * The divider with a dot in the middle.
  *
- * Kein beliebiger Hairline-Divider, sondern das Ornament, das im Logo unter "Flow" steht. Deshalb
- * ist es hier die einzige zugelassene Trennform: sie kommt aus der Marke und nicht aus einem
- * Designsystem-Katalog.
+ * Not just any hairline divider, but the ornament that sits under "Flow" in the logo. That is why
+ * it is the only permitted form of separation here: it comes from the brand and not from a design
+ * system catalogue.
  *
- * Farbe über currentColor, damit dieselbe Komponente auf Beige und auf dem orangen Panel
- * funktioniert.
+ * Colour via currentColor, so the same component works on beige and on the orange panel.
  */
 withDefaults(
   defineProps<{
-    /** Ohne Punkt, wenn die Linie nur trennen und nicht auszeichnen soll. */
+    /** Without the dot, when the line should only separate and not mark anything out. */
     plain?: boolean
   }>(),
   { plain: false },

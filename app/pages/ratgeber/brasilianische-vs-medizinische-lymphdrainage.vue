@@ -1,66 +1,67 @@
 <script setup lang="ts">
-import { kontraindikationen } from '#shared/faq'
-import { artikelByRoute } from '#shared/ratgeber'
+import { contraindications } from '#shared/faq'
+import { articleByRoute } from '#shared/ratgeber'
 import { disclaimer } from '#shared/site'
 
 /*
- * Der Vergleich beider Verfahren.
+ * The comparison of the two approaches.
  *
- * Der Artikel steht nicht nur aus SEO-Gründen hier. Die Verwechslung ist der häufigste Grund für
- * falsche Erwartungen an einen Termin, und sie rechtlich klar aufzulösen schützt beide Seiten.
+ * The article is not here for SEO reasons alone. Mixing the two up is the most common cause of
+ * false expectations about an appointment, and resolving it clearly in legal terms protects both
+ * sides.
  */
-const artikel = artikelByRoute('/ratgeber/brasilianische-vs-medizinische-lymphdrainage')!
+const article = articleByRoute('/ratgeber/brasilianische-vs-medizinische-lymphdrainage')!
 
-useSeite({
-  titel: artikel.titel,
-  kurzTitel: artikel.titel,
-  ogTitel: 'Brasilianisch oder medizinisch?',
-  beschreibung:
+usePage({
+  title: article.title,
+  shortTitle: article.title,
+  ogTitle: 'Brasilianisch oder medizinisch?',
+  description:
     'Ziel, Durchführung, Kosten und Kassenerstattung im Vergleich: wann eine ästhetische ' +
     'Lymphdrainage passt und wann die medizinische die richtige ist.',
   ogLabel: 'Ratgeber',
-  pfad: [{ name: 'Ratgeber', url: '/ratgeber' }],
+  trail: [{ name: 'Ratgeber', url: '/ratgeber' }],
 })
 
 useSchemaOrg([
   defineArticle({
-    headline: artikel.titel,
+    headline: article.title,
     description:
       'Vergleich von ästhetischer und medizinischer Lymphdrainage nach Ziel, Durchführung, ' +
       'Verordnung und Kosten.',
   }),
 ])
 
-const vergleich = [
+const comparison = [
   {
-    merkmal: 'Ziel',
-    aesthetisch: 'Entstauung und Form, ein leichteres Körpergefühl',
-    medizinisch: 'Behandlung einer Erkrankung, etwa eines Lymphödems',
+    feature: 'Ziel',
+    aesthetic: 'Entstauung und Form, ein leichteres Körpergefühl',
+    medical: 'Behandlung einer Erkrankung, etwa eines Lymphödems',
   },
   {
-    merkmal: 'Einordnung',
-    aesthetisch: 'kosmetische Anwendung im Beauty-Bereich',
-    medizinisch: 'Heilbehandlung',
+    feature: 'Einordnung',
+    aesthetic: 'kosmetische Anwendung im Beauty-Bereich',
+    medical: 'Heilbehandlung',
   },
   {
-    merkmal: 'Wer behandelt',
-    aesthetisch: 'geschulte Fachkraft, bei Shape & Flow nach der Jeveaux Methode',
-    medizinisch: 'Physiotherapeutin oder Physiotherapeut mit Zusatzqualifikation',
+    feature: 'Wer behandelt',
+    aesthetic: 'geschulte Fachkraft, bei Shape & Flow nach der Jeveaux Methode',
+    medical: 'Physiotherapeutin oder Physiotherapeut mit Zusatzqualifikation',
   },
   {
-    merkmal: 'Verordnung',
-    aesthetisch: 'keine, Sie buchen selbst einen Termin',
-    medizinisch: 'ärztliches Rezept nach Diagnose',
+    feature: 'Verordnung',
+    aesthetic: 'keine, Sie buchen selbst einen Termin',
+    medical: 'ärztliches Rezept nach Diagnose',
   },
   {
-    merkmal: 'Druck',
-    aesthetisch: 'erst sanft, dann kräftig und modellierend',
-    medizinisch: 'durchgehend sehr sanft',
+    feature: 'Druck',
+    aesthetic: 'erst sanft, dann kräftig und modellierend',
+    medical: 'durchgehend sehr sanft',
   },
   {
-    merkmal: 'Kosten',
-    aesthetisch: 'Selbstzahlung',
-    medizinisch: 'Kassenleistung mit Eigenanteil',
+    feature: 'Kosten',
+    aesthetic: 'Selbstzahlung',
+    medical: 'Kassenleistung mit Eigenanteil',
   },
 ]
 </script>
@@ -68,11 +69,11 @@ const vergleich = [
 <template>
   <article>
     <SfSeitenkopf
-      :titel="artikel.titel"
+      :title="article.title"
       label="Ratgeber"
       lead="Beide arbeiten am Lymphsystem, aber sie haben verschiedene Aufgaben. Wer das
         verwechselt, bucht das Falsche."
-      :pfad="[{ name: 'Ratgeber', url: '/ratgeber' }]"
+      :trail="[{ name: 'Ratgeber', url: '/ratgeber' }]"
     />
 
     <div class="sf-container">
@@ -92,7 +93,7 @@ const vergleich = [
         </p>
       </div>
 
-      <!-- Die Tabelle ist der Kern des Artikels: hier liest man den Unterschied in zehn Sekunden. -->
+      <!-- The table is the core of the article: here the difference reads in ten seconds. -->
       <div class="mt-12 max-w-3xl overflow-x-auto">
         <table class="w-full border-collapse text-left text-sm">
           <caption class="sr-only">
@@ -107,18 +108,18 @@ const vergleich = [
           </thead>
           <tbody>
             <tr
-              v-for="zeile in vergleich"
-              :key="zeile.merkmal"
+              v-for="row in comparison"
+              :key="row.feature"
               class="border-b border-border align-top last:border-b-0"
             >
               <th scope="row" class="py-4 pr-4 font-medium">
-                {{ zeile.merkmal }}
+                {{ row.feature }}
               </th>
               <td class="py-4 pr-4 text-text-secondary">
-                {{ zeile.aesthetisch }}
+                {{ row.aesthetic }}
               </td>
               <td class="py-4 text-text-secondary">
-                {{ zeile.medizinisch }}
+                {{ row.medical }}
               </td>
             </tr>
           </tbody>
@@ -144,8 +145,8 @@ const vergleich = [
           hätten:
         </p>
         <ul>
-          <li v-for="punkt in kontraindikationen" :key="punkt">
-            {{ punkt }}
+          <li v-for="item in contraindications" :key="item">
+            {{ item }}
           </li>
         </ul>
         <p>

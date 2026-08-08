@@ -1,34 +1,34 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import { adresse, kartenUrl, kontakt, mailtoUrl, oeffnungszeiten, site } from '#shared/site'
+import { address, mapUrl, contact, mailtoUrl, openingHours, site } from '#shared/site'
 
 /*
- * Diese Seite spricht an drei sichtbaren Stellen von der Online-Buchung: im Vorspann, im Absatz
- * über dem Formular und in der zweiten Karte. Ist das Flag aus, gibt es keine Buchungsseite —
- * dann darf hier auch nichts stehen, was auf eine hindeutet.
+ * This page mentions online booking in three visible places: in the lead, in the paragraph above
+ * the form and in the second card. When the flag is off there is no booking page — and then
+ * nothing may stand here that hints at one either.
  */
-const buchungSichtbar = useBuchungSichtbar()
+const bookingVisible = useBookingVisible()
 
-useSeite({
-  titel: `Kontakt und Termin in ${adresse.ort}`,
-  ogTitel: 'Kontakt und Termin',
-  kurzTitel: 'Kontakt',
+usePage({
+  title: `Kontakt und Termin in ${address.city}`,
+  ogTitle: 'Kontakt und Termin',
+  shortTitle: 'Kontakt',
   /*
-   * Die Beschreibung erwähnt die Online-Buchung bewusst in keinem Fall. Sie steht im
-   * vorgerenderten HTML und im Vorschaubild, beides entsteht beim Build — also lange bevor das
-   * Browser-SDK das Flag kennt. Eine Fassung "oder online buchen" käme deshalb nie zur
-   * Auslieferung, und ein Zweig, den niemand je zu sehen bekommt, ist toter Code.
+   * The description deliberately never mentions online booking. It sits in the prerendered HTML
+   * and in the preview image, both of which are created at build time — that is, long before the
+   * browser SDK knows the flag. A version saying "oder online buchen" would therefore never be
+   * delivered, and a branch nobody ever gets to see is dead code.
    */
-  beschreibung:
-    `Termin für brasilianische Lymphdrainage bei Shape & Flow, ${adresse.strasse}, ${adresse.plz} ` +
-    `${adresse.ort}. Per Kontaktformular oder per E-Mail.`,
+  description:
+    `Termin für brasilianische Lymphdrainage bei Shape & Flow, ${address.street}, ${address.postalCode} ` +
+    `${address.city}. Per Kontaktformular oder per E-Mail.`,
   ogLabel: 'Kontakt',
 })
 
-// computed und nicht einmalig ausgewertet: das Flag steht erst fest, wenn das Browser-SDK
-// geantwortet hat, und das ist nach dem ersten Rendern. Gilt genauso für `wege` unten.
-const vorspann = computed(() =>
-  buchungSichtbar.value
+// computed and not evaluated once: the flag is only settled once the browser SDK has answered,
+// and that is after the first render. The same goes for `channels` below.
+const lead = computed(() =>
+  bookingVisible.value
     ? `Schreiben Sie uns über das Formular oder per E-Mail. Wer schon weiß, was er möchte,
       bucht den Termin direkt online.`
     : `Schreiben Sie uns über das Formular oder per E-Mail. Wir melden uns mit freien Terminen
@@ -36,28 +36,28 @@ const vorspann = computed(() =>
 )
 
 /*
- * Kein Telefon und kein WhatsApp als Weg zu uns: das Studio ist während einer Behandlung nicht am
- * Apparat, und eine Anfrage, die im Postfach liegt, geht dabei seltener verloren als ein
- * verpasster Anruf. Warum die Nummer auch im Impressum fehlt, steht in shared/site.ts.
+ * No phone and no WhatsApp as a way to reach us: the studio is not at the phone during a
+ * treatment, and a request sitting in the mailbox gets lost less often than a missed call. Why the
+ * number is absent from the imprint as well is explained in shared/site.ts.
  *
- * Für den Rückweg gilt das nicht: im Formular lässt sich die Antwort per WhatsApp wählen. Hier
- * steht sie trotzdem nicht, weil diese Liste Wege zeigt, die man selbst öffnen kann.
+ * That does not apply to the way back: in the form the reply can be chosen to come via WhatsApp.
+ * It is still not listed here, because this list shows ways you can open yourself.
  */
-const wege = computed(() => [
+const channels = computed(() => [
   {
-    titel: 'E-Mail',
+    title: 'E-Mail',
     text: 'Wenn Sie lieber aus Ihrem eigenen Postfach schreiben.',
-    label: kontakt.email,
+    label: contact.email,
     href: mailtoUrl,
     external: false,
   },
-  ...(buchungSichtbar.value
+  ...(bookingVisible.value
     ? [
         {
-          titel: 'Online buchen',
+          title: 'Online buchen',
           text: 'Freie Termine sehen und direkt verbindlich buchen.',
           label: 'Zur Terminbuchung',
-          href: kontakt.buchungUrl,
+          href: contact.bookingUrl,
           external: true,
         },
       ]
@@ -67,32 +67,32 @@ const wege = computed(() => [
 
 <template>
   <article>
-    <SfSeitenkopf titel="Kontakt" label="Termin vereinbaren" :lead="vorspann" />
+    <SfSeitenkopf title="Kontakt" label="Termin vereinbaren" :lead="lead" />
 
     <div class="sf-container">
-      <!-- Das Formular steht vor den anderen Wegen, weil es ohne Mailprogramm funktioniert. -->
-      <section id="formular" aria-labelledby="formular-titel">
-        <h2 id="formular-titel" class="text-2xl sm:text-3xl">Anfrage schreiben</h2>
-        <p v-if="buchungSichtbar" class="mt-3 max-w-prose text-text-secondary">
+      <!-- The form comes before the other channels, because it works without a mail client. -->
+      <section id="formular" aria-labelledby="formular-heading">
+        <h2 id="formular-heading" class="text-2xl sm:text-3xl">Anfrage schreiben</h2>
+        <p v-if="bookingVisible" class="mt-3 max-w-prose text-text-secondary">
           Das Formular ist für Fragen gedacht, etwa zur Behandlung, zum Ablauf oder zum Preis. Wir
           antworten in der Regel innerhalb eines Werktags.
         </p>
         <!--
-          Ohne Buchungsseite ist das Formular nicht die zweitbeste Wahl, sondern der Weg zum Termin.
-          Dann darf hier auch nicht stehen, es sei "für Fragen gedacht".
+          Without a booking page the form is not the second-best option but the way to an
+          appointment. Then it must not say here that it is "für Fragen gedacht".
         -->
         <p v-else class="mt-3 max-w-prose text-text-secondary">
           Über das Formular fragen Sie einen Termin an oder stellen eine Frage zur Behandlung, zum
           Ablauf oder zum Preis. Wir antworten in der Regel innerhalb eines Werktags.
         </p>
         <!--
-          Der Hinweis steht über dem Formular und nicht bei den Kontaktwegen darunter: wer hier
-          anfängt zu tippen, hat die Buchung dann schon übersprungen.
+          The notice sits above the form and not with the contact channels below it: whoever
+          starts typing here has already skipped past the booking.
         -->
-        <p v-if="buchungSichtbar" class="mt-3 max-w-prose text-text-secondary">
+        <p v-if="bookingVisible" class="mt-3 max-w-prose text-text-secondary">
           Wenn Sie einen Termin möchten, nutzen Sie bitte den Knopf
           <a
-            :href="kontakt.buchungUrl"
+            :href="contact.bookingUrl"
             target="_blank"
             rel="noopener"
             class="text-primary underline underline-offset-2 hover:no-underline"
@@ -103,17 +103,22 @@ const wege = computed(() => [
         <SfKontaktFormular class="mt-6" />
       </section>
 
-      <!-- Zwei Spalten nur, wenn es auch zwei Karten gibt: eine halbe Karte neben Leerraum nicht. -->
-      <div class="mt-14 grid gap-6" :class="{ 'sm:grid-cols-2': wege.length > 1 }">
-        <SfCard v-for="weg in wege" :key="weg.titel">
+      <!-- Two columns only when there really are two cards: half a card next to blank space, no. -->
+      <div class="mt-14 grid gap-6" :class="{ 'sm:grid-cols-2': channels.length > 1 }">
+        <SfCard v-for="channel in channels" :key="channel.title">
           <h2 class="font-display text-xl">
-            {{ weg.titel }}
+            {{ channel.title }}
           </h2>
           <p class="mt-2 text-text-secondary">
-            {{ weg.text }}
+            {{ channel.text }}
           </p>
-          <SfButton :href="weg.href" variant="secondary" :external="weg.external" class="mt-5">
-            {{ weg.label }}
+          <SfButton
+            :href="channel.href"
+            variant="secondary"
+            :external="channel.external"
+            class="mt-5"
+          >
+            {{ channel.label }}
           </SfButton>
         </SfCard>
       </div>
@@ -123,19 +128,19 @@ const wege = computed(() => [
           <h2 class="text-2xl sm:text-3xl">Adresse und Anfahrt</h2>
           <address class="mt-5 space-y-1 text-lg not-italic">
             <p>{{ site.name }}</p>
-            <p>{{ adresse.strasse }}</p>
-            <p>{{ adresse.plz }} {{ adresse.ort }}</p>
+            <p>{{ address.street }}</p>
+            <p>{{ address.postalCode }} {{ address.city }}</p>
           </address>
           <p class="mt-4 text-text-secondary">
-            {{ oeffnungszeiten.hinweis }}. Kommen Sie bitte nicht ohne Termin vorbei, weil während
-            einer Behandlung niemand an der Tür ist.
+            {{ openingHours.note }}. Kommen Sie bitte nicht ohne Termin vorbei, weil während einer
+            Behandlung niemand an der Tür ist.
           </p>
           <!--
-            Bewusst nur ein Link zu Google Maps und keine eingebettete Karte: eine Karte im iframe
-            lädt Daten bei Google, sobald die Seite aufgeht, und würde eine Einwilligung samt
-            Cookie-Banner nötig machen. Für eine Adresse ist das ein schlechter Tausch.
+            Deliberately only a link to Google Maps and no embedded map: a map in an iframe loads
+            data from Google as soon as the page opens, and would make a consent flow plus cookie
+            banner necessary. For an address that is a bad trade.
           -->
-          <SfButton :href="kartenUrl" variant="secondary" class="mt-6" external>
+          <SfButton :href="mapUrl" variant="secondary" class="mt-6" external>
             Route in Google Maps planen
           </SfButton>
         </div>

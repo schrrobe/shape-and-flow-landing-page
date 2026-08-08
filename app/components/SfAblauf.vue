@@ -1,29 +1,30 @@
 <script setup lang="ts">
 /*
- * Der Ablauf der Behandlung als Sequenz.
+ * The treatment procedure as a sequence.
  *
- * Die Nummerierung steht hier, weil der Ablauf tatsächlich eine feste Reihenfolge hat: erst wird
- * die Lymphe aktiviert, dann wird modelliert. Die Reihenfolge ist die Methode, nicht Dekoration.
+ * The numbering is here because the procedure really does have a fixed order: first the lymph is
+ * activated, then the modelling happens. The order is the method, not decoration.
  *
- * Durch die Marker läuft eine durchgehende Linie. Das ist die Konturlinie aus dem Logo, hier als
- * Verbindung zwischen den Phasen: eine Linie, ein Weg, eine Richtung. Sie ist das einzige
- * dekorative Element der Seite und kommt genau an dieser Stelle vor.
+ * A continuous line runs through the markers. That is the contour line from the logo, here as the
+ * connection between the phases: one line, one path, one direction. It is the only decorative
+ * element of the site and appears at exactly this spot.
  */
 defineProps<{
-  phasen: { titel: string; text: string }[]
+  phases: { title: string; text: string }[]
 }>()
 </script>
 
 <template>
-  <ol class="sf-ablauf relative">
-    <li v-for="(phase, i) in phasen" :key="phase.titel" class="relative pb-10 pl-16 last:pb-0">
+  <ol class="sf-sequence relative">
+    <li v-for="(phase, i) in phases" :key="phase.title" class="relative pb-10 pl-16 last:pb-0">
       <!--
-        Die Linie sitzt am li und endet beim letzten Element, damit sie nicht ins Leere läuft.
-        Als Pseudoelement per CSS, weil ein SVG pro Schritt nur mehr Markup für dasselbe Bild wäre.
+        The line sits on the li and stops at the last element so it does not run into nothing.
+        As a pseudo element in CSS, because an SVG per step would only be more markup for the
+        same picture.
       -->
-      <span class="sf-ablauf-marker font-display" aria-hidden="true">{{ i + 1 }}</span>
+      <span class="sf-sequence-marker font-display" aria-hidden="true">{{ i + 1 }}</span>
       <h3 class="text-xl">
-        {{ phase.titel }}
+        {{ phase.title }}
       </h3>
       <p class="mt-2 text-text-secondary">
         {{ phase.text }}
@@ -33,7 +34,7 @@ defineProps<{
 </template>
 
 <style scoped>
-.sf-ablauf-marker {
+.sf-sequence-marker {
   position: absolute;
   top: 0;
   left: 0;
@@ -50,8 +51,8 @@ defineProps<{
   line-height: 1;
 }
 
-/* Die verbindende Linie: von der Unterkante eines Markers zur Oberkante des nächsten. */
-.sf-ablauf li:not(:last-child)::before {
+/* The connecting line: from the bottom edge of one marker to the top edge of the next. */
+.sf-sequence li:not(:last-child)::before {
   content: '';
   position: absolute;
   top: 2.75rem;
@@ -66,12 +67,12 @@ defineProps<{
 }
 
 /*
- * Die Linie zeichnet sich beim Scrollen. Läuft ohne JavaScript über eine View-Timeline; wo der
- * Browser die nicht kennt, ist die Linie einfach von Anfang an da.
+ * The line draws itself as you scroll. Runs without JavaScript via a view timeline; where the
+ * browser does not know it, the line is simply there from the start.
  */
 @supports (animation-timeline: view()) {
   @media (prefers-reduced-motion: no-preference) {
-    .sf-ablauf li:not(:last-child)::before {
+    .sf-sequence li:not(:last-child)::before {
       animation: sf-draw linear both;
       animation-timeline: view();
       animation-range: entry 15% cover 40%;

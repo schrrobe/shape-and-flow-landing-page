@@ -1,28 +1,28 @@
 <script setup lang="ts">
-import { behandlungen, kombiAnker, kombitermin, preis } from '#shared/behandlungen'
-import { faqZuThema } from '#shared/faq'
-import { adresse, disclaimer, site } from '#shared/site'
+import { treatments, comboAnchor, comboAppointment, formatPrice } from '#shared/behandlungen'
+import { faqByTopic } from '#shared/faq'
+import { address, disclaimer, site } from '#shared/site'
 
-// Der Titel bleibt kurz, weil der Firmenname per Vorlage angehängt wird und Google bei etwa
-// 60 Zeichen abschneidet.
-useSeite({
-  titel: mitOrt('Brasilianische Lymphdrainage'),
-  ogTitel: `Brasilianische Lymphdrainage in ${adresse.ort}`,
-  beschreibung:
-    `Brasilianische Lymphdrainage in ${adresse.ort}: der Jeveauxeffect® für Körper und Gesicht, ` +
+// The title stays short, because the company name is appended by the template and Google cuts off
+// at around 60 characters.
+usePage({
+  title: withCity('Brasilianische Lymphdrainage'),
+  ogTitle: `Brasilianische Lymphdrainage in ${address.city}`,
+  description:
+    `Brasilianische Lymphdrainage in ${address.city}: der Jeveauxeffect® für Körper und Gesicht, ` +
     `ästhetisch und mit festem Ablauf. Termine nach Vereinbarung.`,
   ogLabel: site.tagline,
 })
 
-const phasen = [
+const phases = [
   {
-    titel: 'Aktivieren',
+    title: 'Aktivieren',
     text:
       'Zum Auftakt wird die Lymphe mit sanften, rhythmischen Griffen angeregt. Das ist der leise ' +
       'Teil der Behandlung und bereitet das Gewebe auf das vor, was danach kommt.',
   },
   {
-    titel: 'Modellieren',
+    title: 'Modellieren',
     text:
       'Dann wird mit deutlich mehr Druck gearbeitet und modelliert. Dieser Teil ist spürbar und ' +
       'folgt einer festen Abfolge von Griffen. Wie kräftig gearbeitet wird, stimmen wir ' +
@@ -30,33 +30,33 @@ const phasen = [
   },
 ]
 
-const eindruecke = [
+const impressions = [
   'ein leichteres Körpergefühl',
   'mehr Form und Kontur',
   'weniger Spannung im Gewebe',
   'ein Unterschied, der sich direkt nach dem Termin zeigt',
 ]
 
-const startFaq = faqZuThema('allgemein').slice(0, 4)
+const homeFaq = faqByTopic('general').slice(0, 4)
 </script>
 
 <template>
   <div>
     <!--
-      Der Hero setzt die Marke ins Bauliche um: links die Überschrift auf dem Markenorange, rechts
-      der Behandlungsraum. Dass die Akzentwand im Studio dasselbe Orange hat, ist kein Zufall des
-      Zuschnitts, sondern der Grund für diese Aufteilung: die Naht zwischen Panel und Foto
-      verschwindet fast.
+      The hero translates the brand into architecture: on the left the heading on the brand
+      orange, on the right the treatment room. That the accent wall in the studio has the same
+      orange is not a coincidence of the crop but the reason for this split: the seam between
+      panel and photo almost disappears.
 
-      Kein Logo im Panel: es steht schon im Kopf der Seite direkt darüber, und zweimal
-      untereinander liest es sich als Wiederholung, nicht als Absender.
+      No logo in the panel: it is already in the page header directly above, and twice below each
+      other reads as repetition, not as a sender.
     -->
     <section class="grid lg:grid-cols-2">
       <div
         class="sf-on-inverse flex flex-col justify-center bg-inverse-surface px-5 py-14 text-inverse-text sm:px-8 sm:py-20 lg:py-24 lg:pr-14 lg:pl-[max(2rem,calc((100vw-72rem)/2+2rem))]"
       >
         <h1 class="text-3xl sm:text-4xl lg:text-[2.75rem]">
-          Brasilianische Lymphdrainage in {{ adresse.ort }}
+          Brasilianische Lymphdrainage in {{ address.city }}
         </h1>
 
         <p class="sf-lead mt-5 text-inverse-body">
@@ -66,7 +66,7 @@ const startFaq = faqZuThema('allgemein').slice(0, 4)
 
         <div class="mt-8 flex flex-wrap gap-3">
           <SfTerminButton variant="inverse" size="lg" />
-          <!-- Auf Orange braucht der zweite Button einen Rahmen, sonst liest er sich als Fließtext. -->
+          <!-- On orange the second button needs a border, otherwise it reads as body copy. -->
           <SfButton
             to="/brasilianische-lymphdrainage"
             variant="ghost"
@@ -92,7 +92,7 @@ const startFaq = faqZuThema('allgemein').slice(0, 4)
       </div>
     </section>
 
-    <!-- Behandlungen -->
+    <!-- Treatments -->
     <section class="sf-container py-16 sm:py-20">
       <span class="sf-eyebrow">Zwei Behandlungen</span>
       <h2 class="mt-3 text-3xl sm:text-4xl">Körper und Gesicht</h2>
@@ -101,52 +101,52 @@ const startFaq = faqZuThema('allgemein').slice(0, 4)
       </p>
 
       <div class="mt-10 grid gap-6 md:grid-cols-2">
-        <SfCard v-for="behandlung in behandlungen" :key="behandlung.slug">
+        <SfCard v-for="treatment in treatments" :key="treatment.slug">
           <div class="flex items-baseline justify-between gap-4">
             <h3 class="font-display text-2xl">
-              {{ behandlung.name }}
+              {{ treatment.name }}
             </h3>
             <span class="font-display text-xl whitespace-nowrap text-primary">
-              {{ preis(behandlung.preisEuro) }}
+              {{ formatPrice(treatment.priceEuro) }}
             </span>
           </div>
           <p class="mt-1 text-sm tracking-wide text-text-secondary uppercase">
-            {{ behandlung.titel }}
+            {{ treatment.title }}
           </p>
           <p class="mt-4 text-text-secondary">
-            {{ behandlung.kurz }}
+            {{ treatment.summary }}
           </p>
-          <SfButton :to="behandlung.route" variant="secondary" class="mt-6">
+          <SfButton :to="treatment.route" variant="secondary" class="mt-6">
             Mehr zur Behandlung
           </SfButton>
         </SfCard>
 
         <!--
-          Der Kombitermin über die ganze Breite: keine dritte Behandlung, sondern die beiden
-          darüber in einem Termin. Deshalb eine eigene Karte und kein gleichrangiges Drittel.
+          The combo appointment across the full width: not a third treatment but the two above it
+          in one appointment. Hence a card of its own and not an equal-ranking third.
         -->
         <SfCard class="md:col-span-2">
           <div class="flex items-baseline justify-between gap-4">
             <h3 class="font-display text-2xl">Beides zusammen</h3>
             <span class="font-display text-xl whitespace-nowrap text-primary">
-              {{ preis(kombitermin.preisEuro) }}
+              {{ formatPrice(comboAppointment.priceEuro) }}
             </span>
           </div>
           <p class="mt-1 text-sm tracking-wide text-text-secondary uppercase">
-            {{ kombitermin.hinweis }}
+            {{ comboAppointment.note }}
           </p>
           <p class="mt-4 text-text-secondary">
             Körper und Gesicht in einem Termin, statt zweimal zu kommen. Für regelmäßige Termine
             gibt es zusätzlich 5er- und 10er-Pakete.
           </p>
-          <SfButton :to="kombiAnker" variant="secondary" class="mt-6">
+          <SfButton :to="comboAnchor" variant="secondary" class="mt-6">
             Kombi- und Paketpreise
           </SfButton>
         </SfCard>
       </div>
     </section>
 
-    <!-- Ablauf: hier sitzt die verbindende Linie, weil hier die Reihenfolge die Aussage ist. -->
+    <!-- Procedure: the connecting line sits here, because here the order is the statement. -->
     <section class="border-y border-border bg-surface-muted">
       <div class="sf-container grid gap-12 py-16 sm:py-20 lg:grid-cols-[0.9fr_1.1fr] lg:gap-20">
         <div>
@@ -157,19 +157,19 @@ const startFaq = faqZuThema('allgemein').slice(0, 4)
             Jeveauxeffect® von einer Massage, bei der nach Gefühl gearbeitet wird.
           </p>
         </div>
-        <SfAblauf :phasen="phasen" />
+        <SfAblauf :phases="phases" />
       </div>
     </section>
 
-    <!-- Wirkung, bewusst als Wahrnehmung formuliert -->
+    <!-- Effects, deliberately phrased as perception -->
     <section class="sf-container py-16 sm:py-20">
       <div class="grid gap-12 lg:grid-cols-2 lg:gap-20">
         <div>
           <span class="sf-eyebrow">Danach</span>
           <h2 class="mt-3 text-3xl sm:text-4xl">Was Kundinnen beschreiben</h2>
-          <ul class="sf-liste mt-6">
-            <li v-for="eindruck in eindruecke" :key="eindruck">
-              {{ eindruck }}
+          <ul class="sf-list mt-6">
+            <li v-for="impression in impressions" :key="impression">
+              {{ impression }}
             </li>
           </ul>
           <p class="mt-6 max-w-prose text-text-secondary">
@@ -200,13 +200,13 @@ const startFaq = faqZuThema('allgemein').slice(0, 4)
           <span class="sf-eyebrow">Das Studio</span>
           <h2 class="mt-3 text-3xl sm:text-4xl">Ein Raum, eine Kundin</h2>
           <p class="mt-4 max-w-prose text-text-secondary">
-            Shape &amp; Flow ist ein kleines Studio in {{ adresse.stadtteil }}, in der
-            {{ adresse.strasse }}. Es gibt einen Behandlungsraum und keine Parallelbetreuung, Sie
+            Shape &amp; Flow ist ein kleines Studio in {{ address.district }}, in der
+            {{ address.street }}. Es gibt einen Behandlungsraum und keine Parallelbetreuung, Sie
             haben den Termin also für sich.
           </p>
           <SfButton to="/studio" variant="secondary" class="mt-6"> Studio ansehen </SfButton>
         </div>
-        <!-- Hochformat auf 4:5 beschnitten, sonst überragt das Bild die Textspalte deutlich. -->
+        <!-- Portrait cropped to 4:5, otherwise the image towers over the text column. -->
         <NuxtImg
           src="/images/studio-2.jpg"
           alt="Umkleideecke im Studio mit Rattan-Paravent, Rattansessel mit orangefarbenem Kissen und kleinem Beistelltisch"
@@ -219,12 +219,12 @@ const startFaq = faqZuThema('allgemein').slice(0, 4)
       </div>
     </section>
 
-    <!-- Fragen -->
+    <!-- Questions -->
     <section class="sf-container py-16 sm:py-20">
       <span class="sf-eyebrow">Häufige Fragen</span>
       <h2 class="mt-3 text-3xl sm:text-4xl">Bevor Sie kommen</h2>
       <div class="mt-8 max-w-3xl">
-        <SfFaqListe :eintraege="startFaq" />
+        <SfFaqListe :entries="homeFaq" />
         <NuxtLink
           to="/faq"
           class="mt-6 inline-block text-primary underline underline-offset-4 hover:no-underline"

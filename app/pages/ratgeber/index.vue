@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import { ratgeber } from '#shared/ratgeber'
+import { articles } from '#shared/ratgeber'
 
-useSeite({
-  titel: 'Ratgeber zu Lymphdrainage und Körpergefühl',
-  ogTitel: 'Ratgeber',
-  beschreibung:
+usePage({
+  title: 'Ratgeber zu Lymphdrainage und Körpergefühl',
+  ogTitle: 'Ratgeber',
+  description:
     'Verständliche Texte zu Wassereinlagerungen und zum Unterschied zwischen ästhetischer und ' +
     'medizinischer Lymphdrainage. Ohne Heilversprechen.',
   ogLabel: 'Ratgeber',
@@ -14,7 +14,7 @@ useSeite({
 <template>
   <div>
     <SfSeitenkopf
-      titel="Ratgeber"
+      title="Ratgeber"
       label="Zum Nachlesen"
       lead="Hintergrund zu den Themen, mit denen Kundinnen zu uns kommen. Erklärend gemeint, nicht
         werbend."
@@ -22,18 +22,18 @@ useSeite({
 
     <div class="sf-container">
       <ul class="grid max-w-4xl gap-6 sm:grid-cols-2">
-        <li v-for="artikel in ratgeber" :key="artikel.route">
+        <li v-for="article in articles" :key="article.route">
           <SfCard>
             <h2 class="font-display text-xl">
-              <NuxtLink :to="artikel.route" class="hover:text-primary">
-                {{ artikel.titel }}
+              <NuxtLink :to="article.route" class="hover:text-primary">
+                {{ article.title }}
               </NuxtLink>
             </h2>
             <p class="mt-3 text-text-secondary">
-              {{ artikel.anriss }}
+              {{ article.teaser }}
             </p>
             <NuxtLink
-              :to="artikel.route"
+              :to="article.route"
               class="mt-4 inline-block text-primary underline underline-offset-4 hover:no-underline"
             >
               Weiterlesen
