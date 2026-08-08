@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.7.0](https://github.com/schrrobe/shape-and-flow-landing-page/compare/shape-and-flow-landing-page-v1.6.1...shape-and-flow-landing-page-v1.7.0) (2026-08-08)
+
+
+### Features
+
+* Handynummer und Antwortweg im Kontaktformular ([#24](https://github.com/schrrobe/shape-and-flow-landing-page/issues/24)) ([c393cd4](https://github.com/schrrobe/shape-and-flow-landing-page/commit/c393cd44ed3127d485e306a7a7657dad76bfed8d))
+
+
+### Bug Fixes
+
+* use px instead of rem in NuxtImg sizes attribute ([#27](https://github.com/schrrobe/shape-and-flow-landing-page/issues/27)) ([20a4652](https://github.com/schrrobe/shape-and-flow-landing-page/commit/20a4652002f67ddda33890137106b20b53e19075))
+
 ## [1.6.1](https://github.com/schrrobe/shape-and-flow-landing-page/compare/shape-and-flow-landing-page-v1.6.0...shape-and-flow-landing-page-v1.6.1) (2026-08-08)
 
 
