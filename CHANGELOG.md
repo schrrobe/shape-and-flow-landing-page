@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.6.0](https://github.com/schrrobe/shape-and-flow-landing-page/compare/shape-and-flow-landing-page-v1.5.0...shape-and-flow-landing-page-v1.6.0) (2026-08-08)
+
+
+### Features
+
+* Linktree-Seite unter /linktree ([#21](https://github.com/schrrobe/shape-and-flow-landing-page/issues/21)) ([44f356c](https://github.com/schrrobe/shape-and-flow-landing-page/commit/44f356caae2f7f2eb715da6a6170a031c6bb94cc))
+
+
+### Bug Fixes
+
+* korrigiere Umsatzsteuerhinweis ([#19](https://github.com/schrrobe/shape-and-flow-landing-page/issues/19)) ([484e789](https://github.com/schrrobe/shape-and-flow-landing-page/commit/484e7893c5de98d3ed2d30ad0ffa0f54634136b0))
+
 ## [1.5.0](https://github.com/schrrobe/shape-and-flow-landing-page/compare/shape-and-flow-landing-page-v1.4.0...shape-and-flow-landing-page-v1.5.0) (2026-08-07)
 
 
