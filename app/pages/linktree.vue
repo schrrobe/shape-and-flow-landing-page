@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { kombiAnker } from '#shared/behandlungen'
 import { site, sozialeProfile } from '#shared/site'
 
 /*
@@ -50,7 +49,7 @@ const eintraege = [
   })),
   { label: 'Zur Website', icon: 'haus', to: '/' },
   { label: 'Der Jeveauxeffect® erklärt', icon: 'funke', to: '/jeveauxeffect' },
-  { label: 'Preise und Kombitermin', icon: 'preisschild', to: kombiAnker },
+  { label: 'Preise und Kombitermin', icon: 'preisschild', to: '/preise' },
 ] as const
 </script>
 
