@@ -55,9 +55,36 @@ export const kontakt = {
   absenderEmail: 'nicht-antworten@shapeandflow.de',
   /** Adresse der Booking-App. Alle Termin-Schaltflächen zeigen hierher. */
   buchungUrl: 'https://booking.shapeandflow.de',
-  /** TODO: Instagram-Profil eintragen oder auf null setzen, dann wird der Link ausgeblendet. */
-  instagram: null as string | null,
+  /*
+   * The social profiles. Without the share parameters the apps append (?igsh=, ?_r=, ?_t=):
+   * those belong to the session the link was copied from and have no place in a fixed link.
+   *
+   * Either can be set to null, which removes it everywhere at once — see sozialeProfile below.
+   */
+  instagram: 'https://www.instagram.com/shapeandflow.do' as string | null,
+  tiktok: 'https://www.tiktok.com/@shapeandflow.do' as string | null,
 } as const
+
+/** One social profile as the site renders it. `icon` is the symbol name in SfIcon. */
+export interface SozialesProfil {
+  name: string
+  icon: 'instagram' | 'tiktok'
+  url: string
+}
+
+/*
+ * The profiles that are actually set, in the order they should appear.
+ *
+ * One list for all three places that name them: the footer, the link tree under /linktree and
+ * the sameAs entry in the structured data. Without it, adding a profile would mean touching
+ * three files and forgetting one of them.
+ */
+export const sozialeProfile: SozialesProfil[] = (
+  [
+    { name: 'Instagram', icon: 'instagram', url: kontakt.instagram },
+    { name: 'TikTok', icon: 'tiktok', url: kontakt.tiktok },
+  ] satisfies { name: string; icon: SozialesProfil['icon']; url: string | null }[]
+).filter((profil): profil is SozialesProfil => profil.url !== null)
 
 /**
  * Keine erfundenen Öffnungszeiten: das Studio arbeitet auf Termin, und das ist auch die

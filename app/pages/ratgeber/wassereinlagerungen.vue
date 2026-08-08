@@ -17,7 +17,7 @@ useSeite({
   ogTitel: 'Wassereinlagerungen im Körper',
   beschreibung:
     'Warum sich Wasser im Gewebe sammelt, was im Alltag hilft, wann Schwellungen ärztlich ' +
-    'abgeklärt werden sollten und was eine Lymphdrainage dabei leisten kann.',
+    'abzuklären sind und was eine Lymphdrainage dabei leisten kann.',
   ogLabel: 'Ratgeber',
   pfad: [{ name: 'Ratgeber', url: '/ratgeber' }],
 })

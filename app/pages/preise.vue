@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { behandlungBySlug, behandlungen, preis, preispositionen } from '#shared/behandlungen'
 import { faqZuThema } from '#shared/faq'
-import { adresse, disclaimer, site } from '#shared/site'
+import { adresse, disclaimer } from '#shared/site'
 
 // Die Preise kommen aus shared/behandlungen.ts, auch hier in der Beschreibung: sonst wirbt das
 // Suchergebnis nach der nächsten Preisänderung mit einem Betrag, den die Seite nicht mehr nennt.
@@ -16,9 +16,8 @@ useSeite({
   titel: mitOrt('Preise brasilianische Lymphdrainage'),
   ogTitel: 'Preise',
   beschreibung:
-    `Preise bei ${site.name} in ${adresse.ort}: ${gesicht.name} für das Gesicht ` +
-    `${preis(gesicht.preisEuro)}, ${koerper.name} für den Körper ` +
-    `${preis(koerper.preisEuro)}, beides zusammen ${preis(kombi.preisEuro)}. ` +
+    `Preise in ${adresse.ort}: ${gesicht.name} ${preis(gesicht.preisEuro)}, ` +
+    `${koerper.name} ${preis(koerper.preisEuro)}, zusammen ${preis(kombi.preisEuro)}. ` +
     `Pakete günstiger pro Behandlung, keine versteckten Kosten.`,
   ogLabel: 'Preise',
 })

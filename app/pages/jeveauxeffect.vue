@@ -20,7 +20,7 @@ useSeite({
   kurzTitel: 'Jeveauxeffect®',
   beschreibung:
     `Jeveauxeffect® in ${adresse.ort}: brasilianische Lymphdrainage als ästhetische ` +
-    `Ganzkörperbehandlung mit Faszienarbeit und Modellierung. ${preis(behandlung.preisEuro)}, ` +
+    `Ganzkörperbehandlung mit Faszienarbeit. ${preis(behandlung.preisEuro)}, ` +
     `Termine nach Vereinbarung.`,
   ogLabel: 'Körperbehandlung',
 })
