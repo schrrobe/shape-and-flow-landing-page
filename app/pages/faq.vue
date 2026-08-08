@@ -13,7 +13,7 @@ useSeite({
   ogTitel: 'Häufige Fragen',
   beschreibung:
     'Antworten zu Ablauf, Wirkung, Gegenanzeigen, Schwangerschaft, Preisen und Krankenkasse rund ' +
-    `um die brasilianische Lymphdrainage bei Shape & Flow in ${adresse.ort}.`,
+    `um die brasilianische Lymphdrainage in ${adresse.ort}.`,
   ogLabel: 'Fragen und Antworten',
 })
 

@@ -9,8 +9,8 @@ useSeite({
   titel: mitOrt('Brasilianische Lymphdrainage'),
   ogTitel: `Brasilianische Lymphdrainage in ${adresse.ort}`,
   beschreibung:
-    `Jeveauxeffect® bei ${site.name} in ${adresse.ort}: brasilianische Lymphdrainage für Körper ` +
-    `und Gesicht. Ästhetische Behandlung mit festem Ablauf, Termine nach Vereinbarung.`,
+    `Brasilianische Lymphdrainage in ${adresse.ort}: der Jeveauxeffect® für Körper und Gesicht, ` +
+    `ästhetisch und mit festem Ablauf. Termine nach Vereinbarung.`,
   ogLabel: site.tagline,
 })
 

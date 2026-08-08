@@ -22,7 +22,11 @@ export interface SeiteOptions {
    * Fassung ist.
    */
   kurzTitel?: string
-  /** Die Meta-Description. Zielmarke sind 140 bis 155 Zeichen. */
+  /**
+   * Die Meta-Description. Google misst sie in Pixeln und nicht in Zeichen: rund 150 Zeichen
+   * passen, breite Wörter und Preise weniger. Die Grenze zieht test/meta-laenge.spec.ts, das die
+   * gebaute Zeile in Arial 14px nachmisst — das ist der Font des Suchergebnisses.
+   */
   beschreibung: string
   /**
    * Die Zwischenstufen des Brotkrümelpfads, also ohne Startseite und ohne die aktuelle Seite.

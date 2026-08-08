@@ -17,7 +17,7 @@ useSeite({
   ogTitel: 'Brasilianisch oder medizinisch?',
   beschreibung:
     'Ziel, Durchführung, Kosten und Kassenerstattung im Vergleich: wann eine ästhetische ' +
-    'Lymphdrainage passt und wann die medizinische Behandlung die richtige ist.',
+    'Lymphdrainage passt und wann die medizinische die richtige ist.',
   ogLabel: 'Ratgeber',
   pfad: [{ name: 'Ratgeber', url: '/ratgeber' }],
 })

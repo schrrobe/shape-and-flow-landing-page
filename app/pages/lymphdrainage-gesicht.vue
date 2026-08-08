@@ -15,9 +15,8 @@ useSeite({
   titel: mitOrt('Lymphdrainage Gesicht'),
   ogTitel: 'Lymphdrainage für das Gesicht',
   beschreibung:
-    `Jeveauxeffect Face® in ${adresse.ort}: brasilianische Lymphdrainage für das Gesicht mit Fokus ` +
-    `auf Entstauung, Kontur und Frische. ${preis(behandlung.preisEuro)}, Termine nach ` +
-    `Vereinbarung.`,
+    `Jeveauxeffect Face® in ${adresse.ort}: brasilianische Lymphdrainage für das Gesicht, Fokus ` +
+    `auf Entstauung und Kontur. ${preis(behandlung.preisEuro)}, Termine nach Vereinbarung.`,
   ogLabel: 'Gesichtsbehandlung',
 })
 

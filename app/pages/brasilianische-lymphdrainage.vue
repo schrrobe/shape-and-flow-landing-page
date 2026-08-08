@@ -16,7 +16,7 @@ useSeite({
   ogTitel: 'Brasilianische Lymphdrainage',
   beschreibung:
     'Was die brasilianische Lymphdrainage ist, wie der Jeveauxeffect® abläuft, wie er sich von ' +
-    'der medizinischen Lymphdrainage unterscheidet und wann nicht behandelt wird.',
+    'der medizinischen unterscheidet und wann nicht behandelt wird.',
   ogLabel: 'Die Methode',
 })
 
