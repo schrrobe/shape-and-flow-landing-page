@@ -83,8 +83,8 @@ useFaqSchema(priceFaq)
             >
           </p>
           <p>
-            Wenn ein Termin nicht klappt, sagen Sie bitte so früh wie möglich ab. Dann kann jemand
-            anderes den Platz bekommen.
+            Wenn ein Termin nicht klappt, sagen Sie bitte so früh wie möglich ab, spätestens aber 24
+            Stunden vor dem Termin. Dann kann jemand anderes den Platz bekommen.
           </p>
 
           <h2>Keine Kassenleistung</h2>
