@@ -71,8 +71,9 @@ usePage({
           <h2>Anfahrt</h2>
           <p>
             Das Studio liegt in der {{ address.street }} in {{ address.postalCode }}
-            {{ address.city }}, im Süden der Stadt. Die genaue Wegbeschreibung und die Kontaktwege
-            stehen auf der <NuxtLink to="/kontakt">Kontaktseite</NuxtLink>.
+            {{ address.city }}, im Süden der Stadt. Am Eingang steht {{ address.venue }}, denn
+            {{ site.name }} ist dort zu Gast. Die genaue Wegbeschreibung und die Kontaktwege stehen
+            auf der <NuxtLink to="/kontakt">Kontaktseite</NuxtLink>.
           </p>
         </div>
 
@@ -83,6 +84,7 @@ usePage({
               <p>
                 <span class="font-medium">{{ site.name }}</span
                 ><br />
+                im Studio {{ address.venue }}<br />
                 {{ address.street }}<br />
                 {{ address.postalCode }} {{ address.city }}
               </p>

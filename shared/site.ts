@@ -24,6 +24,13 @@ export const site = {
 } as const
 
 export const address = {
+  /*
+   * Shape & Flow is a guest in someone else's studio: the sign at the door reads
+   * "Bellas Beauty", not "Shape & Flow". Without this line people stand in front of the
+   * right house and turn back. Kept out of `street` on purpose, because street, postal
+   * code and city go into the LocalBusiness structured data as they are.
+   */
+  venue: 'Bellas Beauty',
   street: 'Preinstraße 61',
   postalCode: '44265',
   city: 'Dortmund',

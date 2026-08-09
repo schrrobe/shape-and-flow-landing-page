@@ -226,6 +226,7 @@ onScopeDispose(stopGuard)
             <h2 class="sf-eyebrow">Kontakt</h2>
             <address class="mt-4 space-y-2 text-sm text-text-secondary not-italic">
               <p>
+                im Studio {{ address.venue }}<br />
                 {{ address.street }}<br />
                 {{ address.postalCode }} {{ address.city }}
               </p>

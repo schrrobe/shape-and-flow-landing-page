@@ -128,10 +128,15 @@ const channels = computed(() => [
           <h2 class="text-2xl sm:text-3xl">Adresse und Anfahrt</h2>
           <address class="mt-5 space-y-1 text-lg not-italic">
             <p>{{ site.name }}</p>
+            <p>im Studio {{ address.venue }}</p>
             <p>{{ address.street }}</p>
             <p>{{ address.postalCode }} {{ address.city }}</p>
           </address>
           <p class="mt-4 text-text-secondary">
+            Am Eingang steht {{ address.venue }} und nicht {{ site.name }} — Sie sind trotzdem
+            richtig.
+          </p>
+          <p class="mt-3 text-text-secondary">
             {{ openingHours.note }}. Kommen Sie bitte nicht ohne Termin vorbei, weil während einer
             Behandlung niemand an der Tür ist.
           </p>
