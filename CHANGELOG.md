@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.8.0](https://github.com/schrrobe/shape-and-flow-landing-page/compare/shape-and-flow-landing-page-v1.7.0...shape-and-flow-landing-page-v1.8.0) (2026-08-09)
+
+
+### Features
+
+* Hinweis auf Studio Bellas Beauty und 24-Stunden-Absagefrist ([#28](https://github.com/schrrobe/shape-and-flow-landing-page/issues/28)) ([5b8bc57](https://github.com/schrrobe/shape-and-flow-landing-page/commit/5b8bc572fc392fb674c8917639455745b0e805a3))
+
 ## [1.7.0](https://github.com/schrrobe/shape-and-flow-landing-page/compare/shape-and-flow-landing-page-v1.6.1...shape-and-flow-landing-page-v1.7.0) (2026-08-08)
 
 
