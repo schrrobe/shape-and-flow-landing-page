@@ -51,3 +51,18 @@ const emit = defineEmits<{ umschalten: [id: string] }>()
     </div>
   </fieldset>
 </template>
+
+<style scoped>
+/*
+ * Windows high contrast discards background-color and color, so the ticked chip would look exactly
+ * like the eight next to it. Highlight and HighlightText are the system's own pair for "selected"
+ * and are the two colours that mode keeps. A screen reader knew all along, this is for everyone who
+ * looks at the chips.
+ */
+@media (forced-colors: active) {
+  .peer:checked + span {
+    background-color: Highlight;
+    color: HighlightText;
+  }
+}
+</style>

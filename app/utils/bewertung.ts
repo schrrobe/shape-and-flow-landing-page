@@ -1,5 +1,5 @@
 import { address, site } from '#shared/site'
-import { treatmentBySlug } from '#shared/behandlungen'
+import { treatmentBySlug, type Treatment } from '#shared/behandlungen'
 
 /*
  * The building blocks the review helper under /bewertung assembles its text from.
@@ -26,8 +26,22 @@ import { treatmentBySlug } from '#shared/behandlungen'
  *     in the nominative and the accusative. A masculine "den Kombitermin" would break half of them.
  */
 
-const koerper = treatmentBySlug('jeveauxeffect')!
-const gesicht = treatmentBySlug('lymphdrainage-gesicht')!
+/**
+ * The treatment behind a slug, or an error that names it.
+ *
+ * Not `treatmentBySlug(…)!`: if a slug in shared/behandlungen.ts is ever renamed, the chip labels
+ * below would fail with "cannot read properties of undefined" and the one thing worth knowing —
+ * which slug no longer exists — would be missing. This throws at module evaluation, so a rename
+ * shows up in the build rather than on the page.
+ */
+function behandlung(slug: string): Treatment {
+  const gefunden = treatmentBySlug(slug)
+  if (!gefunden) throw new Error(`Bewertungshelfer: Behandlung "${slug}" gibt es nicht mehr`)
+  return gefunden
+}
+
+const koerper = behandlung('jeveauxeffect')
+const gesicht = behandlung('lymphdrainage-gesicht')
 
 /** Guests call the owner by her first name, and a review of hers would too. */
 const inhaberin = site.owner.split(' ')[0] ?? site.owner

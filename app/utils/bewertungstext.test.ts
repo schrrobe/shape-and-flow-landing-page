@@ -117,9 +117,10 @@ describe('baueBewertungstext', () => {
   })
 
   /*
-   * Every chip in every one of its wordings and in every frame of its block: 45 chips times three
-   * wordings times six frames, which is the whole ground the tool can cover with a single tick.
-   * Enough seeds that each combination comes up.
+   * Every chip on its own, across 60 seeds: 44 chips with three wordings each, in blocks of eight
+   * frames, so 24 combinations per chip. The seeds sample those combinations rather than covering
+   * them, because wording and frame are drawn from separate hashes — enough to catch a wording that
+   * does not fit its slot, not a proof that every pairing was seen.
    */
   it('produces a readable sentence for every chip on its own', () => {
     for (const block of bewertungBloecke)

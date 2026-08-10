@@ -138,15 +138,6 @@ watch(text, () => {
               Sobald Sie links etwas anklicken, steht der Text hier.
             </p>
 
-            <!--
-              Said out loud because it is true and because it helps: each chip brings its own three
-              wordings, so three ticks are worth over ten thousand versions of the text and two are
-              worth a few hundred. Whoever ticks more gets a text nobody else has.
-            -->
-            <p v-else-if="anzahlGewaehlt < 3" class="mt-3 text-sm text-text-secondary">
-              Je mehr Sie anklicken, desto eigener wird der Text.
-            </p>
-
             <template v-else>
               <!--
                 A real, read-only textarea and not a paragraph: this way the text can be selected
@@ -160,6 +151,16 @@ watch(text, () => {
                 readonly
                 :value="text"
               />
+
+              <!--
+                A hint next to the finished text, not a condition for getting one: one tick already
+                gives a whole sentence, and holding it back until the third would leave a guest with
+                no text and no button. It is true and it helps, though — each chip brings its own
+                three wordings, so whoever ticks more gets a text nobody else has.
+              -->
+              <p v-if="anzahlGewaehlt < 3" class="mt-3 text-sm text-text-secondary">
+                Je mehr Sie anklicken, desto eigener wird der Text.
+              </p>
 
               <div class="mt-4 space-y-3">
                 <SfButton
