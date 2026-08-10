@@ -27,7 +27,7 @@ Lint, Formatcheck und Typecheck laufen bei jeder PR im Job _Prüfungen_. ESLint 
 also erst `npm install` laufen lassen, sonst bricht `npm run lint` mit einem Import-Fehler ab.
 
 Die Barrierefreiheitsprüfung hat einen eigenen Job, weil sie einen Browser braucht. Sie ist
-blockierend und alle 13 Seiten sind sauber. Einzelheiten in
+blockierend und alle 15 Seiten sind sauber. Einzelheiten in
 [docs/barrierefreiheit.md](docs/barrierefreiheit.md) — dort steht auch, warum `--sf-primary`
 abgedunkelt wurde und was das für das `booking-app`-Repo bedeutet.
 
@@ -57,9 +57,10 @@ Titel, weil beim Squash-Merge der Titel zur Commit-Message wird. Einzelheiten in
 
 ```
 shared/          Alle Geschäftsdaten: Kontakt, Behandlungen, Preise, FAQ, Ratgeber
-app/pages/       Die 13 Seiten
+app/pages/       Die 15 Seiten
 app/components/  Sf*-Komponenten
 app/composables/ useSeite() setzt Meta-Tags, OG-Bild und Brotkrümelpfad in einem Aufruf
+app/utils/       Satzbausteine und Textbau des Bewertungshelfers unter /bewertung
 server/utils/    feature-flags.ts, die Unleash-Anbindung des Nitro
 app/assets/css/  tokens.css (die einzigen Farbwerte), theme.css (Tailwind-Anbindung), main.css
 public/images/   Logo und Studiofotos
