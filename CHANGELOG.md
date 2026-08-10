@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.9.0](https://github.com/schrrobe/shape-and-flow-landing-page/compare/shape-and-flow-landing-page-v1.8.0...shape-and-flow-landing-page-v1.9.0) (2026-08-10)
+
+
+### Features
+
+* Bewertungslink zur Linktree-Seite hinzufügen ([#31](https://github.com/schrrobe/shape-and-flow-landing-page/issues/31)) ([029db61](https://github.com/schrrobe/shape-and-flow-landing-page/commit/029db61ba111de6faf6e35a8c8c98766c3b7d33d))
+
+
+### Bug Fixes
+
+* format SfIcon.vue with Prettier ([c38cec7](https://github.com/schrrobe/shape-and-flow-landing-page/commit/c38cec7b68729a4d4766cf46f76488dcc3301add))
+
 ## [1.8.0](https://github.com/schrrobe/shape-and-flow-landing-page/compare/shape-and-flow-landing-page-v1.7.0...shape-and-flow-landing-page-v1.8.0) (2026-08-09)
 
 
