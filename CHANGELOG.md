@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.10.0](https://github.com/schrrobe/shape-and-flow-landing-page/compare/shape-and-flow-landing-page-v1.9.0...shape-and-flow-landing-page-v1.10.0) (2026-08-10)
+
+
+### Features
+
+* eigener Bewertungshelfer unter /bewertung ([#33](https://github.com/schrrobe/shape-and-flow-landing-page/issues/33)) ([58338ec](https://github.com/schrrobe/shape-and-flow-landing-page/commit/58338ec487fc4595975f101789645f6b1ec03319))
+
 ## [1.9.0](https://github.com/schrrobe/shape-and-flow-landing-page/compare/shape-and-flow-landing-page-v1.8.0...shape-and-flow-landing-page-v1.9.0) (2026-08-10)
 
 
