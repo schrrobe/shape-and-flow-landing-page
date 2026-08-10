@@ -50,6 +50,11 @@ const entries = [
   { label: 'Zur Website', icon: 'home', to: '/' },
   { label: 'Der Jeveauxeffect® erklärt', icon: 'sparkle', to: '/jeveauxeffect' },
   { label: 'Preise und Kombitermin', icon: 'price-tag', to: '/preise' },
+  {
+    label: 'Bewertung abgeben',
+    icon: 'star',
+    href: 'https://bewertungshelfer.com/app.html#c=MoCwhgDgpgBAZDAYgGwPYHcBQARVAnAFwFsBXAOwBNMBzAOgjGqgHo9mBhYAKTAHYBHRAEFkABgBaAFgCiQ6aygA3AJZQsmTEA',
+  },
 ] as const
 </script>
 
