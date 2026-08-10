@@ -50,11 +50,11 @@ const entries = [
   { label: 'Zur Website', icon: 'home', to: '/' },
   { label: 'Der Jeveauxeffect® erklärt', icon: 'sparkle', to: '/jeveauxeffect' },
   { label: 'Preise und Kombitermin', icon: 'price-tag', to: '/preise' },
-  {
-    label: 'Bewertung abgeben',
-    icon: 'star',
-    href: 'https://bewertungshelfer.com/app.html#c=MoCwhgDgpgBAZDAYgGwPYHcBQARVAnAFwFsBXAOwBNMBzAOgjGqgHo9mBhYAKTAHYBHRAEFkABgBaAFgCiQ6aygA3AJZQsmTEA',
-  },
+  /*
+   * Our own review helper and no longer bewertungshelfer.com: its building blocks fit any business
+   * and therefore this one only roughly. /bewertung names the treatments and the studio.
+   */
+  { label: 'Bewertung abgeben', icon: 'star', to: '/bewertung' },
 ] as const
 </script>
 

@@ -117,6 +117,15 @@ export const mapUrl = `https://www.google.com/maps/search/?api=1&query=${encodeU
   `${address.street}, ${address.postalCode} ${address.city}`,
 )}`
 
+/**
+ * Google's review form for the studio's Business Profile, as the short link the profile itself
+ * hands out.
+ *
+ * The address carries the place ID and nothing else: Google does not accept a review text as a URL
+ * parameter, which is why /bewertung has people copy their text and paste it here.
+ */
+export const googleReviewUrl = 'https://g.page/r/CSJa7qFAl0Z4EAE/review'
+
 /** The licence notice that has to appear on every page mentioning the brand. */
 export const trademarkNotice =
   'Jeveauxeffect® und Jeveauxeffect Face® sind eingetragene Marken der Jeveaux Company®. ' +
