@@ -119,7 +119,8 @@ export function errorsFor(request: ContactRequest): Record<string, string> {
   // consent without which the form does nothing would not be freely given and therefore not a
   // consent. The choice of reply channel is the special case — there the consent holds, because
   // it can be declined and you still get an answer.
-  if (request.message.length < 10) errors.message = 'Bitte etwas mehr schreiben.'
+  if (request.message.length < 10)
+    errors.message = 'Bitte mindestens 10 Zeichen schreiben.'
 
   return errors
 }
