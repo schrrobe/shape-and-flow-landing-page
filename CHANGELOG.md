@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.10.1](https://github.com/schrrobe/shape-and-flow-landing-page/compare/shape-and-flow-landing-page-v1.10.0...shape-and-flow-landing-page-v1.10.1) (2026-08-11)
+
+
+### Bug Fixes
+
+* Clarify minimum message length error for contact form ([b61660b](https://github.com/schrrobe/shape-and-flow-landing-page/commit/b61660bbdeafdf24ca2802a9a0965fff9090f93a))
+
 ## [1.10.0](https://github.com/schrrobe/shape-and-flow-landing-page/compare/shape-and-flow-landing-page-v1.9.0...shape-and-flow-landing-page-v1.10.0) (2026-08-10)
 
 
