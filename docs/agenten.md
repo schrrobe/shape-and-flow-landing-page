@@ -1,13 +1,14 @@
 # Zugang für KI-Agenten
 
 Die Seite beantwortet dieselben Inhalte für Menschen als HTML und für Maschinen als Markdown, und
-sie sagt an vier festen Adressen, was sie anbietet. Die Adressen sind nicht frei gewählt: Prüfwerkzeuge
+sie sagt an fünf festen Adressen, was sie anbietet. Die Adressen sind nicht frei gewählt: Prüfwerkzeuge
 und Agenten fragen genau dort nach.
 
 | Adresse                                | Was dort liegt                                        | Content-Type                          |
 | -------------------------------------- | ----------------------------------------------------- | ------------------------------------- |
 | `/.well-known/agent.md`                | Aufgaben, Grenzen und Kontaktpunkte, maschinenlesbar  | `text/markdown`                       |
 | `/.well-known/api-catalog`             | Katalog der maschinenlesbaren Endpunkte nach RFC 9727 | `application/linkset+json` mit Profil |
+| `/.well-known/ai-catalog.json`         | ARD-Manifest derselben Endpunkte für Registries       | `application/json`                    |
 | `/.well-known/agent-skills/index.json` | Index der veröffentlichten Agent Skills, mit sha256   | `application/json`                    |
 | `/.well-known/agent-skills/…/skill.md` | die Fähigkeit selbst im SKILL.md-Format               | `text/markdown`                       |
 | `/llms.txt`                            | Hinweise für Sprachmodelle, erzeugt von `nuxt-llms`   | `text/plain`                          |
@@ -59,7 +60,7 @@ Regeln der Umwandlung, jeweils mit einem Test in `modules/markdown/konvertierung
 
 ```text
 shared/agenten.ts                Die Pfade und die Regel <Seite> → <Seite>.md, einmal für alle
-server/utils/agenten-texte.ts    Die Texte der vier Endpunkte, aus shared/ zusammengesetzt
+server/utils/agenten-texte.ts    Die Texte der Endpunkte, aus shared/ zusammengesetzt
 server/routes/.well-known/       Die Handler, einer pro Adresse
 server/plugins/agenten.ts        Link-Header und Content-Negotiation
 server/utils/markdown-anfrage.ts Ist das eine Seite, und will sie Markdown?
@@ -68,23 +69,36 @@ modules/markdown/                Die Umwandlung HTML → Markdown im Build
 test/agenten.spec.ts             Prüft alles davon am gebauten Artefakt
 ```
 
-Die vier Endpunkte antworten zur Laufzeit und werden nicht vorgerendert
+Die Endpunkte antworten zur Laufzeit und werden nicht vorgerendert
 (`routeRules` in `nuxt.config.ts`). Der Grund ist der Content-Type: bei einer vorgerenderten Datei
 leitet Nitro ihn aus der Dateiendung ab, und `/.well-known/api-catalog` hat keine — der Linkset
 käme als `text/plain` heraus und verlöre sein Profil.
 
-Alle vier antworten auf `GET` und auf `HEAD`, alles andere bekommt 405. `HEAD` ist keine Zugabe:
+Alle antworten auf `GET` und auf `HEAD`, alles andere bekommt 405. `HEAD` ist keine Zugabe:
 RFC 9727 verlangt für `HEAD /.well-known/api-catalog` eine Antwort mit `Link`-Header und der
 Relation `api-catalog`, und wer nur wissen will, ob ein Dokument existiert, schickt `HEAD`. Deshalb
 tragen die Routendateien kein `.get` im Namen — Nitro leitet die Methode daraus ab, und ein
 GET-Handler beantwortet `HEAD` mit 404. Die Prüfung der Methode steht in
-`server/utils/agenten-antwort.ts`.
+`server/utils/agenten-antwort.ts` — dort steht auch `Access-Control-Allow-Origin: *`, das alle
+Dokumente hier tragen: sie sind öffentlich und existieren, um von einem fremden Client geholt zu
+werden. Ohne den Header bekommt ein Agent, der im Browser läuft, die Antwort und darf sie nicht
+lesen.
 
 Der Katalog ist ein Linkset nach RFC 9264, Abschnitt 4.2: ein Array von Link-Context-Objekten mit
 `anchor` und je einem Member pro Relationstyp, dessen Wert eine Liste von Zielen ist. Die
 Variante, die man im Feld häufiger sieht — eine Liste von `{ anchor, rel, href }`-Sätzen — ist
 etwas anderes: ein konformer Client liest die Relation aus dem Member-Namen und findet darin keinen
 einzigen Link.
+
+Denselben Bestand gibt es zweimal, weil ihn zwei verschiedene Clients lesen: das Linkset nach
+RFC 9727 ein Client, der schon vor der Tür steht und die Endpunkte will, und das ARD-Manifest unter
+`/.well-known/ai-catalog.json` die Registries, die nach agentenfähigen Seiten crawlen und über die
+`representativeQueries` jedes Eintrags Embeddings bilden (Agentic Resource Discovery, v0.91). Beide
+werden aus `shared/agenten.ts` zusammengesetzt und können deshalb nicht auseinanderlaufen. Die
+Kennungen im Manifest tragen den Host der Umgebung (`urn:air:<host>:<namespace>:<name>`), damit die
+Stage-Seite nicht unter derselben URN landet wie die Produktion, und `application/json` steht
+bewusst ohne `charset`: RFC 8259 kennt für diesen Medientyp keinen solchen Parameter, und ein
+Prüfwerkzeug, das den Header wörtlich vergleicht, würde ihn sonst nicht wiedererkennen.
 
 ## Prüfen
 

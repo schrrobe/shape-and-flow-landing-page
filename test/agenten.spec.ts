@@ -77,6 +77,7 @@ test.describe('Discovery', () => {
       ['service-doc', agentPaths.agentDoc],
       ['api-catalog', agentPaths.apiCatalog],
       ['agent-skills', agentPaths.skillIndex],
+      ['ai-catalog', agentPaths.aiCatalog],
       ['describedby', agentPaths.llms],
     ] as const) {
       expect(link).toContain(`<https://shapeandflow.de${path}>; rel="${relation}"`)
@@ -90,6 +91,7 @@ test.describe('Discovery', () => {
     expect(html).toContain(`href="${agentPaths.agentDoc}"`)
     expect(html).toContain(`href="${agentPaths.apiCatalog}"`)
     expect(html).toContain(`href="${agentPaths.skillIndex}"`)
+    expect(html).toContain(`href="${agentPaths.aiCatalog}"`)
   })
 
   test('the agent documentation names tasks, boundaries and contact points', async ({
@@ -123,6 +125,45 @@ test.describe('Discovery', () => {
     expect(catalogue.linkset).toHaveLength(1)
     expect(context?.anchor).toBe(`https://shapeandflow.de${agentPaths.apiCatalog}`)
     expect(context?.item?.length).toBeGreaterThan(0)
+  })
+
+  /*
+   * The ARD manifest is read by registries that crawl from somewhere else, in clients that run in
+   * a browser. Content type and CORS header are therefore part of the answer and not decoration:
+   * without them the document arrives and may not be read.
+   */
+  test('the ARD manifest is readable from any origin as application/json', async ({ request }) => {
+    const response = await request.get(agentPaths.aiCatalog)
+
+    expect(response.status()).toBe(200)
+    expect(response.headers()['content-type']).toContain('application/json')
+    expect(response.headers()['access-control-allow-origin']).toBe('*')
+
+    const manifest = (await response.json()) as {
+      specVersion: string
+      host: { displayName: string }
+      entries: { identifier: string; displayName: string; type: string; url?: string }[]
+    }
+
+    expect(manifest.specVersion).toBe('1.0')
+    expect(manifest.host.displayName).toBeTruthy()
+    expect(manifest.entries.length).toBeGreaterThan(0)
+    for (const entry of manifest.entries) {
+      expect(entry.identifier).toMatch(/^urn:air:shapeandflow\.de:[a-zA-Z0-9._-]+:[a-zA-Z0-9._-]+$/)
+      expect(entry.url?.startsWith('https://shapeandflow.de')).toBe(true)
+    }
+  })
+
+  /*
+   * Every endpoint under /.well-known/ answers HEAD, because a client probing whether a document
+   * exists sends HEAD as a matter of course — and a handler registered for GET alone would answer
+   * it with 404.
+   */
+  test('the ARD manifest answers a HEAD request', async ({ request }) => {
+    const response = await request.head(agentPaths.aiCatalog)
+
+    expect(response.status()).toBe(200)
+    expect(response.headers()['content-type']).toContain('application/json')
   })
 
   /*

@@ -8,9 +8,9 @@ import { isPageRoute, prefersMarkdown } from '../utils/markdown-anfrage'
  * Two things happen here, and both only for the pages of this site:
  *
  *  1. The Link header. It says where the Markdown representation of this page, the agent
- *     documentation, the API catalogue, the Agent Skills index and llms.txt are. The same list
- *     also sits in the head as link elements (app/app.vue) — a client that only reads headers has
- *     to get the same answer as one that parses the HTML.
+ *     documentation, the API catalogue, the ARD manifest, the Agent Skills index and llms.txt
+ *     are. The same list also sits in the head as link elements (app/app.vue) — a client that
+ *     only reads headers has to get the same answer as one that parses the HTML.
  *  2. Content negotiation. `Accept: text/markdown` returns the Markdown representation at the
  *     canonical URL, so an agent does not need to know a second address for the same content.
  *

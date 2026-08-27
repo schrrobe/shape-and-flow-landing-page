@@ -3,11 +3,12 @@ import { describe, expect, it } from 'vitest'
 
 import { agentPaths, agentSkill, skillPath } from '#shared/agenten'
 import { treatments, formatPrice } from '#shared/behandlungen'
-import { contact, disclaimer } from '#shared/site'
+import { contact, disclaimer, site } from '#shared/site'
 import {
   agentDocumentation,
   agentSkillDocument,
   agentSkillIndex,
+  aiCatalogManifest,
   apiCatalogLinkset,
 } from './agenten-texte'
 
@@ -32,7 +33,7 @@ describe('agentDocumentation', () => {
     for (const url of urls(document)) expect(url.startsWith(HOST)).toBe(true)
   })
 
-  it('names the four discovery endpoints', () => {
+  it('names the five discovery endpoints', () => {
     for (const path of Object.values(agentPaths)) expect(document).toContain(`${HOST}${path}`)
   })
 
@@ -128,9 +129,81 @@ describe('apiCatalogLinkset', () => {
     expect(hrefs('item')).toContain(`${HOST}${agentPaths.sitemap}`)
     expect(hrefs('service-doc')).toEqual([`${HOST}${agentPaths.agentDoc}`])
     expect(hrefs('agent-skills')).toEqual([`${HOST}${agentPaths.skillIndex}`])
+    expect(hrefs('ai-catalog')).toEqual([`${HOST}${agentPaths.aiCatalog}`])
   })
 
   it('does not offer the contact endpoint as an API', () => {
     expect(JSON.stringify(catalogue)).not.toContain('/api/kontakt')
+  })
+})
+
+/*
+ * The ARD manifest is validated by machines that never see this site, so the rules of the schema
+ * are the subject here: identifiers of the documented shape, exactly one of url and data, and two
+ * to five representative queries per entry. A manifest that a registry rejects is worth as much as
+ * none at all.
+ */
+describe('aiCatalogManifest', () => {
+  interface Entry {
+    identifier: string
+    displayName: string
+    type: string
+    url?: string
+    data?: object
+    representativeQueries?: string[]
+  }
+
+  const manifest = aiCatalogManifest(HOST) as {
+    specVersion: string
+    host: { displayName: string; identifier: string }
+    entries: Entry[]
+  }
+
+  it('names the specification version and the host', () => {
+    expect(manifest.specVersion).toBe('1.0')
+    expect(manifest.host.displayName).toBe(site.name)
+    expect(manifest.host.identifier).toBe(HOST)
+  })
+
+  it('carries entries with an identifier of the host of this environment', () => {
+    expect(manifest.entries.length).toBeGreaterThan(0)
+    for (const entry of manifest.entries) {
+      expect(entry.identifier).toMatch(/^urn:air:[a-zA-Z0-9.-]+(:[a-zA-Z0-9._-]+)+$/)
+      expect(entry.identifier.startsWith(`urn:air:${new URL(HOST).host}:`)).toBe(true)
+      expect(entry.displayName).toBeTruthy()
+      expect(entry.type).toBeTruthy()
+    }
+  })
+
+  it('gives every entry exactly one of url and data', () => {
+    for (const entry of manifest.entries) {
+      expect(Boolean(entry.url) !== Boolean(entry.data)).toBe(true)
+      if (entry.url) expect(entry.url.startsWith(HOST)).toBe(true)
+    }
+  })
+
+  it('gives every entry two to five representative queries', () => {
+    for (const entry of manifest.entries) {
+      expect(entry.representativeQueries?.length).toBeGreaterThanOrEqual(2)
+      expect(entry.representativeQueries?.length).toBeLessThanOrEqual(5)
+    }
+  })
+
+  it('lists the same endpoints as the linkset', () => {
+    const listed = manifest.entries.map(entry => entry.url)
+
+    for (const path of [
+      agentPaths.agentDoc,
+      agentPaths.apiCatalog,
+      agentPaths.llms,
+      agentPaths.sitemap,
+    ]) {
+      expect(listed).toContain(`${HOST}${path}`)
+    }
+    expect(listed).toContain(`${HOST}${skillPath}`)
+  })
+
+  it('does not offer the contact endpoint as a capability', () => {
+    expect(JSON.stringify(manifest)).not.toContain('/api/kontakt')
   })
 })
