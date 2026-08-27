@@ -23,6 +23,22 @@ export const site = {
   url: 'https://shapeandflow.de',
 } as const
 
+/**
+ * The site's address for this environment, without a trailing slash.
+ *
+ * Takes the value of NUXT_SITE_URL, because dev and stage run under their own hostname — see
+ * docs/deploy.md. Without the trailing slash, because callers concatenate paths onto it: a
+ * NUXT_SITE_URL copied from the docs with a slash at the end would otherwise produce double
+ * slashes in JSON-LD, llms.txt and the agent endpoints.
+ *
+ * Takes the environment value as an argument instead of reading process.env itself: this module
+ * also ends up in the browser bundle, and process does not exist there. nuxt.config.ts and the
+ * handlers under server/ pass it in, and both get the same answer that way.
+ */
+export function normalizeSiteUrl(value: string | undefined): string {
+  return (value || site.url).replace(/\/+$/, '')
+}
+
 export const address = {
   /*
    * Shape & Flow is a guest in someone else's studio: the sign at the door reads

@@ -37,6 +37,10 @@ Nuxt 4 mit Tailwind CSS 4 (CSS-first, keine `tailwind.config.js`), `@nuxtjs/seo`
 robots.txt, Structured Data, OG-Bilder und Link-Prüfung, `@nuxt/image` für Bilder,
 `@nuxt/fonts` für die selbst gehostete Schrift und `nuxt-llms` für `llms.txt`.
 
+Für KI-Agenten kommt dazu: jede Seite gibt es auch als Markdown (`<Seite>.md` oder
+`Accept: text/markdown`), und unter `/.well-known/` liegen Agenten-Dokumentation, API-Katalog nach
+RFC 9727 und ein Agent-Skills-Index. Einzelheiten in [docs/agenten.md](docs/agenten.md).
+
 Gerendert wird hybrid: es läuft ein Node-Server, aber jede Seite wird beim Build vorgerendert. Siehe
 [docs/deploy.md](docs/deploy.md).
 
@@ -62,6 +66,8 @@ app/components/  Sf*-Komponenten
 app/composables/ useSeite() setzt Meta-Tags, OG-Bild und Brotkrümelpfad in einem Aufruf
 app/utils/       Satzbausteine und Textbau des Bewertungshelfers unter /bewertung
 server/utils/    feature-flags.ts, die Unleash-Anbindung des Nitro
+server/routes/   Die Endpunkte unter /.well-known/ für KI-Agenten
+modules/         Build-Schritte: markdown/ erzeugt die Markdown-Fassung jeder Seite
 app/assets/css/  tokens.css (die einzigen Farbwerte), theme.css (Tailwind-Anbindung), main.css
 public/images/   Logo und Studiofotos
 ```

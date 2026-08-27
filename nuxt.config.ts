@@ -1,7 +1,14 @@
 import tailwindcss from '@tailwindcss/vite'
 import { treatmentBySlug, treatments, priceRange } from './shared/behandlungen'
 import { articles } from './shared/ratgeber'
-import { address, contact, openingHours, site, socialProfiles } from './shared/site'
+import {
+  address,
+  contact,
+  normalizeSiteUrl,
+  openingHours,
+  site,
+  socialProfiles,
+} from './shared/site'
 
 // Prices and article titles are not written out as text here either: after a change in shared/,
 // llms.txt and the structured data must not be the one place left behind out of date.
@@ -19,8 +26,9 @@ const face = treatmentBySlug('lymphdrainage-gesicht')!
  */
 // Without the trailing slash, because `${siteUrl}/images/...` is concatenated below: a
 // NUXT_SITE_URL copied from the docs with a trailing slash would otherwise produce double
-// slashes in JSON-LD and llms.txt.
-const siteUrl = (process.env.NUXT_SITE_URL || site.url).replace(/\/+$/, '')
+// slashes in JSON-LD and llms.txt. The normalisation lives in shared/site.ts, because the
+// handlers under server/routes/.well-known/ answer with the same address.
+const siteUrl = normalizeSiteUrl(process.env.NUXT_SITE_URL)
 
 export default defineNuxtConfig({
   compatibilityDate: '2026-08-05',
@@ -100,6 +108,14 @@ export default defineNuxtConfig({
     // Has to come after the rule above and undo it for /api/: otherwise the prerenderer would try
     // to call the handlers as GET at build time and freeze their response.
     '/api/**': { prerender: false },
+    /*
+     * The agent endpoints answer at runtime, although they are as static as any page here. The
+     * reason is the content type: for a prerendered route Nitro derives it from the file
+     * extension, and `/.well-known/api-catalog` has none — a linkset would then be delivered as
+     * text/plain and its profile parameter would be lost. Assembling the four answers costs a
+     * string concatenation each; keeping them from being prerendered costs one line here.
+     */
+    '/.well-known/**': { prerender: false },
   },
 
   /*
@@ -112,6 +128,17 @@ export default defineNuxtConfig({
    * address.
    */
   runtimeConfig: {
+    /*
+     * The site's own address, for the handlers under server/routes/.well-known/: they are the only
+     * thing on this site that is rendered at runtime and they write absolute URLs into their
+     * answers. The value is frozen at build time like every other one derived from NUXT_SITE_URL —
+     * Nitro derives the same variable name from this key, so a runtime NUXT_SITE_URL would
+     * override it.
+     *
+     * Deliberately not under `public`: nothing in the browser needs it, and the pages carry their
+     * address in the canonical anyway.
+     */
+    siteUrl,
     smtp: {
       host: '',
       // 587 with STARTTLS. For 465 the handler switches to implicit TLS by itself.

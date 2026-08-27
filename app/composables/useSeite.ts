@@ -1,4 +1,5 @@
 import type { Treatment } from '#shared/behandlungen'
+import type { Article } from '#shared/ratgeber'
 import type { FaqEntry } from '#shared/faq'
 import { faqAnswerText } from '#shared/faq'
 import { address, site } from '#shared/site'
@@ -57,18 +58,27 @@ export function usePage(options: PageOptions) {
     eyebrow: options.ogLabel ?? site.nameAscii,
   })
 
-  // The home page needs no breadcrumb trail that only points at itself.
-  if (route.path !== '/') {
-    useSchemaOrg([
-      defineBreadcrumb({
-        itemListElement: [
-          { name: 'Startseite', item: '/' },
-          ...(options.trail ?? []).map(step => ({ name: step.name, item: step.url })),
-          { name: options.shortTitle ?? options.ogTitle ?? options.title },
-        ],
-      }),
-    ])
-  }
+  /*
+   * The breadcrumb trail, on every page including the home page.
+   *
+   * On the home page it consists of a single step and therefore says nothing a reader does not
+   * already know. It is there for the machines: an audit that asks a single URL whether it carries
+   * a BreadcrumbList asks the home page, and one that is missing there counts as missing
+   * altogether. Google allows a trail with one element, and the visible trail in SfSeitenkopf
+   * stays as it is — the home page shows none.
+   */
+  useSchemaOrg([
+    defineBreadcrumb({
+      itemListElement:
+        route.path === '/'
+          ? [{ name: 'Startseite', item: '/' }]
+          : [
+              { name: 'Startseite', item: '/' },
+              ...(options.trail ?? []).map(step => ({ name: step.name, item: step.url })),
+              { name: options.shortTitle ?? options.ogTitle ?? options.title },
+            ],
+    }),
+  ])
 
   return { route }
 }
@@ -102,12 +112,37 @@ export function withCity(title: string): string {
 }
 
 /**
+ * The Article structured data of a guide article.
+ *
+ * As a function, because of the two dates: headline and description could sit in the page, but
+ * datePublished is required for an Article and dateModified is what tells Google whether the text
+ * is still current. Written out per page, both would be missing on the third article — that is
+ * exactly what happened, and an audit found it.
+ *
+ * The dates come from shared/ratgeber.ts, i.e. from the same place as the title and the teaser.
+ */
+export function useArticleSchema(article: Article, description: string) {
+  useSchemaOrg([
+    defineArticle({
+      headline: article.title,
+      description,
+      datePublished: article.published,
+      dateModified: article.updated,
+    }),
+  ])
+}
+
+/**
  * The Service structured data of a treatment, including its price.
  *
  * The price belongs in the offer here and not only in the visible text: only then can Google
  * show it in the search result, and only then do AI agents read it reliably.
  */
 export function useTreatmentSchema(treatment: Treatment) {
+  // Absolute, because nuxt-schema-org passes the properties of the offer through unchanged — and a
+  // relative path in JSON-LD is not a URL.
+  const { url: siteUrl } = useSiteConfig()
+
   useSchemaOrg([
     defineService({
       name: treatment.name,
@@ -119,6 +154,9 @@ export function useTreatmentSchema(treatment: Treatment) {
         price: treatment.priceEuro,
         priceCurrency: 'EUR',
         availability: 'https://schema.org/InStock',
+        // The page the offer stands on. Without it the offer floats in the graph without an
+        // address, and that is one of the properties an offer is expected to carry.
+        url: `${siteUrl}${treatment.route}`,
       },
     }),
   ])

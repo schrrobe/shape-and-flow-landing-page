@@ -22,14 +22,11 @@ usePage({
   trail: [{ name: 'Ratgeber', url: '/ratgeber' }],
 })
 
-useSchemaOrg([
-  defineArticle({
-    headline: article.title,
-    description:
-      'Ursachen von Wassereinlagerungen, Maßnahmen im Alltag und die Grenze zur ärztlichen ' +
-      'Abklärung.',
-  }),
-])
+useArticleSchema(
+  article,
+  'Ursachen von Wassereinlagerungen, Maßnahmen im Alltag und die Grenze zur ärztlichen ' +
+    'Abklärung.',
+)
 </script>
 
 <template>

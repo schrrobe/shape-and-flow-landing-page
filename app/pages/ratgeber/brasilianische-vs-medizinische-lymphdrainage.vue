@@ -23,14 +23,11 @@ usePage({
   trail: [{ name: 'Ratgeber', url: '/ratgeber' }],
 })
 
-useSchemaOrg([
-  defineArticle({
-    headline: article.title,
-    description:
-      'Vergleich von ästhetischer und medizinischer Lymphdrainage nach Ziel, Durchführung, ' +
-      'Verordnung und Kosten.',
-  }),
-])
+useArticleSchema(
+  article,
+  'Vergleich von ästhetischer und medizinischer Lymphdrainage nach Ziel, Durchführung, ' +
+    'Verordnung und Kosten.',
+)
 
 const comparison = [
   {
