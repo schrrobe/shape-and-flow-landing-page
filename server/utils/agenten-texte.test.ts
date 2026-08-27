@@ -10,6 +10,7 @@ import {
   agentSkillIndex,
   aiCatalogManifest,
   apiCatalogLinkset,
+  authDocumentation,
 } from './agenten-texte'
 
 /*
@@ -33,7 +34,7 @@ describe('agentDocumentation', () => {
     for (const url of urls(document)) expect(url.startsWith(HOST)).toBe(true)
   })
 
-  it('names the five discovery endpoints', () => {
+  it('names the six discovery endpoints', () => {
     for (const path of Object.values(agentPaths)) expect(document).toContain(`${HOST}${path}`)
   })
 
@@ -51,6 +52,71 @@ describe('agentDocumentation', () => {
 
   it('does not advertise the booking app, which is behind a feature flag', () => {
     expect(document).not.toContain(contact.bookingUrl)
+  })
+})
+
+describe('authDocumentation', () => {
+  const document = authDocumentation(HOST)
+
+  it('writes every address with the host of this environment', () => {
+    expect(urls(document).length).toBeGreaterThan(0)
+    for (const url of urls(document)) expect(url.startsWith(HOST)).toBe(true)
+  })
+
+  /*
+   * The H1 is the one piece of wording this test does pin down: a scanner for the Auth.md
+   * convention matches on the literal string in it, so a rewrite that drops it would break
+   * detection while the document still reads fine.
+   */
+  it('carries "auth.md" in the H1', () => {
+    const heading = document.split('\n').find(line => line.startsWith('# '))
+
+    expect(heading).toBeDefined()
+    expect(heading).toContain('auth.md')
+  })
+
+  it('names itself as the canonical address', () => {
+    expect(document).toContain(`canonical_url: "${HOST}${agentPaths.authDoc}"`)
+  })
+
+  /*
+   * The document has to answer the four questions the convention asks of a self-contained
+   * /auth.md: who it is for, where registration happens, which methods exist, and what happens to
+   * credentials. Here as headings, because that is where an agent looks them up.
+   */
+  it('answers the four questions of a self-contained auth.md', () => {
+    for (const heading of [
+      '## Für wen das gilt',
+      '## Registrierung',
+      '## Unterstützte Verfahren',
+      '## Anmeldedaten',
+    ]) {
+      expect(document).toContain(heading)
+    }
+  })
+
+  it('names the anonymous method and rules out the two that need a server', () => {
+    expect(document).toContain('anonymous')
+    expect(document).toContain('identity_assertion')
+    expect(document).toContain('service_auth')
+  })
+
+  /*
+   * No OAuth metadata is published, and no address is promised that would answer 404: neither of
+   * the two documents may appear here as a link an agent could follow.
+   */
+  it('promises no OAuth metadata endpoint', () => {
+    for (const path of [
+      '/.well-known/oauth-protected-resource',
+      '/.well-known/oauth-authorization-server',
+    ]) {
+      expect(urls(document)).not.toContain(`${HOST}${path}`)
+    }
+  })
+
+  it('points at the agent documentation and carries the mandatory disclaimer', () => {
+    expect(document).toContain(`${HOST}${agentPaths.agentDoc}`)
+    expect(document).toContain(disclaimer)
   })
 })
 
@@ -127,7 +193,11 @@ describe('apiCatalogLinkset', () => {
 
     expect(hrefs('item')).toContain(`${HOST}${agentPaths.llms}`)
     expect(hrefs('item')).toContain(`${HOST}${agentPaths.sitemap}`)
-    expect(hrefs('service-doc')).toEqual([`${HOST}${agentPaths.agentDoc}`])
+    // Two targets under one relation, the general document first: see apiCatalogLinkset.
+    expect(hrefs('service-doc')).toEqual([
+      `${HOST}${agentPaths.agentDoc}`,
+      `${HOST}${agentPaths.authDoc}`,
+    ])
     expect(hrefs('agent-skills')).toEqual([`${HOST}${agentPaths.skillIndex}`])
     expect(hrefs('ai-catalog')).toEqual([`${HOST}${agentPaths.aiCatalog}`])
   })

@@ -1,7 +1,7 @@
 # Zugang für KI-Agenten
 
 Die Seite beantwortet dieselben Inhalte für Menschen als HTML und für Maschinen als Markdown, und
-sie sagt an fünf festen Adressen, was sie anbietet. Die Adressen sind nicht frei gewählt: Prüfwerkzeuge
+sie sagt an sechs festen Adressen, was sie anbietet. Die Adressen sind nicht frei gewählt: Prüfwerkzeuge
 und Agenten fragen genau dort nach. Wer die Seite in einem Browser mit WebMCP geöffnet hat, findet
 darin zusätzlich Werkzeuge — siehe unten.
 
@@ -12,6 +12,7 @@ darin zusätzlich Werkzeuge — siehe unten.
 | `/.well-known/ai-catalog.json`         | ARD-Manifest derselben Endpunkte für Registries       | `application/json`                    |
 | `/.well-known/agent-skills/index.json` | Index der veröffentlichten Agent Skills, mit sha256   | `application/json`                    |
 | `/.well-known/agent-skills/…/skill.md` | die Fähigkeit selbst im SKILL.md-Format               | `text/markdown`                       |
+| `/auth.md`                             | Zugang für Agenten nach der Auth.md-Konvention        | `text/markdown`                       |
 | `/llms.txt`                            | Hinweise für Sprachmodelle, erzeugt von `nuxt-llms`   | `text/plain`                          |
 | `<Seite>.md`, Startseite `/.md`        | die Seite als Markdown                                | `text/markdown`                       |
 
@@ -84,6 +85,13 @@ wie vorher.
 - **Keine Adresse der Buchungsstrecke.** Solange das Unleash-Flag `enable_booking_redirect` aus ist,
   zeigt nichts auf der Seite dorthin (`app/composables/useBuchung.ts`). Ein Dokument, das nicht unter
   dem Flag steht, würde diese Entscheidung aushebeln.
+- **Keine OAuth-Metadaten.** Die Auth.md-Konvention sieht als bevorzugten Weg Protected Resource
+  Metadata unter `/.well-known/oauth-protected-resource` und einen Authorization Server mit
+  `agent_auth`-Block unter `/.well-known/oauth-authorization-server` vor. Hinter dieser Seite steht
+  kein Authorization Server und vor ihr keine geschützte Ressource: jede Seite ist vorgerendert und
+  öffentlich. Ein Dokument mit erfundenem Issuer und Endpunkten, die mit 404 antworten, wäre
+  schlechter als keines — deshalb der von der Konvention vorgesehene Rückfallweg, ein
+  selbsttragendes `/auth.md`. `test/agenten.spec.ts` prüft, dass beide Adressen 404 bleiben.
 - **Kein Telefon, keine Öffnungszeiten** im Structured Data. Beides gibt es nicht, und eine erfundene
   Angabe wäre eine Falschaussage — siehe die Kommentare in `nuxt.config.ts`.
 
@@ -93,6 +101,7 @@ wie vorher.
 shared/agenten.ts                Die Pfade und die Regel <Seite> → <Seite>.md, einmal für alle
 server/utils/agenten-texte.ts    Die Texte der Endpunkte, aus shared/ zusammengesetzt
 server/routes/.well-known/       Die Handler, einer pro Adresse
+server/routes/auth.md.ts         Der Handler für /auth.md, das laut Konvention im Wurzelverzeichnis liegt
 server/plugins/agenten.ts        Link-Header und Content-Negotiation
 server/utils/markdown-anfrage.ts Ist das eine Seite, und will sie Markdown?
 server/utils/agenten-antwort.ts   GET und HEAD für die Endpunkte, Content-Type
@@ -106,7 +115,8 @@ app/utils/webmcp.test.ts         Prüft die Werkzeuge und beide Formen der Regis
 Die Endpunkte antworten zur Laufzeit und werden nicht vorgerendert
 (`routeRules` in `nuxt.config.ts`). Der Grund ist der Content-Type: bei einer vorgerenderten Datei
 leitet Nitro ihn aus der Dateiendung ab, und `/.well-known/api-catalog` hat keine — der Linkset
-käme als `text/plain` heraus und verlöre sein Profil.
+käme als `text/plain` heraus und verlöre sein Profil. Bei `/auth.md` gäbe die Endung den richtigen
+Typ her, aber nicht das `charset=utf-8`, und das Dokument ist voller Umlaute.
 
 Alle antworten auf `GET` und auf `HEAD`, alles andere bekommt 405. `HEAD` ist keine Zugabe:
 RFC 9727 verlangt für `HEAD /.well-known/api-catalog` eine Antwort mit `Link`-Header und der
@@ -155,4 +165,12 @@ API. Ob eine echte Seite sie anmeldet, sagt ein Scan:
 curl -s -X POST https://isitagentready.com/api/scan \
   -H 'content-type: application/json' \
   -d '{"url":"https://shapeandflow.de"}' | jq .checks.discovery.webMcp
+```
+
+Dasselbe für `/auth.md`, dessen Prüfung im Scan `authMd` heißt:
+
+```bash
+curl -s -X POST https://isitagentready.com/api/scan \
+  -H 'content-type: application/json' \
+  -d '{"url":"https://shapeandflow.de"}' | jq .checks.discovery.authMd
 ```

@@ -128,6 +128,49 @@ test.describe('Discovery', () => {
   })
 
   /*
+   * The Auth.md convention: the document lies at the site root, and its H1 carries the literal
+   * string a scanner matches on. Checked against the delivered artifact, because /auth.md is the
+   * one agent endpoint outside /.well-known/ and therefore the one that the prerender rule for
+   * '/**' in nuxt.config.ts could still catch.
+   */
+  test('the Auth.md document answers at the site root', async ({ request }) => {
+    const response = await request.get(agentPaths.authDoc)
+
+    expect(response.status()).toBe(200)
+    expect(response.headers()['content-type']).toContain('text/markdown')
+    expect(response.headers()['content-type']).toContain('charset=utf-8')
+    expect(response.headers()['access-control-allow-origin']).toBe('*')
+
+    const document = await response.text()
+
+    expect(document).toContain(`canonical_url: "https://shapeandflow.de${agentPaths.authDoc}"`)
+    expect(document.split('\n').find(line => line.startsWith('# '))).toContain('auth.md')
+    expect(document).toContain('## Registrierung')
+    expect(document).toContain('## Unterstützte Verfahren')
+  })
+
+  test('the Auth.md document answers a HEAD request', async ({ request }) => {
+    const response = await request.head(agentPaths.authDoc)
+
+    expect(response.status()).toBe(200)
+    expect(response.headers()['content-type']).toContain('text/markdown')
+  })
+
+  /*
+   * No OAuth metadata is published, and none is faked: an agent that follows the preferred path of
+   * the convention has to run into a plain 404 and fall back to /auth.md, rather than into a
+   * document with an issuer that resolves to nothing.
+   */
+  test('no OAuth metadata is pretended', async ({ request }) => {
+    for (const path of [
+      '/.well-known/oauth-protected-resource',
+      '/.well-known/oauth-authorization-server',
+    ]) {
+      expect((await request.get(path)).status(), path).toBe(404)
+    }
+  })
+
+  /*
    * The ARD manifest is read by registries that crawl from somewhere else, in clients that run in
    * a browser. Content type and CORS header are therefore part of the answer and not decoration:
    * without them the document arrives and may not be read.

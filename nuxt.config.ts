@@ -116,6 +116,12 @@ export default defineNuxtConfig({
      * string concatenation each; keeping them from being prerendered costs one line here.
      */
     '/.well-known/**': { prerender: false },
+    /*
+     * The same for /auth.md, which the Auth.md convention puts at the site root instead. Here the
+     * extension would give the right content type, but not the charset — and the document is full
+     * of umlauts.
+     */
+    '/auth.md': { prerender: false },
   },
 
   /*
