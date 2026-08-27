@@ -2,7 +2,8 @@
 
 Die Seite beantwortet dieselben Inhalte für Menschen als HTML und für Maschinen als Markdown, und
 sie sagt an fünf festen Adressen, was sie anbietet. Die Adressen sind nicht frei gewählt: Prüfwerkzeuge
-und Agenten fragen genau dort nach.
+und Agenten fragen genau dort nach. Wer die Seite in einem Browser mit WebMCP geöffnet hat, findet
+darin zusätzlich Werkzeuge — siehe unten.
 
 | Adresse                                | Was dort liegt                                        | Content-Type                          |
 | -------------------------------------- | ----------------------------------------------------- | ------------------------------------- |
@@ -45,6 +46,36 @@ Regeln der Umwandlung, jeweils mit einem Test in `modules/markdown/konvertierung
 - Icons, dekorative Elemente (`aria-hidden`) und Formularfelder fallen weg, die Labels bleiben
 - Front Matter mit Titel und Canonical der Seite, aus der Seite selbst gelesen
 
+## WebMCP
+
+Wer die Seite in einem Browser mit WebMCP geöffnet hat, muss das HTML nicht mehr lesen: die Seite
+meldet beim Laden Werkzeuge an, und ein Agent bekommt die Antwort als Daten. Es ist der dritte Weg
+zu denselben Inhalten, neben der Markdown-Fassung und den Endpunkten unter `/.well-known/`.
+
+| Werkzeug              | Eingabe           | Was es beantwortet                                                 |
+| --------------------- | ----------------- | ------------------------------------------------------------------ |
+| `angebot_und_preise`  | keine             | Behandlungen, Kombitermin und Pakete mit Preis und Seite           |
+| `faq_durchsuchen`     | `frage`, `thema?` | die häufigen Fragen im Wortlaut der Seite, bis zu drei             |
+| `kontakt_und_anfahrt` | keine             | Anschrift, Gebäude, E-Mail, Formular, Karte, Terminhinweis         |
+| `seite_oeffnen`       | `pfad`            | wechselt ohne Neuladen auf eine Seite dieser Website               |
+| `seite_als_markdown`  | `pfad`            | dieselbe Darstellung wie `<Seite>.md`, ohne die Seite zu verlassen |
+
+Die Werkzeuge antworten aus `shared/`, also aus denselben Listen, die Preistabelle, FAQ und
+Structured Data speisen. Ein Preis steht an einer Stelle, und kein Werkzeug kann einen anderen
+nennen als die Seite. Die Liste der Pfade kommt aus dem Router und nicht aus dieser Datei: eine neue
+Seite ist mit dem nächsten Build Teil der Werkzeuge, eine gelöschte fällt heraus.
+
+Alle Werkzeuge sind lesend (`readOnlyHint`), einzig `seite_oeffnen` ändert etwas — die angezeigte
+Seite. Es gibt kein Werkzeug für das Kontaktformular und keines für einen Termin, aus demselben
+Grund, aus dem `POST /api/kontakt` nicht im API-Katalog steht.
+
+Die API hat sich noch nicht gesetzt, deshalb bedient `registerWebMcpTools` beide Formen, die im Feld
+vorkommen: die Spezifikation legt `modelContext` auf das Dokument und registriert ein Werkzeug pro
+Aufruf, der ältere Explainer und die Browser-Vorschau legen es auf den Navigator und nehmen den
+ganzen Satz auf einmal. Wo ein Objekt beides anbietet, gewinnt `registerTool` — nur das lässt sich
+über ein `AbortSignal` wieder zurücknehmen. Fehlt die API, passiert nichts, und die Seite arbeitet
+wie vorher.
+
 ## Was bewusst fehlt
 
 - **Keine Schreib-Schnittstelle.** `POST /api/kontakt` bedient das Formular dieser Seite, ist pro
@@ -66,7 +97,10 @@ server/plugins/agenten.ts        Link-Header und Content-Negotiation
 server/utils/markdown-anfrage.ts Ist das eine Seite, und will sie Markdown?
 server/utils/agenten-antwort.ts   GET und HEAD für die Endpunkte, Content-Type
 modules/markdown/                Die Umwandlung HTML → Markdown im Build
+app/utils/webmcp.ts              Die WebMCP-Werkzeuge und ihre Registrierung
+app/plugins/webmcp.client.ts     Meldet sie beim Laden an, mit den Routen aus dem Router
 test/agenten.spec.ts             Prüft alles davon am gebauten Artefakt
+app/utils/webmcp.test.ts         Prüft die Werkzeuge und beide Formen der Registrierung
 ```
 
 Die Endpunkte antworten zur Laufzeit und werden nicht vorgerendert
@@ -103,6 +137,7 @@ Prüfwerkzeug, das den Header wörtlich vergleicht, würde ihn sonst nicht wiede
 ## Prüfen
 
 ```bash
+npm test            # führt app/utils/webmcp.test.ts mit aus
 npm run build
 npm run test:a11y   # dieselbe Playwright-Konfiguration, führt test/agenten.spec.ts mit aus
 ```
@@ -111,3 +146,13 @@ npm run test:a11y   # dieselbe Playwright-Konfiguration, führt test/agenten.spe
 eine Markdown-Fassung. Eine neue Seite ohne Markdown macht den Test rot, und ein Fehler in der
 Umwandlung bricht schon den Build ab (`modules/markdown/index.ts` sammelt die Fehler und wirft am
 Ende des Prerenders).
+
+Die WebMCP-Werkzeuge prüft `app/utils/webmcp.test.ts` ohne Browser: die Namen gegen das, was die
+Spezifikation zulässt, jede Antwort gegen `shared/`, und die Registrierung gegen beide Formen der
+API. Ob eine echte Seite sie anmeldet, sagt ein Scan:
+
+```bash
+curl -s -X POST https://isitagentready.com/api/scan \
+  -H 'content-type: application/json' \
+  -d '{"url":"https://shapeandflow.de"}' | jq .checks.discovery.webMcp
+```

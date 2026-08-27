@@ -54,6 +54,7 @@ ${site.name} ist ein Studio für brasilianische Lymphdrainage in ${address.city}
 ## Aufgaben
 
 - Inhalte lesen: HTML ist die Voreinstellung. Jede öffentliche Seite gibt es zusätzlich als Markdown — mit dem Header \`Accept: text/markdown\` an der kanonischen URL oder unter derselben Adresse mit angehängtem \`.md\`. Die Startseite liegt unter \`${markdownPath('/')}\`.
+- Werkzeuge im Browser nutzen: Wer diese Seite in einem Browser mit WebMCP geöffnet hat, findet dort Werkzeuge für Angebot und Preise, für die häufigen Fragen, für Kontakt und Anfahrt, für den Wechsel auf eine andere Seite und für die Markdown-Fassung einer Seite. Sie antworten aus denselben Quellen wie die Seite selbst.
 - Angebot und Preise beantworten: die Übersicht steht unter [${url(siteUrl, '/preise')}](${url(siteUrl, '/preise')}).
 ${behandlungen}
 - Häufige Fragen beantworten: [${url(siteUrl, '/faq')}](${url(siteUrl, '/faq')}).
@@ -63,6 +64,7 @@ ${behandlungen}
 
 - ${disclaimer}
 - Markdown ist eine Lese-Darstellung der ausgelieferten Seite, kein Export und keine Schreib-Schnittstelle.
+- Die WebMCP-Werkzeuge lesen ausschließlich. Es gibt darunter keines, das ein Formular absendet oder einen Termin bucht; \`seite_oeffnen\` wechselt lediglich die angezeigte Seite.
 - ${url(siteUrl, '/api/kontakt')} bedient ausschließlich das Formular dieser Seite, ist pro IP-Adresse ratenbegrenzt und ist kein Agenten-Endpunkt. Anfragen bitte über das Formular oder die E-Mail-Adresse.
 - Preise, Anschrift und Aussagen gelten so, wie sie auf der Seite stehen. Keine Termine, Zeiten oder Wirkungen ergänzen, die dort nicht genannt sind.
 
