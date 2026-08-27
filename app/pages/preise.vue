@@ -1,5 +1,11 @@
 <script setup lang="ts">
-import { treatmentBySlug, treatments, formatPrice, priceItems } from '#shared/behandlungen'
+import {
+  treatmentBySlug,
+  treatments,
+  formatPrice,
+  priceItems,
+  comboAnchor,
+} from '#shared/behandlungen'
 import { faqByTopic } from '#shared/faq'
 import { address, disclaimer } from '#shared/site'
 
@@ -24,30 +30,52 @@ usePage({
 
 const priceFaq = faqByTopic('prices')
 
+/*
+ * The prices as an offer list, so they are machine-readable in one place.
+ *
+ * Each offer sits in a ListItem with a position and an address of its own: an ItemList whose
+ * elements are bare offers is missing exactly the properties a list item has to have, and the
+ * order of the list — treatments first, packages after — is then only an accident of the array.
+ *
+ * The addresses are absolute. nuxt-schema-org resolves relative paths only in the properties it
+ * knows itself — the offers below it passes through as they are, and a relative URL in JSON-LD is
+ * not a URL.
+ */
+const { url: siteUrl } = useSiteConfig()
+
+const offers = [
+  ...treatments.map(t => ({
+    name: t.name,
+    description: t.title,
+    price: t.priceEuro,
+    url: `${siteUrl}${t.route}`,
+  })),
+  ...priceItems.map(p => ({
+    name: p.name,
+    description: p.note,
+    price: p.priceEuro,
+    url: `${siteUrl}${p.slug === combo.slug ? comboAnchor : '/preise'}`,
+  })),
+]
+
 useSchemaOrg([
-  // An offer list, so the prices are also machine-readable in one place.
   defineItemList({
     name: 'Behandlungen und Preise',
-    itemListElement: [
-      ...treatments.map(t =>
-        defineOffer({
-          name: t.name,
-          description: t.title,
-          price: t.priceEuro,
-          priceCurrency: 'EUR',
-          availability: 'https://schema.org/InStock',
-        }),
-      ),
-      ...priceItems.map(p =>
-        defineOffer({
-          name: p.name,
-          description: p.note,
-          price: p.priceEuro,
-          priceCurrency: 'EUR',
-          availability: 'https://schema.org/InStock',
-        }),
-      ),
-    ],
+    numberOfItems: offers.length,
+    itemListElement: offers.map((offer, index) => ({
+      '@type': 'ListItem' as const,
+      position: index + 1,
+      name: offer.name,
+      item: {
+        '@type': 'Offer' as const,
+        name: offer.name,
+        description: offer.description,
+        price: offer.price,
+        priceCurrency: 'EUR',
+        availability: 'https://schema.org/InStock',
+        url: offer.url,
+      },
+    })),
   }),
 ])
 
