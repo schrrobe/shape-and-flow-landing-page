@@ -1,0 +1,112 @@
+name: Commit convention
+
+# Split out of the CI pipeline for a single line: `types`.
+#
+# release-please reads the commit messages on main and derives version and CHANGELOG from them.
+# Anything that misses the Conventional Commits format is missing from the release afterwards.
+# Both paths by which text reaches a target branch are checked: the individual commits, in case
+# the pull request is merged as a merge commit or rebased, and the pull request title, which
+# becomes the commit message on a squash merge. The repository currently allows all three.
+#
+# The title, though, is the only thing checked here that changes without a push. Without `types`,
+# `pull_request` only fires on opened, synchronize and reopened — so a corrected title triggered
+# no new run, and the red check stayed red until someone happened to push. Running this workflow
+# on every `edited` costs half a minute; the same line in ci.yml would have started the image
+# build and the accessibility suite on every description tweak as well.
+on:
+  pull_request:
+    types: [opened, edited, synchronize, reopened]
+
+# Deliberately `pull_request`, not `pull_request_target`: the workflow needs no write access and
+# reads the pull request title through an environment variable only. `pull_request_target` would
+# run against contributed code holding the base branch's token — a risk this does not need.
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  commitlint:
+    name: Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          # commitlint needs the commits between base and HEAD; the default fetches one.
+          fetch-depth: 0
+          persist-credentials: false
+
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          # The same version the Dockerfile and local development use.
+          node-version-file: .tool-versions
+          cache: npm
+
+      # --ignore-scripts, unlike in ci.yml: there the postinstall script runs `nuxt prepare` to
+      # generate the types without which typecheck and ESLint would have nothing to check against.
+      # commitlint reads commit messages and needs none of it.
+      - id: install
+        run: npm ci --ignore-scripts
+
+      - name: Check commits
+        id: commits
+        run: >-
+          npx commitlint
+          --from ${{ github.event.pull_request.base.sha }}
+          --to ${{ github.event.pull_request.head.sha }}
+          --verbose
+
+      # Runs even when the commits fail, so that whoever gets both wrong learns it in one run
+      # instead of two. Tied to the install step rather than the plain default, because a failed
+      # `npm ci` leaves no commitlint to run and the error would only be noise.
+      - name: Check pull request title
+        id: title
+        if: ${{ !cancelled() && steps.install.outcome == 'success' }}
+        env:
+          PR_TITLE: ${{ github.event.pull_request.title }}
+        run: printf '%s' "$PR_TITLE" | npx commitlint --verbose
+
+      # What a ready-made action such as amannn/action-semantic-pull-request brings along and
+      # commitlint by itself does not: the rule in plain words, where the red check points.
+      # commitlint's own output sits above it in the log and names the rule that was violated.
+      #
+      # Bound to the two validation steps, not to `failure()`: an infrastructure failure — a
+      # broken `npm ci`, an unavailable runner — is not a convention violation and must not be
+      # reported as one.
+      - name: Explain the convention
+        if: ${{ steps.commits.outcome == 'failure' || steps.title.outcome == 'failure' }}
+        env:
+          BASE_REF: ${{ github.event.pull_request.base.ref }}
+        run: |
+          cat >> "$GITHUB_STEP_SUMMARY" <<'EOF'
+          ## Commit convention not met
+
+          Expected is [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/),
+          checked against `commitlint.config.js`:
+
+          ```
+          <type>[optional scope]: <description>
+          ```
+
+          Allowed types: `feat`, `fix`, `perf`, `refactor`, `docs`, `style`, `test`, `build`,
+          `ci`, `chore`, `revert`. Only `feat` and `fix` produce a version bump — everything
+          else lands in the release silently.
+
+          Examples: `feat: price calculator on the home page`,
+          `fix(contact): reply path without a phone number`.
+
+          Two things get flagged here, and the output above says which one:
+
+          - **Commits** — applies to merge and rebase merges. Fix with `git rebase -i` and a
+            subsequent `git push --force-with-lease`.
+          - **Pull request title** — applies to the squash merge, where the title becomes the
+            commit message. Editing it is enough; this workflow then runs again by itself.
+
+          EOF
+          # Printed separately from the block above, which is deliberately literal: the base
+          # branch varies (main or fusion), and interpolating it into a quoted heredoc is not
+          # possible.
+          printf 'Check locally beforehand: `npx commitlint --from origin/%s --verbose`\n' \
+            "$BASE_REF" >> "$GITHUB_STEP_SUMMARY"
