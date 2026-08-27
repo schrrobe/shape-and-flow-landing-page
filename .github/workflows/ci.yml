@@ -1,7 +1,9 @@
 name: CI
 
-# Die eine Pipeline. Prüft jeden Pull Request, und auf den beiden Integrationsbranches hängt
-# das Deployment daran:
+# The one pipeline for the contents of the repository. The commit convention is checked by its own
+# workflow, commit-convention.yml, because that one also has to run on every title change.
+#
+# Prüft jeden Pull Request, und auf den beiden Integrationsbranches hängt das Deployment daran:
 #
 #   fusion → dev      https://dev.shapeandflow.de
 #   main   → stage    https://stage.shapeandflow.de
@@ -80,43 +82,6 @@ jobs:
             NUXT_SITE_ENV=staging
           cache-from: type=gha,scope=stage
           provenance: false
-
-  # release-please liest die Commit-Messages auf main und bestimmt daraus Version und CHANGELOG.
-  # Was das Conventional-Commits-Format verfehlt, fehlt anschließend im Release — bisher fiel das
-  # erst nach dem Merge auf.
-  #
-  # Geprüft werden beide Wege, auf denen Text nach main gelangt: die einzelnen Commits, falls per
-  # Merge-Commit oder Rebase gemergt wird, und der Titel der PR, der beim Squash-Merge zur
-  # Commit-Message wird. Das Repository erlaubt derzeit alle drei Strategien.
-  commits:
-    name: Commit-Konvention
-    if: github.event_name == 'pull_request'
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          # commitlint braucht die Commits zwischen Basis und HEAD; der Standard holt nur einen.
-          fetch-depth: 0
-          persist-credentials: false
-
-      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
-        with:
-          node-version-file: .tool-versions
-          cache: npm
-
-      - run: npm ci
-
-      - name: Commits prüfen
-        run: >-
-          npx commitlint
-          --from ${{ github.event.pull_request.base.sha }}
-          --to ${{ github.event.pull_request.head.sha }}
-          --verbose
-
-      - name: PR-Titel prüfen
-        env:
-          PR_TITLE: ${{ github.event.pull_request.title }}
-        run: printf '%s' "$PR_TITLE" | npx commitlint --verbose
 
   # axe-core in einem echten Browser gegen die vorgerenderten Seiten. Das ist die einzige Stufe,
   # die Kontrast, Sichtbarkeit und Fokusreihenfolge beurteilen kann — im simulierten DOM bleiben
