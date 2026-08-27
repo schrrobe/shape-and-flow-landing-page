@@ -1,67 +1,68 @@
 name: Deploy
 
-# Baut das Image auf dem Runner, schiebt es nach GHCR und startet die Zielumgebung über SSH neu.
-# Auf dem Server wird nichts gebaut; dort ist nicht einmal Node installiert.
+# Builds the image on the runner, pushes it to GHCR and restarts the target environment over SSH.
+# Nothing is built on the server; there is not even Node installed there.
 #
-# Wird von ci.yml aufgerufen, sobald die Prüfungen grün sind. Von Hand für Redeploy, ersten
-# Start oder Rollback:
+# Called by ci.yml as soon as the checks are green. By hand for a redeploy, a first start or a
+# rollback:
 #
 #     gh workflow run deploy.yml -f env_name=stage
-#     gh workflow run deploy.yml -f env_name=production -f image_tag=<älterer tag>
+#     gh workflow run deploy.yml -f env_name=production -f image_tag=<older tag>
 #
-# Dev lässt sich aus jedem Branch heraus deployen — dafür ist die Umgebung da:
+# Dev can be deployed from any branch — that is what the environment is there for:
 #
-#     gh workflow run deploy.yml --ref mein-branch -f env_name=dev
+#     gh workflow run deploy.yml --ref my-branch -f env_name=dev
 #
-# Stage und production nicht; siehe die Schranke im Job `prepare`.
+# Stage and production cannot; see the gate in the `prepare` job.
 #
-# ── Woher die Konfiguration kommt ───────────────────────────────────────────
+# ── Where the configuration comes from ──────────────────────────────────────
 #
-#   vars.DEPLOY_HOST        Adresse des Servers
-#   vars.DEPLOY_USER        `deploy` — kein sudo, Mitglied der Gruppe docker
-#   vars.SSH_KNOWN_HOSTS    der Hostkey des Servers. Absichtlich eine *Variable* und kein
-#                           Secret: die Information ist öffentlich, als Secret wäre sie in
-#                           genau den Logzeilen zu `***` maskiert, die man bei einem
-#                           SSH-Fehler lesen muss.
-#   secrets.SSH_PRIVATE_KEY Repository-Secret, ein Schlüssel nur für diesen Workflow.
+#   vars.DEPLOY_HOST        address of the server
+#   vars.DEPLOY_USER        `deploy` — no sudo, member of the docker group
+#   vars.SSH_KNOWN_HOSTS    the host key of the server. Deliberately a *variable* and not a
+#                           secret: the information is public, and as a secret it would be
+#                           masked to `***` in exactly those log lines one has to read when
+#                           SSH fails.
+#   secrets.SSH_PRIVATE_KEY repository secret, a key for this workflow only.
 #
-# Ein ENV_FILE-Secret wie beim Booking-Stack gibt es hier nicht: die Landingpage hat keine
-# Geheimnisse. Alles, was der Server wissen muss — Image-Tag, Port, Stack-Name — steht unten
-# in diesem Workflow und wird beim Deploy geschrieben.
+# There is no single ENV_FILE secret here as in the booking stack. The few secrets this site does
+# have — the SMTP password and the Unleash backend token — come from the GitHub environment, and
+# everything else the server needs to know — image tag, port, stack name — is written down below
+# in this workflow. Both are written to the server at deploy time.
 
 on:
   workflow_call:
     inputs:
       env_name:
-        description: dev, stage oder production
+        description: dev, stage or production
         required: true
         type: string
       image_tag:
-        description: Vorhandenen Tag deployen statt diesen Commit zu bauen
+        description: Deploy an existing tag instead of building this commit
         required: false
         type: string
         default: ''
   workflow_dispatch:
     inputs:
       env_name:
-        description: Umgebung
+        description: Environment
         required: true
         type: choice
-        # dev zuerst, damit der Knopf es als Voreinstellung anbietet.
+        # dev first, so that the button offers it as the default.
         options: [dev, stage, production]
         default: dev
       image_tag:
-        description: Vorhandenen Tag deployen (leer = diesen Commit bauen)
+        description: Deploy an existing tag (empty = build this commit)
         required: false
         type: string
         default: ''
 
 jobs:
-  # Alles, was die späteren Jobs brauchen, einmal ausgerechnet. Die Zuordnung Umgebung →
-  # Hostname → Port steht damit an genau einer Stelle im Repo; nginx auf dem Server kennt
-  # dieselben Ports, siehe infrastructure/nginx/.
+  # Everything the later jobs need, worked out once. The mapping environment → hostname → port
+  # therefore lives in exactly one place in the repository; nginx on the server knows the same
+  # ports, see infrastructure/nginx/.
   prepare:
-    name: Umgebung auflösen
+    name: Resolve environment
     runs-on: ubuntu-latest
     outputs:
       owner: ${{ steps.values.outputs.owner }}
@@ -70,46 +71,46 @@ jobs:
       site_env: ${{ steps.values.outputs.site_env }}
       port: ${{ steps.values.outputs.port }}
     steps:
-      # Hier geprüft und nicht erst im Deploy-Job, damit der Abbruch kommt, bevor ein Image
-      # gebaut wurde.
+      # Checked here and not only in the deploy job, so that the abort comes before an image has
+      # been built.
       #
-      # Dev darf aus jedem Branch kommen. Stage und production nicht: das sind die Umgebungen,
-      # die `main` erzeugt, und ein von Hand ausgelöster Deploy aus einem Feature-Branch würde
-      # ungeprüften Stand hinter Hostnamen stellen, die alle als "das ist main" lesen. Die
-      # Branch-Policy der GitHub-Environments erzwingt dasselbe; dieser Schritt macht die
-      # Ablehnung lesbar statt zu einem blockierten Job ohne Begründung.
-      - name: Stage und production nur aus main
+      # Dev may come from any branch. Stage and production may not: those are the environments
+      # `main` produces, and a manually triggered deploy from a feature branch would put
+      # unchecked code behind hostnames that everyone reads as "this is main". The branch policy
+      # of the GitHub environments enforces the same thing; this step makes the rejection
+      # readable instead of leaving a blocked job without a reason.
+      - name: Stage and production only from main
         if: ${{ (inputs.env_name == 'stage' || inputs.env_name == 'production') && github.ref_name != 'main' }}
         env:
           REF: ${{ github.ref_name }}
           ENV_NAME: ${{ inputs.env_name }}
         run: |
-          echo "Deploy von $ENV_NAME aus '$REF' abgelehnt." >&2
-          echo "Nach main mergen, oder mit env_name=dev diesen Branch ausprobieren." >&2
+          echo "Deploy of $ENV_NAME from '$REF' rejected." >&2
+          echo "Merge into main, or try this branch out with env_name=dev." >&2
           exit 1
 
       - id: values
         env:
           OWNER: ${{ github.repository_owner }}
           ENV_NAME: ${{ inputs.env_name }}
-          # Ein übergebener Tag gewinnt: dann ist es ein Rollback und der Build entfällt.
-          # Sonst wird der Commit deployt, der geprüft wurde.
+          # A tag passed in wins: then this is a rollback and the build is skipped. Otherwise
+          # the commit that was checked gets deployed.
           TAG: ${{ inputs.image_tag != '' && inputs.image_tag || format('{0}-{1}', github.sha, inputs.env_name) }}
         run: |
           set -euo pipefail
 
-          # GHCR lehnt Großbuchstaben im Pfad ab, GitHub-Kontonamen dürfen welche enthalten.
+          # GHCR rejects upper case in the path; GitHub account names are allowed to contain it.
           printf 'owner=%s\n' "${OWNER,,}" >> "$GITHUB_OUTPUT"
           printf 'tag=%s\n' "$TAG" >> "$GITHUB_OUTPUT"
 
-          # NUXT_SITE_ENV steuert die robots.txt: alles außer "production" liefert
-          # Disallow: /. Die Site-URL landet beim Prerender fest im HTML, deshalb bekommt
-          # jede Umgebung ihr eigenes Image — siehe docs/deploy.md.
+          # NUXT_SITE_ENV drives the robots.txt: everything other than "production" serves
+          # Disallow: /. The site URL is baked into the HTML during prerendering, which is why
+          # every environment gets an image of its own — see docs/deploy.md.
           case "$ENV_NAME" in
             production) url=https://shapeandflow.de       ; site_env=production ; port=8090 ;;
             stage)      url=https://stage.shapeandflow.de ; site_env=staging    ; port=8091 ;;
             dev)        url=https://dev.shapeandflow.de   ; site_env=staging    ; port=8092 ;;
-            *) echo "Unbekannte Umgebung: $ENV_NAME" >&2; exit 1 ;;
+            *) echo "Unknown environment: $ENV_NAME" >&2; exit 1 ;;
           esac
 
           printf 'site_url=%s\n' "$url" >> "$GITHUB_OUTPUT"
@@ -117,10 +118,10 @@ jobs:
           printf 'port=%s\n' "$port" >> "$GITHUB_OUTPUT"
 
   build:
-    name: Image bauen und pushen
+    name: Build and push image
     needs: [prepare]
-    # Beim Rollback übersprungen: das Image zum genannten Tag liegt bereits in der Registry,
-    # es neu zu bauen würde den Zweck aufheben, einen bekannten Stand zu benennen.
+    # Skipped on a rollback: the image for the named tag is already in the registry, and
+    # rebuilding it would defeat the very purpose of naming a known state.
     if: inputs.image_tag == ''
     runs-on: ubuntu-latest
     permissions:
@@ -133,9 +134,9 @@ jobs:
 
       - uses: docker/setup-buildx-action@37fe631027851001ddb9b187196cc803df7f5f0e # v4.3.0
 
-      # `packages: write` oben ist die Erlaubnis, nicht die Anmeldung. Ohne diesen Schritt
-      # scheitert der Push mit "unauthorized", nachdem der ganze Build schon bezahlt ist.
-      - name: An GHCR anmelden
+      # `packages: write` above is the permission, not the login. Without this step the push
+      # fails with "unauthorized" after the whole build has already been paid for.
+      - name: Log in to GHCR
         env:
           GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           ACTOR: ${{ github.actor }}
@@ -145,40 +146,40 @@ jobs:
         with:
           context: .
           push: true
-          # linux/amd64 ausdrücklich: sharp und der OG-Renderer legen native Binärdateien ins
-          # Image, und der VPS ist x86_64. Ein versehentlich auf arm64 gebautes Image startet
-          # dort nicht.
+          # linux/amd64 spelled out: sharp and the OG renderer put native binaries into the
+          # image, and the VPS is x86_64. An image built for arm64 by accident does not start
+          # there.
           platforms: linux/amd64
           build-args: |
             NUXT_SITE_URL=${{ needs.prepare.outputs.site_url }}
             NUXT_SITE_ENV=${{ needs.prepare.outputs.site_env }}
-          # Zwei Tags: der unveränderliche mit dem Commit, an den ein Rollback sich halten
-          # kann, und der bewegliche, an dem man sieht, was gerade in einer Umgebung steht.
+          # Two tags: the immutable one carrying the commit, which a rollback can hold on to,
+          # and the moving one, which shows what is currently running in an environment.
           tags: |
             ghcr.io/${{ needs.prepare.outputs.owner }}/sf-landing:${{ needs.prepare.outputs.tag }}
             ghcr.io/${{ needs.prepare.outputs.owner }}/sf-landing:${{ inputs.env_name }}
-          # Pro Umgebung getrennt, sonst verdrängen die drei Builds gegenseitig ihre Layer.
+          # Separate per environment, otherwise the three builds evict each other's layers.
           cache-from: type=gha,scope=${{ inputs.env_name }}
           cache-to: type=gha,mode=max,scope=${{ inputs.env_name }}
           provenance: false
 
   deploy:
-    name: Nach ${{ inputs.env_name }} deployen
+    name: Deploy to ${{ inputs.env_name }}
     needs: [prepare, build]
-    # `always()` ist nötig, weil `build` beim Rollback übersprungen wird und ein übersprungener
-    # Bedarf sonst diesen Job mit überspringt. Die Ergebnisprüfung verhindert trotzdem, dass ein
-    # fehlgeschlagener Build deployt wird.
+    # `always()` is needed because `build` is skipped on a rollback, and a skipped dependency
+    # would otherwise skip this job along with it. The result check still keeps a failed build
+    # from being deployed.
     if: ${{ always() && needs.prepare.result == 'success' && (needs.build.result == 'success' || needs.build.result == 'skipped') }}
     runs-on: ubuntu-latest
-    # Hier greifen die Branch-Policy und eine eventuelle Freigabepflicht des Environments.
+    # This is where the branch policy and any required approval of the environment take hold.
     environment:
       name: ${{ inputs.env_name }}
       url: ${{ needs.prepare.outputs.site_url }}
     permissions:
       contents: read
       packages: read
-    # cancel-in-progress muss false bleiben: ein zwischen `pull` und `up` abgebrochener Deploy
-    # lässt ein halb ausgetauschtes Verzeichnis zurück.
+    # cancel-in-progress has to stay false: a deploy aborted between `pull` and `up` leaves a
+    # half-replaced directory behind.
     concurrency:
       group: deploy-landing-${{ inputs.env_name }}
       cancel-in-progress: false
@@ -188,17 +189,17 @@ jobs:
       IMAGE_TAG: ${{ needs.prepare.outputs.tag }}
       GHCR_OWNER: ${{ needs.prepare.outputs.owner }}
       WEB_PUBLISH_PORT: ${{ needs.prepare.outputs.port }}
-      # Ein eigenes Anmeldeverzeichnis je Umgebung. Die Concurrency-Gruppe trennt nur nach
-      # Umgebung, also können dev und stage gleichzeitig deployen — beide als Benutzer `deploy`
-      # auf derselben Maschine. Mit dem Standardpfad ~/.docker/config.json würde der
-      # `docker logout` des einen Deploys dem anderen die Anmeldung unter dem Hintern wegziehen.
+      # A login directory of its own per environment. The concurrency group separates by
+      # environment only, so dev and stage can deploy at the same time — both as the user
+      # `deploy` on the same machine. With the default path ~/.docker/config.json, the
+      # `docker logout` of one deploy would pull the login out from under the other.
       REMOTE_DOCKER_CONFIG: /opt/landing/${{ inputs.env_name }}/.docker
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
 
-      - name: SSH einrichten
+      - name: Set up SSH
         env:
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
           SSH_KNOWN_HOSTS: ${{ vars.SSH_KNOWN_HOSTS }}
@@ -220,33 +221,32 @@ jobs:
             BatchMode yes
             ConnectTimeout 15
           EOF
-          # Ein echter known_hosts-Eintrag, nicht StrictHostKeyChecking=no. Die Alternative
-          # vertraut dem, was auf Port 22 antwortet, und das ist der ganze Schutz.
-          ssh -F /tmp/ssh_config landing 'echo "verbunden als $(id -un) auf $(hostname)"'
+          # A real known_hosts entry, not StrictHostKeyChecking=no. The alternative trusts
+          # whatever answers on port 22, and that is the entire protection gone.
+          ssh -F /tmp/ssh_config landing 'echo "connected as $(id -un) on $(hostname)"'
 
-      - name: Compose-Datei hochladen
+      - name: Upload compose file
         run: |
           set -euo pipefail
-          # Beim Deploy kopiert statt auf dem Server ausgecheckt: so passt die Compose-Datei
-          # immer zu dem Commit, der deployt wird, und der Server braucht weder git noch eine
-          # Zugangsberechtigung zum Repository.
+          # Copied at deploy time instead of checked out on the server: that way the compose
+          # file always matches the commit being deployed, and the server needs neither git nor
+          # any access to the repository.
           scp -F /tmp/ssh_config docker-compose.prod.yml "landing:$DIR/"
 
-      - name: Umgebungsdatei schreiben
+      - name: Write environment file
         env:
-          # Der Postausgangsserver für das Kontaktformular. Host, Port, Benutzer und die beiden
-          # Adressen sind keine Geheimnisse und stehen deshalb als Variablen des Environments;
-          # nur das Kennwort ist ein Secret. Fehlt einer der Werte, bleibt der Eintrag leer und
-          # das Formular antwortet mit einem Hinweis auf die E-Mail-Adresse — der Deploy scheitert
-          # daran nicht.
+          # The outgoing mail server for the contact form. Host, port, user and the two
+          # addresses are not secrets and are therefore variables of the environment; only the
+          # password is a secret. If one of the values is missing, the entry stays empty and the
+          # form answers with a pointer to the email address — the deploy does not fail over it.
           SMTP_HOST: ${{ vars.SMTP_HOST }}
           SMTP_PORT: ${{ vars.SMTP_PORT }}
           SMTP_USER: ${{ vars.SMTP_USER }}
           SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
           SMTP_ABSENDER: ${{ vars.SMTP_ABSENDER }}
           SMTP_EMPFAENGER: ${{ vars.SMTP_EMPFAENGER }}
-          # Pro GitHub Environment getrennt. Nur der Backend-Token ist geheim; der
-          # Frontend-Token ist eine absichtlich öffentliche, rein lesende SDK-Berechtigung.
+          # Separate per GitHub environment. Only the backend token is secret; the frontend
+          # token is a deliberately public, read-only SDK credential.
           UNLEASH_BASE_URL: ${{ vars.UNLEASH_URL }}
           UNLEASH_BACKEND_TOKEN: ${{ secrets.UNLEASH_BACKEND_TOKEN }}
           UNLEASH_FRONTEND_TOKEN: ${{ vars.UNLEASH_FRONTEND_TOKEN }}
@@ -254,17 +254,17 @@ jobs:
           UNLEASH_DEPLOYMENT: ${{ vars.UNLEASH_DEPLOYMENT }}
         run: |
           set -euo pipefail
-          : "${UNLEASH_BASE_URL:?UNLEASH_URL fehlt im GitHub Environment}"
-          : "${UNLEASH_BACKEND_TOKEN:?UNLEASH_BACKEND_TOKEN fehlt im GitHub Environment}"
-          : "${UNLEASH_FRONTEND_TOKEN:?UNLEASH_FRONTEND_TOKEN fehlt im GitHub Environment}"
-          : "${UNLEASH_ENVIRONMENT:?UNLEASH_ENVIRONMENT fehlt im GitHub Environment}"
-          : "${UNLEASH_DEPLOYMENT:?UNLEASH_DEPLOYMENT fehlt im GitHub Environment}"
+          : "${UNLEASH_BASE_URL:?UNLEASH_URL missing in the GitHub environment}"
+          : "${UNLEASH_BACKEND_TOKEN:?UNLEASH_BACKEND_TOKEN missing in the GitHub environment}"
+          : "${UNLEASH_FRONTEND_TOKEN:?UNLEASH_FRONTEND_TOKEN missing in the GitHub environment}"
+          : "${UNLEASH_ENVIRONMENT:?UNLEASH_ENVIRONMENT missing in the GitHub environment}"
+          : "${UNLEASH_DEPLOYMENT:?UNLEASH_DEPLOYMENT missing in the GitHub environment}"
           unleash_base="${UNLEASH_BASE_URL%/}"
-          # STACK_SUFFIX muss in der Datei stehen und nicht bloß exportiert sein: compose löst
-          # ${…} im Projektnamen aus --env-file auf, nicht aus der Shell.
+          # STACK_SUFFIX has to sit in the file and not merely be exported: compose resolves
+          # ${…} in the project name from --env-file, not from the shell.
           #
-          # umask 077 auf der Gegenseite, damit die Datei vom ersten Moment an 600 ist. Das
-          # SMTP-Kennwort steht in dieser Datei, sie darf also niemandem sonst lesbar sein.
+          # umask 077 on the far side, so the file is 600 from the first moment on. The SMTP
+          # password is in this file, so nobody else may be able to read it.
           {
             printf 'STACK_SUFFIX=%s\n'        "$ENV_NAME"
             printf 'IMAGE_TAG=%s\n'           "$IMAGE_TAG"
@@ -274,8 +274,8 @@ jobs:
             printf 'NUXT_SMTP_PORT=%s\n'      "${SMTP_PORT:-587}"
             printf 'NUXT_SMTP_USER=%s\n'      "${SMTP_USER:-}"
             printf 'NUXT_SMTP_PASSWORD=%s\n'  "${SMTP_PASSWORD:-}"
-            # Diese zwei nur, wenn gesetzt: eine leere Zuweisung ist für Nitro ein Wert und würde
-            # die Adressen aus shared/site.ts überschreiben, nicht offenlassen.
+            # These two only when set: to Nitro an empty assignment is a value and would
+            # overwrite the addresses from shared/site.ts rather than leave them open.
             [ -n "${SMTP_ABSENDER:-}" ]   && printf 'NUXT_SMTP_ABSENDER=%s\n'   "$SMTP_ABSENDER"
             [ -n "${SMTP_EMPFAENGER:-}" ] && printf 'NUXT_SMTP_EMPFAENGER=%s\n' "$SMTP_EMPFAENGER"
             printf 'NUXT_UNLEASH_URL=%s/api/\n'                    "$unleash_base"
@@ -286,21 +286,21 @@ jobs:
             printf 'NUXT_PUBLIC_UNLEASH_FRONTEND_TOKEN=%s\n'      "$UNLEASH_FRONTEND_TOKEN"
             printf 'NUXT_PUBLIC_UNLEASH_ENVIRONMENT=%s\n'         "$UNLEASH_ENVIRONMENT"
             printf 'NUXT_PUBLIC_UNLEASH_DEPLOYMENT=%s\n'          "$UNLEASH_DEPLOYMENT"
-            # Ohne das würde der Block mit dem Rückgabewert des letzten [ ] enden und `set -e`
-            # bricht ab, sobald beide Variablen leer sind.
+            # Without this the block would end with the return value of the last [ ], and
+            # `set -e` aborts as soon as both variables are empty.
             true
           } | ssh -F /tmp/ssh_config landing "umask 077 && cat > '$DIR/.env.$ENV_NAME'"
-          # Nur die Rechte und die Schlüsselnamen, nicht der Inhalt: sonst stünde das Kennwort im
-          # Aktionsprotokoll.
+          # Only the permissions and the key names, not the contents: otherwise the password
+          # would stand in the action log.
           ssh -F /tmp/ssh_config landing \
             "ls -l '$DIR/.env.$ENV_NAME' && cut -d= -f1 '$DIR/.env.$ENV_NAME' \
              | grep -v '^NUXT_UNLEASH_BACKEND_TOKEN$'"
 
-      - name: Auf dem Server an GHCR anmelden
+      - name: Log in to GHCR on the server
         env:
-          # Das Token dieses Laufs, kein hinterlegter PAT: es darf die Pakete dieses
-          # Repositories lesen und verfällt mit dem Job. Es bleibt also keine dauerhafte
-          # Registry-Anmeldung auf dem Server liegen.
+          # This run's own token, not a stored PAT: it may read the packages of this repository
+          # and expires with the job. So no permanent registry login is left lying around on the
+          # server.
           GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           ACTOR: ${{ github.actor }}
         run: |
@@ -310,12 +310,12 @@ jobs:
                 "mkdir -p '$REMOTE_DOCKER_CONFIG' && chmod 700 '$REMOTE_DOCKER_CONFIG' \
                  && DOCKER_CONFIG='$REMOTE_DOCKER_CONFIG' docker login ghcr.io -u '$ACTOR' --password-stdin"
 
-      - name: Ziehen und starten
+      - name: Pull and start
         run: |
           set -euo pipefail
-          # Die Zuweisungen vor `bash` werden hier auf dem Runner eingesetzt und landen in der
-          # Umgebung der entfernten Shell. Der Heredoc-Körper ist gequotet und erreicht den
-          # Server unverändert.
+          # The assignments in front of `bash` are substituted here on the runner and end up in
+          # the environment of the remote shell. The heredoc body is quoted and reaches the
+          # server unchanged.
           # shellcheck disable=SC2029
           ssh -F /tmp/ssh_config landing \
             "DIR='$DIR' ENV_NAME='$ENV_NAME' DOCKER_CONFIG='$REMOTE_DOCKER_CONFIG' bash -euo pipefail -s" <<'REMOTE_SCRIPT'
@@ -326,20 +326,20 @@ jobs:
           $COMPOSE pull
 
           echo "==> up"
-          # --wait wartet auf den HEALTHCHECK aus dem Dockerfile, nicht bloß darauf, dass der
-          # Prozess existiert.
+          # --wait waits for the HEALTHCHECK from the Dockerfile, not merely for the process to
+          # exist.
           $COMPOSE up -d --wait
 
-          echo "==> aufräumen"
-          # Das abgelöste Image behält seinen Tag und gilt damit nicht als "dangling" — ein
-          # nacktes `docker image prune` würde es nie anfassen, und nach ein paar Dutzend
-          # Deploys sind das mehrere Gigabyte. Mit -a und dem Label-Filter trifft es genau die
-          # Landing-Images, die kein Container mehr benutzt; die laufenden Umgebungen und der
-          # Booking-Stack auf derselben Maschine bleiben unberührt.
+          echo "==> clean up"
+          # The replaced image keeps its tag and therefore does not count as "dangling" — a bare
+          # `docker image prune` would never touch it, and after a few dozen deploys that adds up
+          # to several gigabytes. With -a and the label filter it hits exactly those landing
+          # images no container uses any more; the running environments and the booking stack on
+          # the same machine stay untouched.
           docker image prune -af --filter 'label=org.opencontainers.image.title=sf-landing' >/dev/null
           REMOTE_SCRIPT
 
-      - name: Smoke-Test
+      - name: Smoke test
         run: |
           set -euo pipefail
           # shellcheck disable=SC2029
@@ -350,32 +350,33 @@ jobs:
           for path in / /sitemap.xml /llms.txt /robots.txt; do
             code=$(curl -sS -o /dev/null -w '%{http_code}' --max-time 20 "$base$path")
             echo "$path -> $code"
-            [ "$code" = "200" ] || { echo "$path lieferte $code statt 200" >&2; exit 1; }
+            [ "$code" = "200" ] || { echo "$path returned $code instead of 200" >&2; exit 1; }
           done
 
           robots=$(curl -sS --max-time 20 "$base/robots.txt")
           if [ "$ENV_NAME" = "production" ]; then
-            # Eine Produktion, die sich selbst aus dem Index nimmt, ist der teuerste Fehler,
-            # den diese Pipeline machen kann. Also wird er geprüft.
+            # A production that takes itself out of the index is the most expensive mistake
+            # this pipeline can make. So it gets checked.
             if printf '%s' "$robots" | grep -qE '^Disallow: /$'; then
-              echo "robots.txt sperrt die Produktion aus. NUXT_SITE_ENV falsch?" >&2
+              echo "robots.txt locks production out. NUXT_SITE_ENV wrong?" >&2
               exit 1
             fi
-            # `|| locs=0`, weil grep ohne Treffer mit 1 endet und pipefail den Lauf sonst hier
-            # ohne Meldung abbrechen würde — statt mit der Zeile darunter, die erklärt warum.
+            # `|| locs=0`, because grep exits 1 without a match and pipefail would otherwise
+            # abort the run right here without a message — instead of on the line below, which
+            # explains why.
             locs=$(curl -sS --max-time 20 "$base/sitemap.xml" | grep -o '<loc>' | wc -l) || locs=0
-            echo "sitemap: $locs Einträge"
-            [ "$locs" -gt 0 ] || { echo "Sitemap ist leer." >&2; exit 1; }
+            echo "sitemap: $locs entries"
+            [ "$locs" -gt 0 ] || { echo "Sitemap is empty." >&2; exit 1; }
           else
             printf '%s' "$robots" | grep -qE '^Disallow: /$' \
-              || { echo "robots.txt von $ENV_NAME sperrt nicht. NUXT_SITE_ENV falsch?" >&2; exit 1; }
-            echo "robots.txt: Disallow: / gesetzt"
-            # Die Sitemap ist hier absichtlich leer: nuxt-sitemap lässt Routen weg, die auf
-            # noindex stehen. Deshalb wird sie für stage und dev nicht gezählt.
+              || { echo "robots.txt of $ENV_NAME does not lock. NUXT_SITE_ENV wrong?" >&2; exit 1; }
+            echo "robots.txt: Disallow: / set"
+            # The sitemap is deliberately empty here: nuxt-sitemap leaves out routes that are
+            # set to noindex. That is why it is not counted for stage and dev.
           fi
           REMOTE_SCRIPT
 
-      - name: Logs bei Fehlschlag
+      - name: Logs on failure
         if: failure()
         run: |
           # shellcheck disable=SC2029
@@ -387,12 +388,11 @@ jobs:
           $COMPOSE logs --tail=200
           REMOTE_SCRIPT
 
-      - name: Aufräumen
+      - name: Clean up
         if: always()
         run: |
-          # Beides mit `|| true`: die Registry-Anmeldung und der Schlüssel gehören auch dann
-          # weggeräumt, wenn der Deploy gescheitert ist, und kein Aufräumschritt soll den
-          # eigentlichen Fehler überdecken.
+          # Both with `|| true`: the registry login and the key belong cleaned up even when the
+          # deploy failed, and no cleanup step should mask the actual error.
           ssh -F /tmp/ssh_config landing \
             "DOCKER_CONFIG='$REMOTE_DOCKER_CONFIG' docker logout ghcr.io" || true
           rm -f /tmp/deploy_key /tmp/deploy_known_hosts /tmp/ssh_config || true

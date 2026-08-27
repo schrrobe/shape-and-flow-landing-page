@@ -207,7 +207,7 @@ landen so nicht im Studiopostfach.
 Zuweisung wäre für Nitro ein Wert und würde die Adressen aus `shared/site.ts` überschreiben statt
 offenlassen.
 
-Der Schritt „Umgebungsdatei schreiben" setzt sie als `NUXT_SMTP_*` in `/opt/landing/<env>/.env.<env>`,
+Der Schritt „Write environment file" setzt sie als `NUXT_SMTP_*` in `/opt/landing/<env>/.env.<env>`,
 und `docker-compose.prod.yml` gibt genau diese Namen an den Container weiter. Fehlen sie, läuft der
 Deploy durch und die Website ebenfalls: das Formular antwortet dann mit einem Hinweis auf die
 E-Mail-Adresse, statt Anfragen still zu verschlucken. Das Kennwort steht im Klartext in der
