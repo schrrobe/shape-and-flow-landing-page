@@ -54,6 +54,7 @@ ${site.name} ist ein Studio für brasilianische Lymphdrainage in ${address.city}
 ## Aufgaben
 
 - Inhalte lesen: HTML ist die Voreinstellung. Jede öffentliche Seite gibt es zusätzlich als Markdown — mit dem Header \`Accept: text/markdown\` an der kanonischen URL oder unter derselben Adresse mit angehängtem \`.md\`. Die Startseite liegt unter \`${markdownPath('/')}\`.
+- Werkzeuge im Browser nutzen: Wer diese Seite in einem Browser mit WebMCP geöffnet hat, findet dort Werkzeuge für Angebot und Preise, für die häufigen Fragen, für Kontakt und Anfahrt, für den Wechsel auf eine andere Seite und für die Markdown-Fassung einer Seite. Sie antworten aus denselben Quellen wie die Seite selbst.
 - Angebot und Preise beantworten: die Übersicht steht unter [${url(siteUrl, '/preise')}](${url(siteUrl, '/preise')}).
 ${behandlungen}
 - Häufige Fragen beantworten: [${url(siteUrl, '/faq')}](${url(siteUrl, '/faq')}).
@@ -63,6 +64,7 @@ ${behandlungen}
 
 - ${disclaimer}
 - Markdown ist eine Lese-Darstellung der ausgelieferten Seite, kein Export und keine Schreib-Schnittstelle.
+- Die WebMCP-Werkzeuge lesen ausschließlich. Es gibt darunter keines, das ein Formular absendet oder einen Termin bucht; \`seite_oeffnen\` wechselt lediglich die angezeigte Seite.
 - ${url(siteUrl, '/api/kontakt')} bedient ausschließlich das Formular dieser Seite, ist pro IP-Adresse ratenbegrenzt und ist kein Agenten-Endpunkt. Anfragen bitte über das Formular oder die E-Mail-Adresse.
 - Preise, Anschrift und Aussagen gelten so, wie sie auf der Seite stehen. Keine Termine, Zeiten oder Wirkungen ergänzen, die dort nicht genannt sind.
 
@@ -77,7 +79,99 @@ ${behandlungen}
 - [Hinweise für Sprachmodelle](${url(siteUrl, agentPaths.llms)})
 - [XML-Sitemap](${url(siteUrl, agentPaths.sitemap)})
 - [API-Katalog](${url(siteUrl, agentPaths.apiCatalog)})
+- [ARD-Manifest](${url(siteUrl, agentPaths.ard)})
 - [Agent-Skills-Index](${url(siteUrl, agentPaths.skillIndex)})
+- [Auth.md](${url(siteUrl, agentPaths.authDoc)})
+`
+}
+
+/**
+ * The Auth.md document under {@link agentPaths.authDoc}: how an agent gets access here.
+ *
+ * The answer is that it does not have to do anything, and this document exists to say so in the
+ * place where it is looked for. An agent that finds no answer at /auth.md has to guess whether
+ * there is a registration it is missing; one that reads "anonymous, no registration" can get on
+ * with the request.
+ *
+ * The Auth.md convention prefers OAuth metadata: Protected Resource Metadata under
+ * /.well-known/oauth-protected-resource, an Authorization Server with an `agent_auth` block under
+ * /.well-known/oauth-authorization-server. Neither is published here, and the convention provides
+ * for exactly that case with a self-contained /auth.md. There is no authorization server behind
+ * this site and no protected resource in front of it: every page is prerendered and public. A
+ * metadata document with an invented issuer and endpoints that answer 404 would be worse than
+ * none — an agent following it would end up nowhere, and would have taken a detour to get there.
+ *
+ * The H1 carries the literal string "auth.md", because that is what the scanners for this
+ * convention match on. Same reason as for the paths in shared/agenten.ts: a document only counts
+ * where it is recognised.
+ */
+export function authDocumentation(siteUrl: string): string {
+  return `---
+title: "auth.md — ${site.name}"
+canonical_url: "${url(siteUrl, agentPaths.authDoc)}"
+language: "de"
+---
+
+# auth.md: Zugang für KI-Agenten zu ${site.name}
+
+Dieses Dokument beschreibt, wie ein KI-Agent Zugang zu ${site.name} erhält. Die kurze Antwort: ohne Registrierung und ohne Anmeldedaten. Was dieses Studio veröffentlicht, ist öffentlich und anonym abrufbar — HTML als Voreinstellung, Markdown auf Anfrage.
+
+## Für wen das gilt
+
+Für jeden automatisierten Client, der die Inhalte dieser Seite liest: Assistenten im Auftrag eines Menschen, Crawler von Registries, Agenten mit WebMCP-Werkzeugen im Browser. Es gibt keine zweite Klasse von Agenten mit weitergehenden Rechten, für die sich eine Anmeldung lohnen würde.
+
+## Registrierung
+
+Es gibt keinen Registrierungs-Endpunkt, weil es nichts zu registrieren gibt.
+
+- Registrierung (\`register_uri\`): keine
+- Ausstellung von Kennungen (\`claim_uri\`): keine
+- Widerruf (\`revocation_uri\`): keiner, da nichts ausgestellt wird
+
+## Unterstützte Verfahren
+
+| Verfahren | Unterstützt | Bedeutung |
+| --- | --- | --- |
+| \`anonymous\` | ja | Abruf ohne Kennung. Das ist der vorgesehene Weg. |
+| \`identity_assertion\` (ID-JAG) | nein | Es gibt keinen Authorization Server, der eine Assertion einlösen könnte. |
+| \`service_auth\` | nein | Es gibt keine Service-Konten. |
+
+## Anmeldedaten
+
+Es werden keine ausgegeben und keine geprüft. Ein \`Authorization\`-Header wird nicht ausgewertet; ein Abruf mit Kennung erhält dieselbe Antwort wie einer ohne. Ein Agent sollte hier also keine Zugangsdaten mitsenden.
+
+Was stattdessen erwartet wird, ist Höflichkeit statt Authentifizierung:
+
+- Ein sprechender \`User-Agent\`, aus dem hervorgeht, wer abruft und in wessen Auftrag.
+- Die Nutzungspräferenzen aus [robots.txt](${url(siteUrl, '/robots.txt')}) beachten. Lesen, Zitieren und Empfehlen sind erlaubt (\`search=yes\`, \`ai-input=yes\`); die Aufnahme in Trainingsdaten ist es nicht (\`ai-train=no\`).
+- Ein Abruf pro benötigter Seite. Die Seiten sind vorgerendert und ändern sich selten.
+
+## Kein OAuth-Metadaten-Dokument
+
+Die Auth.md-Konvention sieht als bevorzugten Weg OAuth-Metadaten vor: Protected Resource Metadata unter \`/.well-known/oauth-protected-resource\` und einen Authorization Server mit \`agent_auth\`-Block unter \`/.well-known/oauth-authorization-server\`. Beides gibt es hier nicht, und die Konvention sieht für genau diesen Fall ein selbsttragendes \`/auth.md\` vor.
+
+Der Grund ist keine Auslassung: Hinter dieser Seite steht kein Authorization Server, und vor ihr steht keine geschützte Ressource. Ein Metadaten-Dokument mit erfundenem Issuer und Endpunkten, die mit 404 antworten, wäre schlechter als keines.
+
+## Grenzen
+
+- Nur veröffentlichte, öffentliche Inhalte. Markdown ist eine Lese-Darstellung der ausgelieferten Seite, keine Schreib-Schnittstelle.
+- Keine Terminbuchung und keine Formularabsendung durch Agenten. ${url(siteUrl, '/api/kontakt')} bedient ausschließlich das Formular dieser Seite, ist pro IP-Adresse ratenbegrenzt und ist kein Agenten-Endpunkt.
+- ${disclaimer}
+
+## Kontaktpunkte
+
+Alles, was mehr als Lesen erfordert, gehört an einen Menschen:
+
+- E-Mail: [${contact.email}](mailto:${contact.email})
+- Kontaktformular: [${url(siteUrl, formUrl)}](${url(siteUrl, formUrl)})
+
+## Discovery
+
+- [Agenten-Dokumentation](${url(siteUrl, agentPaths.agentDoc)})
+- [API-Katalog](${url(siteUrl, agentPaths.apiCatalog)})
+- [ARD-Manifest](${url(siteUrl, agentPaths.ard)})
+- [Agent-Skills-Index](${url(siteUrl, agentPaths.skillIndex)})
+- [Hinweise für Sprachmodelle](${url(siteUrl, agentPaths.llms)})
 `
 }
 
@@ -187,6 +281,17 @@ export function apiCatalogLinkset(siteUrl: string): object {
             type: 'text/markdown',
             title: 'Dokumentation des Agenten-Zugangs',
           },
+          /*
+           * auth.md under the same relation as the agent documentation, not under one of its own:
+           * `service-doc` takes several targets, and there is no registered relation for auth.md.
+           * A client that reads only the first entry gets the agent documentation, which is the
+           * more general of the two — the one to read first anyway.
+           */
+          {
+            href: url(siteUrl, agentPaths.authDoc),
+            type: 'text/markdown',
+            title: 'Auth.md: Registrierung und Anmeldedaten für Agenten',
+          },
         ],
         'agent-skills': [
           {
@@ -194,6 +299,133 @@ export function apiCatalogLinkset(siteUrl: string): object {
             type: 'application/json',
             title: 'Agent-Skills-Index',
           },
+        ],
+        ard: [
+          {
+            href: url(siteUrl, agentPaths.ard),
+            type: 'application/json',
+            title: 'ARD-Manifest derselben Endpunkte',
+          },
+        ],
+      },
+    ],
+  }
+}
+
+/**
+ * The ARD capability manifest under {@link agentPaths.ard}.
+ *
+ * The same endpoints as the linkset above, in the shape a registry indexes: ARD (Agentic Resource
+ * Discovery, v0.91) is read by crawlers that build embeddings over what a site offers, RFC 9727 is
+ * read by a client that already stands at the door. Two formats, one list — and both are assembled
+ * from {@link agentPaths}, so an endpoint cannot appear in one and be missing from the other.
+ *
+ * The identifiers carry the host of the address the manifest is delivered under, not the literal
+ * from shared/site.ts: on the staging host both have to differ, otherwise a registry that reads
+ * both would file the two sites under one URN.
+ *
+ * `identifier` of the host is the site address and deliberately not a `did:web:` — the DID
+ * document that would have to answer at /.well-known/did.json does not exist, and an identifier
+ * that resolves to nothing is worse than one that resolves to the site itself. The schema asks for
+ * an identifier, not for a specific scheme; `https` is one the specification knows elsewhere.
+ *
+ * `representativeQueries` are the questions this site can actually answer; two to five per entry,
+ * as the schema requires. They are in German like the content: an embedding over questions in a
+ * language the answer does not exist in would point agents at the wrong door.
+ */
+export function ardManifest(siteUrl: string): object {
+  /** `urn:air:<publisher>:<namespace>:<name>`, per the ARD schema. */
+  const urn = (namespace: string, name: string) =>
+    `urn:air:${new URL(siteUrl).host}:${namespace}:${name}`
+
+  return {
+    specVersion: '1.0',
+    host: {
+      displayName: site.name,
+      identifier: siteUrl,
+      documentationUrl: url(siteUrl, agentPaths.agentDoc),
+      logoUrl: `${siteUrl}/images/logo.jpg`,
+    },
+    entries: [
+      {
+        identifier: urn('doc', 'agenten-zugang'),
+        displayName: `${site.name}: Zugang für KI-Agenten`,
+        type: 'text/markdown',
+        url: url(siteUrl, agentPaths.agentDoc),
+        description:
+          'Aufgaben, Grenzen und Kontaktpunkte des Agenten-Zugangs dieses Studios in einem Dokument.',
+        tags: ['dokumentation', 'agenten-zugang', address.city.toLowerCase()],
+        representativeQueries: [
+          `Was darf ein KI-Agent bei ${site.name} abrufen?`,
+          `Wie erreiche ich ${site.name} in ${address.city}?`,
+          `Welche Grenzen gelten für automatisierte Anfragen an ${site.name}?`,
+        ],
+      },
+      {
+        identifier: urn('skill', agentSkill.name),
+        displayName: `${site.name}: Inhalte lesen`,
+        type: 'text/markdown',
+        url: url(siteUrl, skillPath),
+        description: agentSkill.description,
+        tags: ['inhalte', 'markdown', 'lymphdrainage'],
+        capabilities: treatments.map(t => t.name),
+        representativeQueries: [
+          `Brasilianische Lymphdrainage in ${address.city}`,
+          `Was kostet eine Behandlung bei ${site.name}?`,
+          `Welche Behandlungen bietet ${site.name} an?`,
+        ],
+      },
+      {
+        identifier: urn('catalog', 'api'),
+        displayName: `API-Katalog von ${site.name}`,
+        type: 'application/linkset+json',
+        url: url(siteUrl, agentPaths.apiCatalog),
+        description:
+          'Linkset nach RFC 9727: dieselben maschinenlesbaren Endpunkte für Clients, die einen Katalog erwarten.',
+        tags: ['katalog', 'rfc9727'],
+        representativeQueries: [
+          `Welche maschinenlesbaren Endpunkte hat ${site.name}?`,
+          `Wo liegt der API-Katalog von ${site.name}?`,
+        ],
+      },
+      {
+        identifier: urn('doc', 'auth-md'),
+        displayName: `Auth.md von ${site.name}`,
+        type: 'text/markdown',
+        url: url(siteUrl, agentPaths.authDoc),
+        description:
+          'Zugang für Agenten nach der Auth.md-Konvention: anonymer Lesezugriff, keine Registrierung, keine Anmeldedaten.',
+        tags: ['auth-md', 'agenten-zugang', 'anonym'],
+        representativeQueries: [
+          `Muss sich ein KI-Agent bei ${site.name} registrieren?`,
+          `Wie authentifiziert sich ein Agent bei ${site.name}?`,
+          `Braucht der Abruf von ${site.name} einen API-Schlüssel?`,
+        ],
+      },
+      {
+        identifier: urn('content', 'llms-txt'),
+        displayName: `Hinweise für Sprachmodelle zu ${site.name}`,
+        type: 'text/plain',
+        url: url(siteUrl, agentPaths.llms),
+        description: 'Kurzüberblick über die Seiten dieses Studios, für Sprachmodelle geschrieben.',
+        tags: ['llms-txt', 'überblick'],
+        representativeQueries: [
+          `Worum geht es auf der Seite von ${site.name}?`,
+          `Übersicht der Inhalte von ${site.name}`,
+        ],
+      },
+      {
+        identifier: urn('content', 'sitemap'),
+        displayName: `XML-Sitemap von ${site.name}`,
+        type: 'application/xml',
+        url: url(siteUrl, agentPaths.sitemap),
+        description:
+          'Alle öffentlichen Seiten; jede davon auch als Markdown über Accept: text/markdown oder angehängtes .md.',
+        tags: ['sitemap', 'inhalte'],
+        representativeQueries: [
+          `Welche Seiten hat ${site.name}?`,
+          `Sitemap von ${site.name}`,
+          `Alle Unterseiten von ${site.name} auflisten`,
         ],
       },
     ],

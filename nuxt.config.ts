@@ -116,6 +116,12 @@ export default defineNuxtConfig({
      * string concatenation each; keeping them from being prerendered costs one line here.
      */
     '/.well-known/**': { prerender: false },
+    /*
+     * The same for /auth.md, which the Auth.md convention puts at the site root instead. Here the
+     * extension would give the right content type, but not the charset — and the document is full
+     * of umlauts.
+     */
+    '/auth.md': { prerender: false },
   },
 
   /*
@@ -195,6 +201,26 @@ export default defineNuxtConfig({
       `Gesicht bei ${site.name}, lizenzierter Partner der Jeveaux Company®.`,
     defaultLocale: 'de',
     trailingSlash: false,
+  },
+
+  robots: {
+    groups: [
+      /*
+       * Content-Signal (draft-romm-aipref-contentsignals) declares what AI systems may do with
+       * the content, separately from whether they may crawl it. The discovery endpoints —
+       * llms.txt, /.well-known/agent.md, the API catalogue — deliberately invite agents to read
+       * and cite the studio, so search and ai-input stay `yes`. ai-train is `no`: the texts,
+       * prices and the Jeveaux Company® trademarks should not end up in model training data.
+       *
+       * `disallow: ['']` keeps the empty `Disallow:` line the module emits today. Without it the
+       * `*` group would consist of a User-agent line and the signal alone.
+       */
+      {
+        userAgent: ['*'],
+        disallow: [''],
+        contentSignal: { search: 'yes', 'ai-input': 'yes', 'ai-train': 'no' },
+      },
+    ],
   },
 
   schemaOrg: {

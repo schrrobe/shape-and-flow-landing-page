@@ -77,6 +77,7 @@ test.describe('Discovery', () => {
       ['service-doc', agentPaths.agentDoc],
       ['api-catalog', agentPaths.apiCatalog],
       ['agent-skills', agentPaths.skillIndex],
+      ['ard', agentPaths.ard],
       ['describedby', agentPaths.llms],
     ] as const) {
       expect(link).toContain(`<https://shapeandflow.de${path}>; rel="${relation}"`)
@@ -90,6 +91,7 @@ test.describe('Discovery', () => {
     expect(html).toContain(`href="${agentPaths.agentDoc}"`)
     expect(html).toContain(`href="${agentPaths.apiCatalog}"`)
     expect(html).toContain(`href="${agentPaths.skillIndex}"`)
+    expect(html).toContain(`href="${agentPaths.ard}"`)
   })
 
   test('the agent documentation names tasks, boundaries and contact points', async ({
@@ -123,6 +125,88 @@ test.describe('Discovery', () => {
     expect(catalogue.linkset).toHaveLength(1)
     expect(context?.anchor).toBe(`https://shapeandflow.de${agentPaths.apiCatalog}`)
     expect(context?.item?.length).toBeGreaterThan(0)
+  })
+
+  /*
+   * The Auth.md convention: the document lies at the site root, and its H1 carries the literal
+   * string a scanner matches on. Checked against the delivered artifact, because /auth.md is the
+   * one agent endpoint outside /.well-known/ and therefore the one that the prerender rule for
+   * '/**' in nuxt.config.ts could still catch.
+   */
+  test('the Auth.md document answers at the site root', async ({ request }) => {
+    const response = await request.get(agentPaths.authDoc)
+
+    expect(response.status()).toBe(200)
+    expect(response.headers()['content-type']).toContain('text/markdown')
+    expect(response.headers()['content-type']).toContain('charset=utf-8')
+    expect(response.headers()['access-control-allow-origin']).toBe('*')
+
+    const document = await response.text()
+
+    expect(document).toContain(`canonical_url: "https://shapeandflow.de${agentPaths.authDoc}"`)
+    expect(document.split('\n').find(line => line.startsWith('# '))).toContain('auth.md')
+    expect(document).toContain('## Registrierung')
+    expect(document).toContain('## Unterstützte Verfahren')
+  })
+
+  test('the Auth.md document answers a HEAD request', async ({ request }) => {
+    const response = await request.head(agentPaths.authDoc)
+
+    expect(response.status()).toBe(200)
+    expect(response.headers()['content-type']).toContain('text/markdown')
+  })
+
+  /*
+   * No OAuth metadata is published, and none is faked: an agent that follows the preferred path of
+   * the convention has to run into a plain 404 and fall back to /auth.md, rather than into a
+   * document with an issuer that resolves to nothing.
+   */
+  test('no OAuth metadata is pretended', async ({ request }) => {
+    for (const path of [
+      '/.well-known/oauth-protected-resource',
+      '/.well-known/oauth-authorization-server',
+    ]) {
+      expect((await request.get(path)).status(), path).toBe(404)
+    }
+  })
+
+  /*
+   * The ARD manifest is read by registries that crawl from somewhere else, in clients that run in
+   * a browser. Content type and CORS header are therefore part of the answer and not decoration:
+   * without them the document arrives and may not be read.
+   */
+  test('the ARD manifest is readable from any origin as application/json', async ({ request }) => {
+    const response = await request.get(agentPaths.ard)
+
+    expect(response.status()).toBe(200)
+    expect(response.headers()['content-type']).toContain('application/json')
+    expect(response.headers()['access-control-allow-origin']).toBe('*')
+
+    const manifest = (await response.json()) as {
+      specVersion: string
+      host: { displayName: string }
+      entries: { identifier: string; displayName: string; type: string; url?: string }[]
+    }
+
+    expect(manifest.specVersion).toBe('1.0')
+    expect(manifest.host.displayName).toBeTruthy()
+    expect(manifest.entries.length).toBeGreaterThan(0)
+    for (const entry of manifest.entries) {
+      expect(entry.identifier).toMatch(/^urn:air:shapeandflow\.de:[a-zA-Z0-9._-]+:[a-zA-Z0-9._-]+$/)
+      expect(entry.url?.startsWith('https://shapeandflow.de')).toBe(true)
+    }
+  })
+
+  /*
+   * Every endpoint under /.well-known/ answers HEAD, because a client probing whether a document
+   * exists sends HEAD as a matter of course — and a handler registered for GET alone would answer
+   * it with 404.
+   */
+  test('the ARD manifest answers a HEAD request', async ({ request }) => {
+    const response = await request.head(agentPaths.ard)
+
+    expect(response.status()).toBe(200)
+    expect(response.headers()['content-type']).toContain('application/json')
   })
 
   /*

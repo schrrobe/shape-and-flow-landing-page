@@ -3,12 +3,14 @@ import { describe, expect, it } from 'vitest'
 
 import { agentPaths, agentSkill, skillPath } from '#shared/agenten'
 import { treatments, formatPrice } from '#shared/behandlungen'
-import { contact, disclaimer } from '#shared/site'
+import { contact, disclaimer, site } from '#shared/site'
 import {
   agentDocumentation,
   agentSkillDocument,
   agentSkillIndex,
+  ardManifest,
   apiCatalogLinkset,
+  authDocumentation,
 } from './agenten-texte'
 
 /*
@@ -32,7 +34,7 @@ describe('agentDocumentation', () => {
     for (const url of urls(document)) expect(url.startsWith(HOST)).toBe(true)
   })
 
-  it('names the four discovery endpoints', () => {
+  it('names the six discovery endpoints', () => {
     for (const path of Object.values(agentPaths)) expect(document).toContain(`${HOST}${path}`)
   })
 
@@ -50,6 +52,71 @@ describe('agentDocumentation', () => {
 
   it('does not advertise the booking app, which is behind a feature flag', () => {
     expect(document).not.toContain(contact.bookingUrl)
+  })
+})
+
+describe('authDocumentation', () => {
+  const document = authDocumentation(HOST)
+
+  it('writes every address with the host of this environment', () => {
+    expect(urls(document).length).toBeGreaterThan(0)
+    for (const url of urls(document)) expect(url.startsWith(HOST)).toBe(true)
+  })
+
+  /*
+   * The H1 is the one piece of wording this test does pin down: a scanner for the Auth.md
+   * convention matches on the literal string in it, so a rewrite that drops it would break
+   * detection while the document still reads fine.
+   */
+  it('carries "auth.md" in the H1', () => {
+    const heading = document.split('\n').find(line => line.startsWith('# '))
+
+    expect(heading).toBeDefined()
+    expect(heading).toContain('auth.md')
+  })
+
+  it('names itself as the canonical address', () => {
+    expect(document).toContain(`canonical_url: "${HOST}${agentPaths.authDoc}"`)
+  })
+
+  /*
+   * The document has to answer the four questions the convention asks of a self-contained
+   * /auth.md: who it is for, where registration happens, which methods exist, and what happens to
+   * credentials. Here as headings, because that is where an agent looks them up.
+   */
+  it('answers the four questions of a self-contained auth.md', () => {
+    for (const heading of [
+      '## Für wen das gilt',
+      '## Registrierung',
+      '## Unterstützte Verfahren',
+      '## Anmeldedaten',
+    ]) {
+      expect(document).toContain(heading)
+    }
+  })
+
+  it('names the anonymous method and rules out the two that need a server', () => {
+    expect(document).toContain('anonymous')
+    expect(document).toContain('identity_assertion')
+    expect(document).toContain('service_auth')
+  })
+
+  /*
+   * No OAuth metadata is published, and no address is promised that would answer 404: neither of
+   * the two documents may appear here as a link an agent could follow.
+   */
+  it('promises no OAuth metadata endpoint', () => {
+    for (const path of [
+      '/.well-known/oauth-protected-resource',
+      '/.well-known/oauth-authorization-server',
+    ]) {
+      expect(urls(document)).not.toContain(`${HOST}${path}`)
+    }
+  })
+
+  it('points at the agent documentation and carries the mandatory disclaimer', () => {
+    expect(document).toContain(`${HOST}${agentPaths.agentDoc}`)
+    expect(document).toContain(disclaimer)
   })
 })
 
@@ -126,11 +193,87 @@ describe('apiCatalogLinkset', () => {
 
     expect(hrefs('item')).toContain(`${HOST}${agentPaths.llms}`)
     expect(hrefs('item')).toContain(`${HOST}${agentPaths.sitemap}`)
-    expect(hrefs('service-doc')).toEqual([`${HOST}${agentPaths.agentDoc}`])
+    // Two targets under one relation, the general document first: see apiCatalogLinkset.
+    expect(hrefs('service-doc')).toEqual([
+      `${HOST}${agentPaths.agentDoc}`,
+      `${HOST}${agentPaths.authDoc}`,
+    ])
     expect(hrefs('agent-skills')).toEqual([`${HOST}${agentPaths.skillIndex}`])
+    expect(hrefs('ard')).toEqual([`${HOST}${agentPaths.ard}`])
   })
 
   it('does not offer the contact endpoint as an API', () => {
     expect(JSON.stringify(catalogue)).not.toContain('/api/kontakt')
+  })
+})
+
+/*
+ * The ARD manifest is validated by machines that never see this site, so the rules of the schema
+ * are the subject here: identifiers of the documented shape, exactly one of url and data, and two
+ * to five representative queries per entry. A manifest that a registry rejects is worth as much as
+ * none at all.
+ */
+describe('ardManifest', () => {
+  interface Entry {
+    identifier: string
+    displayName: string
+    type: string
+    url?: string
+    data?: object
+    representativeQueries?: string[]
+  }
+
+  const manifest = ardManifest(HOST) as {
+    specVersion: string
+    host: { displayName: string; identifier: string }
+    entries: Entry[]
+  }
+
+  it('names the specification version and the host', () => {
+    expect(manifest.specVersion).toBe('1.0')
+    expect(manifest.host.displayName).toBe(site.name)
+    expect(manifest.host.identifier).toBe(HOST)
+  })
+
+  it('carries entries with an identifier of the host of this environment', () => {
+    expect(manifest.entries.length).toBeGreaterThan(0)
+    for (const entry of manifest.entries) {
+      expect(entry.identifier).toMatch(/^urn:air:[a-zA-Z0-9.-]+(:[a-zA-Z0-9._-]+)+$/)
+      expect(entry.identifier.startsWith(`urn:air:${new URL(HOST).host}:`)).toBe(true)
+      expect(entry.displayName).toBeTruthy()
+      expect(entry.type).toBeTruthy()
+    }
+  })
+
+  it('gives every entry exactly one of url and data', () => {
+    for (const entry of manifest.entries) {
+      expect(Boolean(entry.url) !== Boolean(entry.data)).toBe(true)
+      if (entry.url) expect(entry.url.startsWith(HOST)).toBe(true)
+    }
+  })
+
+  it('gives every entry two to five representative queries', () => {
+    for (const entry of manifest.entries) {
+      expect(entry.representativeQueries?.length).toBeGreaterThanOrEqual(2)
+      expect(entry.representativeQueries?.length).toBeLessThanOrEqual(5)
+    }
+  })
+
+  it('lists the same endpoints as the linkset', () => {
+    const listed = manifest.entries.map(entry => entry.url)
+
+    for (const path of [
+      agentPaths.agentDoc,
+      agentPaths.apiCatalog,
+      agentPaths.llms,
+      agentPaths.sitemap,
+    ]) {
+      expect(listed).toContain(`${HOST}${path}`)
+    }
+    expect(listed).toContain(`${HOST}${skillPath}`)
+  })
+
+  it('does not offer the contact endpoint as a capability', () => {
+    expect(JSON.stringify(manifest)).not.toContain('/api/kontakt')
   })
 })
