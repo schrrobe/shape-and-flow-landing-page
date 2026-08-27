@@ -79,7 +79,7 @@ ${behandlungen}
 - [Hinweise für Sprachmodelle](${url(siteUrl, agentPaths.llms)})
 - [XML-Sitemap](${url(siteUrl, agentPaths.sitemap)})
 - [API-Katalog](${url(siteUrl, agentPaths.apiCatalog)})
-- [ARD-Manifest](${url(siteUrl, agentPaths.aiCatalog)})
+- [ARD-Manifest](${url(siteUrl, agentPaths.ard)})
 - [Agent-Skills-Index](${url(siteUrl, agentPaths.skillIndex)})
 - [Auth.md](${url(siteUrl, agentPaths.authDoc)})
 `
@@ -169,7 +169,7 @@ Alles, was mehr als Lesen erfordert, gehört an einen Menschen:
 
 - [Agenten-Dokumentation](${url(siteUrl, agentPaths.agentDoc)})
 - [API-Katalog](${url(siteUrl, agentPaths.apiCatalog)})
-- [ARD-Manifest](${url(siteUrl, agentPaths.aiCatalog)})
+- [ARD-Manifest](${url(siteUrl, agentPaths.ard)})
 - [Agent-Skills-Index](${url(siteUrl, agentPaths.skillIndex)})
 - [Hinweise für Sprachmodelle](${url(siteUrl, agentPaths.llms)})
 `
@@ -300,9 +300,9 @@ export function apiCatalogLinkset(siteUrl: string): object {
             title: 'Agent-Skills-Index',
           },
         ],
-        'ai-catalog': [
+        ard: [
           {
-            href: url(siteUrl, agentPaths.aiCatalog),
+            href: url(siteUrl, agentPaths.ard),
             type: 'application/json',
             title: 'ARD-Manifest derselben Endpunkte',
           },
@@ -313,7 +313,7 @@ export function apiCatalogLinkset(siteUrl: string): object {
 }
 
 /**
- * The ARD capability manifest under {@link agentPaths.aiCatalog}.
+ * The ARD capability manifest under {@link agentPaths.ard}.
  *
  * The same endpoints as the linkset above, in the shape a registry indexes: ARD (Agentic Resource
  * Discovery, v0.91) is read by crawlers that build embeddings over what a site offers, RFC 9727 is
@@ -333,7 +333,7 @@ export function apiCatalogLinkset(siteUrl: string): object {
  * as the schema requires. They are in German like the content: an embedding over questions in a
  * language the answer does not exist in would point agents at the wrong door.
  */
-export function aiCatalogManifest(siteUrl: string): object {
+export function ardManifest(siteUrl: string): object {
   /** `urn:air:<publisher>:<namespace>:<name>`, per the ARD schema. */
   const urn = (namespace: string, name: string) =>
     `urn:air:${new URL(siteUrl).host}:${namespace}:${name}`

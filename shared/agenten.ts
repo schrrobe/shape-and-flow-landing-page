@@ -9,7 +9,7 @@
  * be missing from the header the day after.
  *
  * The names of the paths are not freely chosen: /.well-known/api-catalog is the endpoint from
- * RFC 9727, /.well-known/ai-catalog.json the one from the ARD specification, and
+ * RFC 9727, /.well-known/ard.json the one from the ARD specification, and
  * /.well-known/agent.md and the Agent Skills index are the addresses the tools in this field probe
  * for. Which is the point — discovery only works at the address that is looked up. /auth.md is the
  * odd one out and sits at the site root rather than under /.well-known/, because that is where the
@@ -22,8 +22,14 @@ export const agentPaths = {
   agentDoc: '/.well-known/agent.md',
   /** The catalogue of machine-readable endpoints, as an RFC 9727 linkset. */
   apiCatalog: '/.well-known/api-catalog',
-  /** The same endpoints as an ARD capability manifest, for registries that index agent sites. */
-  aiCatalog: '/.well-known/ai-catalog.json',
+  /**
+   * The same endpoints as an ARD capability manifest, for registries that index agent sites.
+   *
+   * /.well-known/ard.json, not the predecessor /.well-known/ai-catalog.json: ARD v0.91 requires
+   * consumers to resolve only this path and the rel="ard" relation, and consulting the old pair is
+   * left optional to them. A manifest that stays at the old address may simply not be found.
+   */
+  ard: '/.well-known/ard.json',
   /** Index of the published Agent Skills. */
   skillIndex: '/.well-known/agent-skills/index.json',
   /**
@@ -91,7 +97,7 @@ export function discoveryLinks(route: string): DiscoveryLink[] {
     { rel: 'alternate', type: 'text/markdown', href: markdownPath(route) },
     { rel: 'service-doc', type: 'text/markdown', href: agentPaths.agentDoc },
     { rel: 'api-catalog', type: 'application/linkset+json', href: agentPaths.apiCatalog },
-    { rel: 'ai-catalog', type: 'application/json', href: agentPaths.aiCatalog },
+    { rel: 'ard', type: 'application/json', href: agentPaths.ard },
     { rel: 'agent-skills', type: 'application/json', href: agentPaths.skillIndex },
     { rel: 'describedby', type: 'text/plain', href: agentPaths.llms },
   ]

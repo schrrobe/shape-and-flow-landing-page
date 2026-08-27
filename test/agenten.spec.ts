@@ -77,7 +77,7 @@ test.describe('Discovery', () => {
       ['service-doc', agentPaths.agentDoc],
       ['api-catalog', agentPaths.apiCatalog],
       ['agent-skills', agentPaths.skillIndex],
-      ['ai-catalog', agentPaths.aiCatalog],
+      ['ard', agentPaths.ard],
       ['describedby', agentPaths.llms],
     ] as const) {
       expect(link).toContain(`<https://shapeandflow.de${path}>; rel="${relation}"`)
@@ -91,7 +91,7 @@ test.describe('Discovery', () => {
     expect(html).toContain(`href="${agentPaths.agentDoc}"`)
     expect(html).toContain(`href="${agentPaths.apiCatalog}"`)
     expect(html).toContain(`href="${agentPaths.skillIndex}"`)
-    expect(html).toContain(`href="${agentPaths.aiCatalog}"`)
+    expect(html).toContain(`href="${agentPaths.ard}"`)
   })
 
   test('the agent documentation names tasks, boundaries and contact points', async ({
@@ -176,7 +176,7 @@ test.describe('Discovery', () => {
    * without them the document arrives and may not be read.
    */
   test('the ARD manifest is readable from any origin as application/json', async ({ request }) => {
-    const response = await request.get(agentPaths.aiCatalog)
+    const response = await request.get(agentPaths.ard)
 
     expect(response.status()).toBe(200)
     expect(response.headers()['content-type']).toContain('application/json')
@@ -203,7 +203,7 @@ test.describe('Discovery', () => {
    * it with 404.
    */
   test('the ARD manifest answers a HEAD request', async ({ request }) => {
-    const response = await request.head(agentPaths.aiCatalog)
+    const response = await request.head(agentPaths.ard)
 
     expect(response.status()).toBe(200)
     expect(response.headers()['content-type']).toContain('application/json')

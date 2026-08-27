@@ -9,7 +9,7 @@ darin zusätzlich Werkzeuge — siehe unten.
 | -------------------------------------- | ----------------------------------------------------- | ------------------------------------- |
 | `/.well-known/agent.md`                | Aufgaben, Grenzen und Kontaktpunkte, maschinenlesbar  | `text/markdown`                       |
 | `/.well-known/api-catalog`             | Katalog der maschinenlesbaren Endpunkte nach RFC 9727 | `application/linkset+json` mit Profil |
-| `/.well-known/ai-catalog.json`         | ARD-Manifest derselben Endpunkte für Registries       | `application/json`                    |
+| `/.well-known/ard.json`                | ARD-Manifest derselben Endpunkte für Registries       | `application/json`                    |
 | `/.well-known/agent-skills/index.json` | Index der veröffentlichten Agent Skills, mit sha256   | `application/json`                    |
 | `/.well-known/agent-skills/…/skill.md` | die Fähigkeit selbst im SKILL.md-Format               | `text/markdown`                       |
 | `/auth.md`                             | Zugang für Agenten nach der Auth.md-Konvention        | `text/markdown`                       |
@@ -136,13 +136,18 @@ einzigen Link.
 
 Denselben Bestand gibt es zweimal, weil ihn zwei verschiedene Clients lesen: das Linkset nach
 RFC 9727 ein Client, der schon vor der Tür steht und die Endpunkte will, und das ARD-Manifest unter
-`/.well-known/ai-catalog.json` die Registries, die nach agentenfähigen Seiten crawlen und über die
+`/.well-known/ard.json` die Registries, die nach agentenfähigen Seiten crawlen und über die
 `representativeQueries` jedes Eintrags Embeddings bilden (Agentic Resource Discovery, v0.91). Beide
 werden aus `shared/agenten.ts` zusammengesetzt und können deshalb nicht auseinanderlaufen. Die
 Kennungen im Manifest tragen den Host der Umgebung (`urn:air:<host>:<namespace>:<name>`), damit die
 Stage-Seite nicht unter derselben URN landet wie die Produktion, und `application/json` steht
 bewusst ohne `charset`: RFC 8259 kennt für diesen Medientyp keinen solchen Parameter, und ein
 Prüfwerkzeug, das den Header wörtlich vergleicht, würde ihn sonst nicht wiedererkennen.
+
+Die Adresse ist `/.well-known/ard.json` mit der Relation `ard`, nicht der Vorgänger
+`/.well-known/ai-catalog.json` mit `ai-catalog`: ARD v0.91 verpflichtet Konsumenten nur auf das
+neue Paar und stellt es ihnen frei, das alte überhaupt noch abzufragen. Ein Manifest, das an der
+alten Adresse liegen bleibt, wird schlicht nicht mehr zwingend gefunden.
 
 ## Prüfen
 

@@ -8,7 +8,7 @@ import {
   agentDocumentation,
   agentSkillDocument,
   agentSkillIndex,
-  aiCatalogManifest,
+  ardManifest,
   apiCatalogLinkset,
   authDocumentation,
 } from './agenten-texte'
@@ -199,7 +199,7 @@ describe('apiCatalogLinkset', () => {
       `${HOST}${agentPaths.authDoc}`,
     ])
     expect(hrefs('agent-skills')).toEqual([`${HOST}${agentPaths.skillIndex}`])
-    expect(hrefs('ai-catalog')).toEqual([`${HOST}${agentPaths.aiCatalog}`])
+    expect(hrefs('ard')).toEqual([`${HOST}${agentPaths.ard}`])
   })
 
   it('does not offer the contact endpoint as an API', () => {
@@ -213,7 +213,7 @@ describe('apiCatalogLinkset', () => {
  * to five representative queries per entry. A manifest that a registry rejects is worth as much as
  * none at all.
  */
-describe('aiCatalogManifest', () => {
+describe('ardManifest', () => {
   interface Entry {
     identifier: string
     displayName: string
@@ -223,7 +223,7 @@ describe('aiCatalogManifest', () => {
     representativeQueries?: string[]
   }
 
-  const manifest = aiCatalogManifest(HOST) as {
+  const manifest = ardManifest(HOST) as {
     specVersion: string
     host: { displayName: string; identifier: string }
     entries: Entry[]

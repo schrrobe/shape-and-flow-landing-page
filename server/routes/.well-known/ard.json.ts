@@ -1,8 +1,8 @@
-import { aiCatalogManifest } from '../../utils/agenten-texte'
+import { ardManifest } from '../../utils/agenten-texte'
 import { serveDocument } from '../../utils/agenten-antwort'
 
 /*
- * ARD capability manifest under /.well-known/ai-catalog.json, per the Agentic Resource Discovery
+ * ARD capability manifest under /.well-known/ard.json, per the Agentic Resource Discovery
  * specification (v0.91).
  *
  * The neighbouring /.well-known/api-catalog says the same thing as an RFC 9727 linkset. Both
@@ -22,5 +22,5 @@ export default defineEventHandler(event => {
 
   serveDocument(event, 'application/json')
 
-  return aiCatalogManifest(siteUrl)
+  return ardManifest(siteUrl)
 })
