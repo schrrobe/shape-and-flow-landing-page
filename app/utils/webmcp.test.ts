@@ -179,4 +179,25 @@ describe('registerWebMcpTools', () => {
 
     expect(() => registerWebMcpTools(tools, signal(), [{ registerTool }])).not.toThrow()
   })
+
+  it('survives a registration that throws before it returns a promise', () => {
+    const registerTool = vi.fn(() => {
+      throw new TypeError('InvalidStateError')
+    })
+
+    expect(() => registerWebMcpTools(tools, signal(), [{ registerTool }])).not.toThrow()
+    // Every tool is still offered: one rejected tool does not end the round.
+    expect(registerTool).toHaveBeenCalledTimes(tools.length)
+  })
+
+  it('survives a provideContext that throws before it returns a promise', () => {
+    const provideContext = vi.fn(() => {
+      throw new TypeError('InvalidStateError')
+    })
+    const controller = new AbortController()
+
+    expect(() => registerWebMcpTools(tools, controller.signal, [{ provideContext }])).not.toThrow()
+    // The abort runs in an event handler, where a throw would land nowhere at all.
+    expect(() => controller.abort()).not.toThrow()
+  })
 })

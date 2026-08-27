@@ -258,6 +258,25 @@ export function modelContexts(): (ModelContextLike | undefined)[] {
 }
 
 /**
+ * Runs a registration call and drops whatever comes back out of it.
+ *
+ * A failed registration must not take the page with it: without the API the page works as before,
+ * so a browser whose implementation throws must not end up worse off than one that has none at all.
+ * console.* is out of the question on a prerendered page, so there is nowhere to report it either.
+ *
+ * Both ways out are caught, because the API offers both: the specification has `registerTool`
+ * return a promise, but an implementation that validates its argument throws before that promise
+ * ever exists — and a `try` around the call alone would let the rejection through.
+ */
+function swallowFailure(call: () => unknown): void {
+  try {
+    void Promise.resolve(call()).catch(() => undefined)
+  } catch {
+    // Nothing to do: the page is meant to carry on without these tools.
+  }
+}
+
+/**
  * Hands the tools to every model context this browser offers.
  *
  * Both shapes are served, because the API has not settled and the answer costs a type check: the
@@ -284,22 +303,17 @@ export function registerWebMcpTools(
     seen.add(context)
 
     if (typeof context.registerTool === 'function') {
+      const register = context.registerTool.bind(context)
       for (const tool of tools) {
-        // A rejected registration must not take the page with it: without the API the page works
-        // as before, and console.* is out of the question on a prerendered page.
-        void Promise.resolve(context.registerTool(tool, { signal })).catch(() => undefined)
+        swallowFailure(() => register(tool, { signal }))
       }
       registered += 1
     } else if (typeof context.provideContext === 'function') {
       const provide = context.provideContext.bind(context)
-      void Promise.resolve(provide({ tools })).catch(() => undefined)
-      signal.addEventListener(
-        'abort',
-        () => void Promise.resolve(provide({ tools: [] })).catch(() => undefined),
-        {
-          once: true,
-        },
-      )
+      swallowFailure(() => provide({ tools }))
+      signal.addEventListener('abort', () => swallowFailure(() => provide({ tools: [] })), {
+        once: true,
+      })
       registered += 1
     }
   }
