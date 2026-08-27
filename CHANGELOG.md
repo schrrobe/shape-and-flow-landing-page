@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.11.0](https://github.com/schrrobe/shape-and-flow-landing-page/compare/shape-and-flow-landing-page-v1.10.1...shape-and-flow-landing-page-v1.11.0) (2026-08-27)
+
+
+### Features
+
+* maschinenlesbarer Zugang für KI-Agenten und fehlende Pflicht-Properties ([#39](https://github.com/schrrobe/shape-and-flow-landing-page/issues/39)) ([15f23cf](https://github.com/schrrobe/shape-and-flow-landing-page/commit/15f23cf755ddc943480567afefbbbebadf3e9125))
+
 ## [1.10.1](https://github.com/schrrobe/shape-and-flow-landing-page/compare/shape-and-flow-landing-page-v1.10.0...shape-and-flow-landing-page-v1.10.1) (2026-08-11)
 
 
