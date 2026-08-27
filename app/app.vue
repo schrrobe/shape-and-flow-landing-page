@@ -10,7 +10,7 @@ const route = useRoute()
  * rebuilt, and a fixed list would then point at the Markdown of the previous page.
  *
  * The cast is needed because unhead only types the registered link relations, and three of the
- * six — api-catalog, ai-catalog and agent-skills — are not among them. rel is an extensible
+ * six — api-catalog, ard and agent-skills — are not among them. rel is an extensible
  * token list, so they are allowed; only the type does not know them.
  */
 const agentLinks = computed(() => discoveryLinks(route.path) as Link[])
