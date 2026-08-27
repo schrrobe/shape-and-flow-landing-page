@@ -139,52 +139,63 @@ export function agentSkillIndex(siteUrl: string): object {
 /**
  * The API catalogue under {@link agentPaths.apiCatalog} as a linkset per RFC 9727.
  *
+ * The shape follows RFC 9264, section 4.2, and the example in appendix A.2 of RFC 9727: `linkset`
+ * is an array of link context objects, each with an `anchor` and one member per relation type
+ * whose value is an array of link targets. The anchor is the catalogue itself, the entries sit
+ * under `item` — the relation that says "part of this catalogue".
+ *
+ * An array of `{ anchor, rel, href }` records, as it is found in the wild, is something else: a
+ * conforming client reads the relation from the member name, not from a `rel` field, and would not
+ * find a single link in it.
+ *
+ * `item`, `service-doc` and `describedby` are registered relation types and are used by their
+ * name. `agent-skills` is an extension type, for which RFC 9264 asks for a URI as the member name
+ * — there is none for it. It keeps the token, the same one the Link header carries: consistency
+ * between header and document is worth more here than a URI nobody has minted. A conforming client
+ * ignores the member; the entries it has to understand are all under `item`.
+ *
  * Listed are the machine-readable representations of this site — the ones an agent may read. The
  * contact endpoint is not among them on purpose: it is the delivery route of the form, not an
  * offer, and the agent documentation says so in as many words.
  */
 export function apiCatalogLinkset(siteUrl: string): object {
-  const anchor = url(siteUrl, '/')
-
   return {
     linkset: [
-      [
-        {
-          anchor,
-          rel: ['item'],
-          href: url(siteUrl, agentPaths.llms),
-          type: 'text/plain',
-          title: `Hinweise für Sprachmodelle zu ${site.name}`,
-        },
-        {
-          anchor,
-          rel: ['item'],
-          href: url(siteUrl, agentPaths.sitemap),
-          type: 'application/xml',
-          title: 'XML-Sitemap aller öffentlichen Seiten',
-        },
-        {
-          anchor,
-          rel: ['item'],
-          href: url(siteUrl, markdownPath('/')),
-          type: 'text/markdown',
-          title: 'Markdown-Darstellung der Startseite; jede Seite auch über Accept: text/markdown',
-        },
-        {
-          anchor,
-          rel: ['service-doc'],
-          href: url(siteUrl, agentPaths.agentDoc),
-          type: 'text/markdown',
-          title: 'Dokumentation des Agenten-Zugangs',
-        },
-        {
-          anchor,
-          rel: ['agent-skills'],
-          href: url(siteUrl, agentPaths.skillIndex),
-          type: 'application/json',
-          title: 'Agent-Skills-Index',
-        },
-      ],
+      {
+        anchor: url(siteUrl, agentPaths.apiCatalog),
+        item: [
+          {
+            href: url(siteUrl, agentPaths.llms),
+            type: 'text/plain',
+            title: `Hinweise für Sprachmodelle zu ${site.name}`,
+          },
+          {
+            href: url(siteUrl, agentPaths.sitemap),
+            type: 'application/xml',
+            title: 'XML-Sitemap aller öffentlichen Seiten',
+          },
+          {
+            href: url(siteUrl, markdownPath('/')),
+            type: 'text/markdown',
+            title:
+              'Markdown-Darstellung der Startseite; jede Seite auch über Accept: text/markdown',
+          },
+        ],
+        'service-doc': [
+          {
+            href: url(siteUrl, agentPaths.agentDoc),
+            type: 'text/markdown',
+            title: 'Dokumentation des Agenten-Zugangs',
+          },
+        ],
+        'agent-skills': [
+          {
+            href: url(siteUrl, agentPaths.skillIndex),
+            type: 'application/json',
+            title: 'Agent-Skills-Index',
+          },
+        ],
+      },
     ],
   }
 }

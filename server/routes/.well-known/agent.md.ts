@@ -1,4 +1,5 @@
 import { agentDocumentation } from '../../utils/agenten-texte'
+import { serveDocument } from '../../utils/agenten-antwort'
 
 /*
  * The agent documentation under /.well-known/agent.md: tasks, boundaries, contact points.
@@ -11,7 +12,7 @@ import { agentDocumentation } from '../../utils/agenten-texte'
 export default defineEventHandler(event => {
   const { siteUrl } = useRuntimeConfig(event)
 
-  setResponseHeader(event, 'content-type', 'text/markdown; charset=utf-8')
+  serveDocument(event, 'text/markdown; charset=utf-8')
 
   return agentDocumentation(siteUrl)
 })

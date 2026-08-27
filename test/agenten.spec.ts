@@ -113,8 +113,32 @@ test.describe('Discovery', () => {
     expect(response.headers()['content-type']).toContain('application/linkset+json')
     expect(response.headers()['content-type']).toContain('rfc9727')
 
-    const catalogue = (await response.json()) as { linkset: { href: string }[][] }
-    expect(catalogue.linkset[0]?.length).toBeGreaterThan(0)
+    const catalogue = (await response.json()) as {
+      linkset: { anchor: string; item?: { href: string }[] }[]
+    }
+    const context = catalogue.linkset[0]
+
+    // A link context object with the relation as the member name, not a list of records with a rel
+    // field: only the former can be read by a conforming client (RFC 9264, section 4.2).
+    expect(catalogue.linkset).toHaveLength(1)
+    expect(context?.anchor).toBe(`https://shapeandflow.de${agentPaths.apiCatalog}`)
+    expect(context?.item?.length).toBeGreaterThan(0)
+  })
+
+  /*
+   * RFC 9727, section 2: a publisher supporting this address answers a HEAD request with a Link
+   * header carrying the api-catalog relation. A client that only wants to know where the catalogue
+   * is should not have to download it.
+   */
+  test('a HEAD request to the catalogue answers with the api-catalog relation', async ({
+    request,
+  }) => {
+    const response = await request.head(agentPaths.apiCatalog)
+
+    expect(response.status()).toBe(200)
+    expect(response.headers().link).toContain(
+      `<https://shapeandflow.de${agentPaths.apiCatalog}>; rel="api-catalog"`,
+    )
   })
 
   test('the skills index points at a skill that exists and has not changed', async ({

@@ -69,27 +69,68 @@ describe('agentSkillIndex', () => {
   })
 })
 
+/*
+ * The shape is the subject here, not just the content: a linkset is only readable if it is a link
+ * context object with the relation as the member name — an array of records with a `rel` field
+ * looks similar and cannot be parsed (RFC 9264, section 4.2).
+ */
 describe('apiCatalogLinkset', () => {
-  const linkset = (apiCatalogLinkset(HOST) as { linkset: Record<string, unknown>[][] }).linkset[0]
+  interface Target {
+    href: string
+    type?: string
+    title?: string
+  }
 
-  it('anchors every entry at the site and gives it a target and a type', () => {
-    expect(linkset?.length).toBeGreaterThan(0)
-    for (const entry of linkset ?? []) {
-      expect(entry.anchor).toBe(`${HOST}/`)
-      expect(String(entry.href).startsWith(HOST)).toBe(true)
-      expect(entry.type).toBeTruthy()
-      expect(entry.title).toBeTruthy()
+  /** The anchor is a string, every other member is the target list of one relation type. */
+  interface LinkContext {
+    [member: string]: string | Target[]
+  }
+
+  const catalogue = apiCatalogLinkset(HOST) as { linkset: LinkContext[] }
+  const context = catalogue.linkset[0]
+
+  /** The targets of one relation, empty if the catalogue does not know it. */
+  function targetsOf(relation: string): Target[] {
+    const targets = context?.[relation]
+
+    return Array.isArray(targets) ? targets : []
+  }
+
+  it('is a link context object anchored at the catalogue itself', () => {
+    expect(Array.isArray(catalogue.linkset)).toBe(true)
+    expect(catalogue.linkset).toHaveLength(1)
+    expect(context?.anchor).toBe(`${HOST}${agentPaths.apiCatalog}`)
+  })
+
+  it('names the relation as the member and its targets as an array', () => {
+    const relations = Object.keys(context ?? {}).filter(member => member !== 'anchor')
+
+    expect(relations.length).toBeGreaterThan(0)
+    for (const relation of relations) {
+      expect(Array.isArray(context?.[relation])).toBe(true)
+      expect(targetsOf(relation).length).toBeGreaterThan(0)
+      for (const target of targetsOf(relation)) {
+        expect(target.href.startsWith(HOST)).toBe(true)
+        expect(target.type).toBeTruthy()
+        expect(target.title).toBeTruthy()
+        // The relation lives in the member name; a rel field inside the target is the shape that
+        // cannot be read.
+        expect(target).not.toHaveProperty('rel')
+        expect(target).not.toHaveProperty('anchor')
+      }
     }
   })
 
-  it('lists the agent documentation and the skills index under their relation', () => {
-    const relations = new Map((linkset ?? []).map(entry => [String(entry.href), entry.rel]))
+  it('lists the entries of the catalogue under item, the documents under their relation', () => {
+    const hrefs = (relation: string): string[] => targetsOf(relation).map(target => target.href)
 
-    expect(relations.get(`${HOST}${agentPaths.agentDoc}`)).toEqual(['service-doc'])
-    expect(relations.get(`${HOST}${agentPaths.skillIndex}`)).toEqual(['agent-skills'])
+    expect(hrefs('item')).toContain(`${HOST}${agentPaths.llms}`)
+    expect(hrefs('item')).toContain(`${HOST}${agentPaths.sitemap}`)
+    expect(hrefs('service-doc')).toEqual([`${HOST}${agentPaths.agentDoc}`])
+    expect(hrefs('agent-skills')).toEqual([`${HOST}${agentPaths.skillIndex}`])
   })
 
   it('does not offer the contact endpoint as an API', () => {
-    expect(JSON.stringify(linkset)).not.toContain('/api/kontakt')
+    expect(JSON.stringify(catalogue)).not.toContain('/api/kontakt')
   })
 })

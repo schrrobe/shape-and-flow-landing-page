@@ -57,12 +57,13 @@ Regeln der Umwandlung, jeweils mit einem Test in `modules/markdown/konvertierung
 
 ## Wo was liegt
 
-```
+```text
 shared/agenten.ts                Die Pfade und die Regel <Seite> → <Seite>.md, einmal für alle
 server/utils/agenten-texte.ts    Die Texte der vier Endpunkte, aus shared/ zusammengesetzt
 server/routes/.well-known/       Die Handler, einer pro Adresse
 server/plugins/agenten.ts        Link-Header und Content-Negotiation
 server/utils/markdown-anfrage.ts Ist das eine Seite, und will sie Markdown?
+server/utils/agenten-antwort.ts   GET und HEAD für die Endpunkte, Content-Type
 modules/markdown/                Die Umwandlung HTML → Markdown im Build
 test/agenten.spec.ts             Prüft alles davon am gebauten Artefakt
 ```
@@ -71,6 +72,19 @@ Die vier Endpunkte antworten zur Laufzeit und werden nicht vorgerendert
 (`routeRules` in `nuxt.config.ts`). Der Grund ist der Content-Type: bei einer vorgerenderten Datei
 leitet Nitro ihn aus der Dateiendung ab, und `/.well-known/api-catalog` hat keine — der Linkset
 käme als `text/plain` heraus und verlöre sein Profil.
+
+Alle vier antworten auf `GET` und auf `HEAD`, alles andere bekommt 405. `HEAD` ist keine Zugabe:
+RFC 9727 verlangt für `HEAD /.well-known/api-catalog` eine Antwort mit `Link`-Header und der
+Relation `api-catalog`, und wer nur wissen will, ob ein Dokument existiert, schickt `HEAD`. Deshalb
+tragen die Routendateien kein `.get` im Namen — Nitro leitet die Methode daraus ab, und ein
+GET-Handler beantwortet `HEAD` mit 404. Die Prüfung der Methode steht in
+`server/utils/agenten-antwort.ts`.
+
+Der Katalog ist ein Linkset nach RFC 9264, Abschnitt 4.2: ein Array von Link-Context-Objekten mit
+`anchor` und je einem Member pro Relationstyp, dessen Wert eine Liste von Zielen ist. Die
+Variante, die man im Feld häufiger sieht — eine Liste von `{ anchor, rel, href }`-Sätzen — ist
+etwas anderes: ein konformer Client liest die Relation aus dem Member-Namen und findet darin keinen
+einzigen Link.
 
 ## Prüfen
 
