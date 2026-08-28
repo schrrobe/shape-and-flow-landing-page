@@ -1,99 +1,95 @@
-# Deployment auf den Hostinger VPS
+# Deployment to the Hostinger VPS
 
-Drei Umgebungen, drei Container, ein nginx davor. Gebaut wird ausschließlich in GitHub Actions;
-auf dem Server ist nicht einmal Node installiert.
+Three environments, three containers, one nginx in front. Building happens exclusively in GitHub
+Actions; there is not even Node installed on the server.
 
-| Umgebung   | Adresse                          | Zugriff    | Port (nur `127.0.0.1`) | Verzeichnis auf dem Server |
-| ---------- | -------------------------------- | ---------- | ---------------------- | -------------------------- |
-| production | `shapeandflow.de` (`www.` → 301) | öffentlich | 8090                   | `/opt/landing/production`  |
-| stage      | `stage.shapeandflow.de`          | Basic Auth | 8091                   | `/opt/landing/stage`       |
-| dev        | `dev.shapeandflow.de`            | Basic Auth | 8092                   | `/opt/landing/dev`         |
+| Environment | Address                          | Access     | Port (`127.0.0.1` only) | Directory on the server   |
+| ----------- | -------------------------------- | ---------- | ----------------------- | ------------------------- |
+| production  | `shapeandflow.de` (`www.` → 301) | public     | 8090                    | `/opt/landing/production` |
+| stage       | `stage.shapeandflow.de`          | basic auth | 8091                    | `/opt/landing/stage`      |
+| dev         | `dev.shapeandflow.de`            | basic auth | 8092                    | `/opt/landing/dev`        |
 
-Die Booking-App liegt auf derselben Maschine unter `buchung.shapeandflow.de` und benutzt dieselbe
-Mechanik mit eigenen Ports. Die Serverdokumentation dazu steht in `/opt/README.md` auf dem VPS.
+The booking app sits on the same machine under `buchung.shapeandflow.de` and uses the same
+mechanics with ports of its own. The server documentation for it is in `/opt/README.md` on the VPS.
 
-## Was wann deployt
+## What deploys when
 
 ```
-Feature-Branch ──PR──► fusion ─────────────────► dev
+Feature branch ──PR──► fusion ─────────────────► dev
                           │
                           └──PR──► main ────────► stage
                                      │
-                                     └─ release-please schneidet ein Release ──► production
+                                     └─ release-please cuts a release ──► production
 ```
 
-Ein Merge nach `main` deployt stage und lässt release-please eine stehende Release-PR
-aktualisieren, in der sich die Conventional Commits sammeln. Produktion bewegt sich erst, wenn
-diese PR gemergt wird: dann entstehen Tag, GitHub-Release und CHANGELOG, und derselbe Lauf
-deployt.
+A merge into `main` deploys stage and lets release-please update a standing release PR in which the
+Conventional Commits accumulate. Production only moves once that PR is merged: that is when tag,
+GitHub release and CHANGELOG come into being, and the same run deploys. Production is therefore a
+deliberate step and not a side effect of a merge — and the version number says what is live.
 
-Damit ist Produktion ein bewusster Schritt und kein Nebeneffekt eines Merges — und die
-Versionsnummer sagt, was live steht.
+## How the site is built and served
 
-## Wie die Seite gebaut und ausgeliefert wird
+Hybrid: a Node process runs, but **every page is rendered completely at build time**
+(`routeRules: { '/**': { prerender: true } }`). Search engines and AI agents get full HTML without
+rendering per request. At runtime the process serves a single route: `POST /api/kontakt` accepts the
+contact form and delivers the enquiry over SMTP. It is exempt from the prerender rule
+(`'/api/**': { prerender: false }`).
 
-Hybrid: es läuft ein Node-Prozess, aber **jede Seite wird beim Build fertig gerendert**
-(`routeRules: { '/**': { prerender: true } }`). Suchmaschinen und KI-Agenten bekommen
-vollständiges HTML ohne Rendering pro Aufruf. Zur Laufzeit bedient der Prozess nur eine Route:
-`POST /api/kontakt` nimmt das Kontaktformular an und stellt die Anfrage per SMTP zu. Sie ist von
-der Prerender-Regel ausgenommen (`'/api/**': { prerender: false }`).
+Unlike before, nginx no longer serves any files itself but passes everything through to the
+container. Nitro serves the prerendered pages and the precompressed `.br` / `.gz` variants that
+`compressPublicAssets` produced at build time. At this site's size the difference against
+`try_files` is not measurable, but in exchange there is only one place left where anything is
+served, and a rollback swaps an image instead of a directory.
 
-Anders als früher liefert nginx keine Dateien mehr selbst aus, sondern reicht alles an den
-Container weiter. Nitro liefert die vorgerenderten Seiten und die vorkomprimierten `.br`-/`.gz`-
-Varianten aus, die `compressPublicAssets` beim Build erzeugt hat. Der Unterschied gegenüber
-`try_files` ist bei dieser Seitengröße nicht messbar, dafür gibt es nur noch einen Ort, an dem
-etwas ausgeliefert wird, und ein Rollback tauscht ein Image statt eines Verzeichnisses.
+### One image per environment
 
-### Ein Image pro Umgebung
+Prerendering bakes the absolute address into the HTML: canonicals, sitemap, OG images, structured
+data, `llms.txt`. An image can therefore **not** travel through the stages. Every environment is
+built with its own build arguments:
 
-Das Prerendern schreibt die absolute Adresse fest ins HTML: Canonicals, Sitemap, OG-Bilder,
-Structured Data, `llms.txt`. Ein Image kann deshalb **nicht** durch die Stufen wandern. Jede
-Umgebung wird mit eigenen Build-Argumenten gebaut:
+| Environment | `NUXT_SITE_URL`                 | `NUXT_SITE_ENV` |
+| ----------- | ------------------------------- | --------------- |
+| production  | `https://shapeandflow.de`       | `production`    |
+| stage       | `https://stage.shapeandflow.de` | `staging`       |
+| dev         | `https://dev.shapeandflow.de`   | `staging`       |
 
-| Umgebung   | `NUXT_SITE_URL`                 | `NUXT_SITE_ENV` |
-| ---------- | ------------------------------- | --------------- |
-| production | `https://shapeandflow.de`       | `production`    |
-| stage      | `https://stage.shapeandflow.de` | `staging`       |
-| dev        | `https://dev.shapeandflow.de`   | `staging`       |
+What follows from that, and what one has to know:
 
-Was daraus folgt und was man wissen muss:
+- What is identical between the stages is the **commit**, not the artefact. Whatever was tested on
+  stage gets rebuilt for production.
+- `NUXT_SITE_ENV=staging` serves `Disallow: /` in the `robots.txt`. The smoke test in the deploy
+  checks that in both directions — including that production does _not_ lock itself out.
+- On stage and dev the **sitemap is empty**. That is not a fault: `nuxt-sitemap` leaves out routes
+  that are set to `noindex`, and with `Disallow: /` that is all of them.
+- `nuxt.config.ts` resolves the address once into `siteUrl`. `NUXT_SITE_URL` on its own only reaches
+  `nuxt-site-config`; `schemaOrg` and `llms` read the literal from `shared/site.ts` and would
+  otherwise still point at the production domain on stage and dev.
 
-- Identisch zwischen den Stufen ist der **Commit**, nicht das Artefakt. Was auf stage getestet
-  wurde, wird für Produktion neu gebaut.
-- `NUXT_SITE_ENV=staging` liefert `Disallow: /` in der `robots.txt`. Der Smoke-Test im Deploy
-  prüft das in beide Richtungen — auch, dass Produktion sich _nicht_ aussperrt.
-- Auf stage und dev ist die **Sitemap leer**. Das ist kein Fehler: `nuxt-sitemap` lässt Routen
-  weg, die auf `noindex` stehen, und das sind bei `Disallow: /` alle.
-- `nuxt.config.ts` löst die Adresse einmal in `siteUrl` auf. `NUXT_SITE_URL` allein erreicht nur
-  `nuxt-site-config`; `schemaOrg` und `llms` lesen den Literal aus `shared/site.ts` und stünden
-  sonst auf stage und dev weiterhin auf der Produktionsdomain.
+The build goes out to the network: `@nuxt/fonts` fetches Playfair Display from Google and stores it
+locally, `nuxt-link-checker` checks the internal links. Without egress it fails — so a dead internal
+link shows up at build time.
 
-Der Build geht ins Netz: `@nuxt/fonts` holt Playfair Display bei Google und legt sie lokal ab,
-`nuxt-link-checker` prüft die internen Links. Ohne Egress schlägt er fehl — ein toter interner
-Link fällt also beim Bauen auf.
+### What that means for feature flags
 
-### Was das für Feature-Flags heißt
+The flags themselves come from Unleash at runtime, see below. Prerendering has a consequence for
+them that one has to know: **the HTML served always contains the fallback**, because at build time
+there is no browser SDK yet and nobody to ask. The flag only takes effect once the page has
+hydrated in the browser and `unleash-proxy-client` has answered.
 
-Die Flags selbst kommen zur Laufzeit aus Unleash, siehe unten. Das Vorrendern hat dafür eine
-Folge, die man kennen muss: **im ausgelieferten HTML steht immer der Fallback**, denn beim Bauen
-gibt es noch kein Browser-SDK und niemanden, den man fragen könnte. Das Flag greift erst, wenn
-die Seite im Browser hydriert ist und `unleash-proxy-client` geantwortet hat.
+For `enable_booking_redirect` that is exactly what is wanted. The fallback is `false`, so the
+prerendered HTML never contains a reference to the booking app — not even when the flag is on.
+Crawlers and AI agents therefore see the version without the booking path, while visitors get the
+button handed to them shortly after loading. For a flag that _hides_ something that is the safe
+direction; for one meant to make something visible to search engines it would be the wrong one —
+that kind belongs on the build, not in the browser.
 
-Für `enable_booking_redirect` ist genau das gewollt. Der Fallback ist `false`, also enthält das
-vorgerenderte HTML nie einen Verweis auf die Booking-App — auch dann nicht, wenn das Flag an ist.
-Crawler und KI-Agenten sehen also die Fassung ohne Buchungsstrecke, Besucher bekommen die
-Schaltfläche kurz nach dem Laden nachgereicht. Für ein Flag, das etwas _versteckt_, ist das die
-sichere Richtung; für eines, das etwas für Suchmaschinen sichtbar machen soll, wäre es die
-falsche — so eines gehört dann an den Build, nicht an den Browser.
+The Playwright test `test/buchung-flag.spec.ts` pins this down: no prerendered page may mention the
+booking app.
 
-Der Playwright-Test `test/buchung-flag.spec.ts` hält das fest: keine vorgerenderte Seite darf die
-Booking-App erwähnen.
+The build is explicitly for `linux/amd64`. `sharp` and the OG renderer put native binaries into the
+image, and the VPS is x86_64; an image built on an Apple silicon Mac does not start there.
 
-Gebaut wird ausdrücklich für `linux/amd64`. `sharp` und der OG-Renderer legen native Binärdateien
-ins Image, und der VPS ist x86_64; ein auf einem Apple-Silicon-Mac gebautes Image startet dort
-nicht.
-
-## Lokal nachvollziehen
+## Reproducing locally
 
 ```bash
 docker build \
@@ -106,40 +102,39 @@ curl -s http://127.0.0.1:8090/robots.txt          # Disallow: /
 curl -s http://127.0.0.1:8090/ | grep canonical   # stage.shapeandflow.de
 ```
 
-## Deployen von Hand
+## Deploying by hand
 
-Der Regelfall ist ein Merge. Für Redeploy, ersten Start oder Rollback:
+The regular case is a merge. For a redeploy, a first start or a rollback:
 
 ```bash
 gh workflow run deploy.yml -f env_name=stage
-gh workflow run deploy.yml --ref mein-branch -f env_name=dev    # dev aus jedem Branch
+gh workflow run deploy.yml --ref my-branch -f env_name=dev    # dev from any branch
 gh workflow run deploy.yml -f env_name=production -f image_tag=<tag>
 ```
 
-Dev lässt sich aus jedem Branch deployen, stage und production nur aus `main` — der Workflow
-lehnt alles andere ab, bevor er baut.
+Dev can be deployed from any branch, stage and production only from `main` — the workflow rejects
+anything else before it builds.
 
-`gh workflow run` funktioniert erst, wenn `deploy.yml` auf `main` liegt: GitHub sucht per
-`workflow_dispatch` auslösbare Workflows ausschließlich auf dem Default-Branch, auch wenn man
-mit `--ref` einen anderen Branch angibt. Vorher kommt ein 404, und der Weg über einen Push
-bleibt der einzige.
+`gh workflow run` only works once `deploy.yml` is on `main`: GitHub looks for workflows triggerable
+via `workflow_dispatch` on the default branch exclusively, even when a different branch is given
+with `--ref`. Before that you get a 404, and the route via a push remains the only one.
 
 ### Rollback
 
-Die Tags sind `<commit-sha>-<umgebung>`. Welche es gibt, steht unter _Packages_ am Repository;
-welcher gerade läuft, steht auf dem Server:
+The tags are `<commit-sha>-<environment>`. Which ones exist is listed under _Packages_ on the
+repository; which one is currently running is on the server:
 
 ```bash
 ssh robert@186.240.146.22 'cat /opt/landing/production/.env.production'
 gh workflow run deploy.yml -f env_name=production -f image_tag=abc1234…-production
 ```
 
-Mit gesetztem `image_tag` entfällt der Build und das benannte Image wird gezogen und gestartet.
+With `image_tag` set, the build is skipped and the named image gets pulled and started.
 
-## Server einrichten
+## Setting up the server
 
-Einmalig, mit `sudo`. Der Deploy-Benutzer hat bewusst keins: er soll Container starten können und
-sonst nichts.
+One-off, with `sudo`. The deploy user deliberately has none: it is meant to be able to start
+containers and nothing else.
 
 ```bash
 ssh-keygen -t ed25519 -C "gha-landing" -f ./landing_deploy -N ""
@@ -150,157 +145,157 @@ ssh -t robert@186.240.146.22 \
   'sudo bash /tmp/landing-infra/provision.sh --deploy-key /tmp/landing-infra/landing_deploy.pub'
 ```
 
-Das Skript legt `/opt/landing/{production,stage,dev}` an, ergänzt den Schlüssel in
-`/home/deploy/.ssh/authorized_keys`, holt die Zertifikate für stage und dev und spielt deren
-Vhosts aus `infrastructure/nginx/` ein. Es ist wiederholbar.
+The script creates `/opt/landing/{production,stage,dev}`, adds the key to
+`/home/deploy/.ssh/authorized_keys`, fetches the certificates for stage and dev and installs their
+vhosts from `infrastructure/nginx/`. It is repeatable.
 
-Den Produktions-Vhost fasst es dabei **nicht** an — `shapeandflow.de` liefert weiter den
-statischen Platzhalter aus, sonst stünde die Domain bis zum ersten Prod-Deploy auf 502. Nach dem
-ersten Release:
+It deliberately does **not** touch the production vhost — `shapeandflow.de` keeps serving the static
+placeholder, otherwise the domain would sit at 502 until the first prod deploy. After the first
+release:
 
 ```bash
 ssh -t robert@186.240.146.22 'sudo bash /tmp/landing-infra/provision.sh --with-production'
-sudo rm -rf /var/www/shapeandflow          # der Platzhalter, jetzt unreferenziert
+sudo rm -rf /var/www/shapeandflow          # the placeholder, unreferenced now
 ```
 
-Danach den privaten Schlüssel lokal löschen; er liegt ab dann nur noch als Repository-Secret.
+Afterwards delete the private key locally; from then on it exists only as a repository secret.
 
-**Offen: HTTP/2.** Die Vhosts stehen auf `listen 443 ssl;` und sprechen damit nur HTTP/1.1. Die
-Syntax zum Einschalten hängt an der nginx-Version, und die falsche verhindert den Start:
+**Open: HTTP/2.** The vhosts are on `listen 443 ssl;` and therefore only speak HTTP/1.1. The syntax
+for switching it on depends on the nginx version, and the wrong one prevents the start:
 
 ```bash
 ssh robert@186.240.146.22 'nginx -v'
-# 1.25.1 oder neuer → im server-Block: http2 on;
-# älter             → listen 443 ssl http2;  (auch in der [::]-Zeile)
+# 1.25.1 or newer → in the server block: http2 on;
+# older          → listen 443 ssl http2; (in the [::] line as well)
 ```
 
-Nach der Änderung `sudo nginx -t` vor dem Reload.
+After the change, `sudo nginx -t` before the reload.
 
-### Was in GitHub hinterlegt sein muss
+### What has to be stored in GitHub
 
-| Ort          | Name                         | Wert                                                |
-| ------------ | ---------------------------- | --------------------------------------------------- |
-| Variable     | `DEPLOY_HOST`                | `186.240.146.22`                                    |
-| Variable     | `DEPLOY_USER`                | `deploy`                                            |
-| Variable     | `SSH_KNOWN_HOSTS`            | Ausgabe von `ssh-keyscan -t ed25519 186.240.146.22` |
-| Secret       | `SSH_PRIVATE_KEY`            | der private Teil des Schlüssels von oben            |
-| Environments | `dev`, `stage`, `production` | für stage und production Branch-Policy `main`       |
+| Place        | Name                         | Value                                             |
+| ------------ | ---------------------------- | ------------------------------------------------- |
+| Variable     | `DEPLOY_HOST`                | `186.240.146.22`                                  |
+| Variable     | `DEPLOY_USER`                | `deploy`                                          |
+| Variable     | `SSH_KNOWN_HOSTS`            | output of `ssh-keyscan -t ed25519 186.240.146.22` |
+| Secret       | `SSH_PRIVATE_KEY`            | the private half of the key from above            |
+| Environments | `dev`, `stage`, `production` | branch policy `main` for stage and production     |
 
-Dazu der Postausgangsserver für das Kontaktformular. Die Postfächer liegen bei ALL-INKL, nicht
-beim Hoster des VPS:
+Plus the outgoing mail server for the contact form. The mailboxes are with ALL-INKL, not with the
+host of the VPS:
 
-| Ort                     | Name              | Wert                                                        |
-| ----------------------- | ----------------- | ----------------------------------------------------------- |
-| Repo-Variable           | `SMTP_HOST`       | `w021e434.kasserver.com`                                    |
-| Repo-Variable           | `SMTP_PORT`       | `465` (implizites TLS); `587` wäre STARTTLS, Standard `587` |
-| Repo-Variable           | `SMTP_USER`       | `nicht-antworten@shapeandflow.de`                           |
-| Secret                  | `SMTP_PASSWORD`   | Kennwort dieses Postfachs                                   |
-| Env-Variable dev, stage | `SMTP_EMPFAENGER` | `test@shapeandflow.de`                                      |
-| optional                | `SMTP_ABSENDER`   | überschreibt `contact.senderEmail` aus `shared/site.ts`     |
+| Place                   | Name              | Value                                                        |
+| ----------------------- | ----------------- | ------------------------------------------------------------ |
+| Repo variable           | `SMTP_HOST`       | `w021e434.kasserver.com`                                     |
+| Repo variable           | `SMTP_PORT`       | `465` (implicit TLS); `587` would be STARTTLS, default `587` |
+| Repo variable           | `SMTP_USER`       | `nicht-antworten@shapeandflow.de`                            |
+| Secret                  | `SMTP_PASSWORD`   | password of that mailbox                                     |
+| Env variable dev, stage | `SMTP_EMPFAENGER` | `test@shapeandflow.de`                                       |
+| optional                | `SMTP_ABSENDER`   | overrides `contact.senderEmail` from `shared/site.ts`        |
 
-Host, Postfach und Kennwort gelten für alle drei Umgebungen, nur der Empfänger weicht ab:
-Environment-Variablen gehen Repo-Variablen vor, also schreiben dev und stage an
-`test@shapeandflow.de`, während production keinen Eintrag hat und `contact.email` nimmt. Testläufe
-landen so nicht im Studiopostfach.
+Host, mailbox and password apply to all three environments, only the recipient differs: environment
+variables take precedence over repository variables, so dev and stage write to
+`test@shapeandflow.de`, while production has no entry and takes `contact.email`. That way test runs
+do not end up in the studio mailbox.
 
-`SMTP_ABSENDER` und `SMTP_EMPFAENGER` schreibt der Deploy nur, wenn sie gesetzt sind: eine leere
-Zuweisung wäre für Nitro ein Wert und würde die Adressen aus `shared/site.ts` überschreiben statt
-offenlassen.
+`SMTP_ABSENDER` and `SMTP_EMPFAENGER` are only written by the deploy when they are set: to Nitro an
+empty assignment would be a value and would overwrite the addresses from `shared/site.ts` instead of
+leaving them open.
 
-Der Schritt „Write environment file" setzt sie als `NUXT_SMTP_*` in `/opt/landing/<env>/.env.<env>`,
-und `docker-compose.prod.yml` gibt genau diese Namen an den Container weiter. Fehlen sie, läuft der
-Deploy durch und die Website ebenfalls: das Formular antwortet dann mit einem Hinweis auf die
-E-Mail-Adresse, statt Anfragen still zu verschlucken. Das Kennwort steht im Klartext in der
-env-Datei, die deshalb mit `umask 077` geschrieben wird — der Deploy protokolliert nur die
-Schlüsselnamen, nie den Inhalt.
+The step "Write environment file" sets them as `NUXT_SMTP_*` in `/opt/landing/<env>/.env.<env>`, and
+`docker-compose.prod.yml` passes exactly these names on to the container. If they are missing, the
+deploy goes through and so does the website: the form then answers with a pointer to the email
+address instead of silently swallowing enquiries. The password is in plain text in the env file,
+which is why it is written with `umask 077` — the deploy logs the key names only, never the
+contents.
 
-#### Unleash Feature Flags
+#### Unleash feature flags
 
-Unleash läuft unter `https://unleash.shapeandflow.de`. In jedem GitHub Environment müssen
-zusätzlich diese Werte liegen:
+Unleash runs under `https://unleash.shapeandflow.de`. Every GitHub environment additionally needs
+these values:
 
-| Ort          | Name                     | Wert/Scope                                    |
-| ------------ | ------------------------ | --------------------------------------------- |
-| Env-Variable | `UNLEASH_URL`            | `https://unleash.shapeandflow.de`             |
-| Env-Secret   | `UNLEASH_BACKEND_TOKEN`  | Backend-Token für `default` und die Umgebung  |
-| Env-Variable | `UNLEASH_FRONTEND_TOKEN` | Frontend-Token für `default` und die Umgebung |
-| Env-Variable | `UNLEASH_ENVIRONMENT`    | `development` oder `production`               |
-| Env-Variable | `UNLEASH_DEPLOYMENT`     | `dev`, `stage` oder `production`              |
+| Place        | Name                     | Value / scope                                    |
+| ------------ | ------------------------ | ------------------------------------------------ |
+| Env variable | `UNLEASH_URL`            | `https://unleash.shapeandflow.de`                |
+| Env secret   | `UNLEASH_BACKEND_TOKEN`  | backend token for `default` and the environment  |
+| Env variable | `UNLEASH_FRONTEND_TOKEN` | frontend token for `default` and the environment |
+| Env variable | `UNLEASH_ENVIRONMENT`    | `development` or `production`                    |
+| Env variable | `UNLEASH_DEPLOYMENT`     | `dev`, `stage` or `production`                   |
 
-Die kostenfreie OSS-Ausgabe stellt nur die eingebauten Umgebungen `development` und
-`production` bereit. Dev und Stage bleiben trotzdem getrennt, weil sie eigene Tokens und einen
-unterschiedlichen `deployment`-Kontext verwenden:
+The free OSS edition only provides the built-in environments `development` and `production`. Dev and
+stage stay separate nonetheless, because they use tokens of their own and a different `deployment`
+context:
 
-| Deployment   | Unleash-Umgebung | Kontext                 |
-| ------------ | ---------------- | ----------------------- |
-| `dev`        | `development`    | `deployment=dev`        |
-| `stage`      | `development`    | `deployment=stage`      |
-| `production` | `production`     | `deployment=production` |
+| Deployment   | Unleash environment | Context                 |
+| ------------ | ------------------- | ----------------------- |
+| `dev`        | `development`       | `deployment=dev`        |
+| `stage`      | `development`       | `deployment=stage`      |
+| `production` | `production`        | `deployment=production` |
 
-Der Deploy leitet aus `UNLEASH_URL` die Server-URL `/api/` und die Browser-URL `/api/frontend`
-ab. Der Backend-Token wird als Secret behandelt und nicht einmal in der Schlüsselnamen-Diagnose
-ausgegeben. Frontend-Tokens sind absichtlich öffentlich, aber nur lesend sowie auf Projekt und
-Umgebung begrenzt. Bei fehlender Synchronisation oder einem Ausfall bleiben unbekannte Flags
-standardmäßig `false`; die Website und das Kontaktformular starten weiter.
+From `UNLEASH_URL` the deploy derives the server URL `/api/` and the browser URL `/api/frontend`.
+The backend token is treated as a secret and is not even printed in the key-name diagnosis. Frontend
+tokens are deliberately public, but read-only and limited to project and environment. If
+synchronisation is missing or there is an outage, unknown flags stay `false` by default; the website
+and the contact form still start.
 
-Angelegt sein muss außerdem das Flag selbst. Derzeit gibt es eines:
+The flag itself has to exist as well. There is one at the moment:
 
-| Flag                      | Wirkung                                                                                                       |
-| ------------------------- | ------------------------------------------------------------------------------------------------------------- |
-| `enable_booking_redirect` | An: die Website verweist auf die Booking-App. Aus: keine Schaltfläche, kein Hinweis, keine Erwähnung im Text. |
+| Flag                      | Effect                                                                                        |
+| ------------------------- | --------------------------------------------------------------------------------------------- |
+| `enable_booking_redirect` | On: the website points to the booking app. Off: no button, no notice, no mention in the text. |
 
-Fehlt das Flag in einer Umgebung, ist es dort aus — Unleash antwortet für unbekannte Namen mit
-`false`, und der Fallback im Code ist derselbe. Es reicht also, das Flag dort anzulegen, wo es an
-sein soll.
+If the flag is missing in an environment, it is off there — Unleash answers `false` for unknown
+names, and the fallback in the code is the same. So it is enough to create the flag where it is
+meant to be on.
 
-Token-Rotation erfolgt ohne Unterbrechung: zuerst in Unleash einen neuen Token mit demselben
-Projekt-/Umgebungs-Scope anlegen, dann das passende GitHub Environment aktualisieren und nur diese
-Umgebung neu deployen. Nach erfolgreichem Smoke-Test und sichtbarem `seenAt` des neuen Tokens wird
-der alte Token in Unleash gelöscht. Backend-Token niemals in Issue, PR, Shell-Historie oder
-Workflow-Ausgabe kopieren.
+Token rotation happens without an interruption: first create a new token in Unleash with the same
+project and environment scope, then update the matching GitHub environment and redeploy that
+environment only. After a successful smoke test and a visible `seenAt` on the new token, delete the
+old token in Unleash. Never copy backend tokens into an issue, a PR, shell history or workflow
+output.
 
-`SSH_KNOWN_HOSTS` ist absichtlich eine Variable und kein Secret: der Hostkey ist öffentliche
-Information, als Secret wäre er in genau den Logzeilen zu `***` maskiert, die man bei einem
-SSH-Fehler lesen muss.
+`SSH_KNOWN_HOSTS` is deliberately a variable and not a secret: the host key is public information,
+and as a secret it would be masked to `***` in exactly those log lines one has to read when SSH
+fails.
 
-Den Hostkey vor dem Eintragen einmal gegenprüfen. `ssh-keyscan` fragt den Server über genau den
-Netzwerkweg, dem man noch nicht traut; steht dort jemand dazwischen, speichert man dessen
-Schlüssel, und das `StrictHostKeyChecking yes` im Deploy bestätigt danach nur noch diese
-Fälschung. Vergleichen mit dem Fingerabdruck aus der VPS-Konsole des Providers (dort
-`ssh-keygen -lf /etc/ssh/ssh_host_ed25519_key.pub` ausführen):
+Check the host key once before entering it. `ssh-keyscan` asks the server over precisely the network
+path one does not trust yet; if somebody sits in between, you store their key, and the
+`StrictHostKeyChecking yes` in the deploy then only confirms that forgery. Compare it with the
+fingerprint from the provider's VPS console (run `ssh-keygen -lf /etc/ssh/ssh_host_ed25519_key.pub`
+there):
 
 ```bash
 ssh-keyscan -t ed25519 186.240.146.22 | ssh-keygen -lf -
 ```
 
-Nur bei übereinstimmendem Fingerabdruck die vollständige `ssh-keyscan`-Zeile als
-`SSH_KNOWN_HOSTS` speichern. Wechselt der Schlüssel später (Neuinstallation, Serverumzug), gilt
-derselbe Ablauf — nicht blind die neue Ausgabe übernehmen.
+Only store the complete `ssh-keyscan` line as `SSH_KNOWN_HOSTS` when the fingerprint matches. If the
+key changes later (reinstallation, server move), the same procedure applies — do not adopt the new
+output blindly.
 
-Zusätzlich muss unter _Settings → Actions → General_ erlaubt sein, dass Actions Pull Requests
-anlegen — sonst kann release-please seine Release-PR nicht öffnen.
+On top of that, _Settings → Actions → General_ has to allow Actions to create pull requests —
+otherwise release-please cannot open its release PR.
 
-## Nach dem Ausrollen prüfen
+## Checking after a rollout
 
-Der Deploy prüft sich selbst auf dem Server (`/`, `/sitemap.xml`, `/llms.txt`, `/robots.txt` und
-die Indexierbarkeit passend zur Umgebung) und schlägt fehl, wenn etwas davon nicht stimmt. Von
-außen zusätzlich:
+The deploy checks itself on the server (`/`, `/sitemap.xml`, `/llms.txt`, `/robots.txt` and
+indexability appropriate to the environment) and fails when any of that is off. From the outside, in
+addition:
 
 ```bash
-curl -sI https://shapeandflow.de/ | head -1                     # 200
-curl -sI https://www.shapeandflow.de/ | head -1                 # 301
-curl -s  https://shapeandflow.de/robots.txt                     # Sitemap-Zeile, kein Disallow: /
-curl -s  https://shapeandflow.de/sitemap.xml | grep -o "<loc>" | wc -l   # 11
-curl -sI https://shapeandflow.de/jeveauxeffect | head -1        # 200
+curl -sI https://shapeandflow.de/ | head -1                             # 200
+curl -sI https://www.shapeandflow.de/ | head -1                         # 301
+curl -s https://shapeandflow.de/robots.txt                              # sitemap line, no Disallow: /
+curl -s https://shapeandflow.de/sitemap.xml | grep -o "<loc>" | wc -l   # 11
+curl -sI https://shapeandflow.de/jeveauxeffect | head -1                # 200
 
-curl -sI https://stage.shapeandflow.de/ | head -1               # 401 ohne Zugangsdaten
-curl -s -u robert:… https://stage.shapeandflow.de/robots.txt    # Disallow: /
+curl -sI https://stage.shapeandflow.de/ | head -1                       # 401 without credentials
+curl -s -u robert:… https://stage.shapeandflow.de/robots.txt            # Disallow: /
 ```
 
-Impressum und Datenschutz stehen absichtlich nicht in der Sitemap: sie sind auf `noindex`
-gesetzt, bleiben aber verlinkt und erreichbar.
+Impressum and Datenschutz are deliberately absent from the sitemap: they are set to `noindex`, but
+stay linked and reachable.
 
-## Wenn etwas nicht läuft
+## When something does not work
 
 ```bash
 ssh robert@186.240.146.22
@@ -312,11 +307,11 @@ sudo nginx -t
 sudo tail -50 /var/log/nginx/landing_production.error.log
 ```
 
-- **502** heißt, der Container läuft nicht oder hört auf einem anderen Port als im `upstream`
-  steht. `docker ps --filter name=sf-landing` zeigt, was tatsächlich läuft.
-- **401 auf Produktion** wäre ein versehentlich kopierter `auth_basic`-Block.
-- **Deploy hängt bei `up -d --wait`** heißt, der HEALTHCHECK wird nicht grün. Die Logs des
-  Containers stehen im fehlgeschlagenen Actions-Lauf, der sie bei Fehlschlag mit ausgibt.
-- **Zertifikat abgelaufen**: `sudo certbot certificates` zeigt die Restlaufzeiten,
-  `sudo certbot renew --dry-run` prüft, ob die Verlängerung funktioniert. Häufigste Ursache ist
-  eine `/.well-known/acme-challenge/`-Location, die hinter Basic Auth gerutscht ist.
+- **502** means the container is not running, or is listening on a port other than the one in the
+  `upstream`. `docker ps --filter name=sf-landing` shows what is actually running.
+- **401 on production** would be an `auth_basic` block copied over by accident.
+- **Deploy hangs at `up -d --wait`** means the HEALTHCHECK is not going green. The container's logs
+  are in the failed Actions run, which prints them on failure.
+- **Certificate expired**: `sudo certbot certificates` shows the remaining lifetimes,
+  `sudo certbot renew --dry-run` checks whether renewal works. The most common cause is a
+  `/.well-known/acme-challenge/` location that has slipped behind basic auth.
